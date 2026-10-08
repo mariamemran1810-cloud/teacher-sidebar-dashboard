@@ -3,340 +3,21 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>كراسة تحضير الدروس</title>
+    <title>القائمة الجانبية الثابتة</title>
     <style>
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
         }
-        
+
         body {
             font-family: 'Segoe UI', Tahoma, Arial, sans-serif;
-            background: #f5f5f5;
-            padding: 20px;
-            line-height: 1.8;
+            background: #f0f2f5;
+            min-height: 100vh;
         }
-        
-        .page {
-            max-width: 210mm;
-            margin: 0 auto;
-            background: white;
-            padding: 40px;
-            box-shadow: 0 0 10px rgba(0,0,0,0.1);
-            margin-bottom: 20px;
-            page-break-after: always;
-        }
-        
-        .page:last-child {
-            page-break-after: avoid;
-        }
-        
-        h1 {
-            text-align: center;
-            color: #1a5276;
-            border-bottom: 3px solid #1a5276;
-            padding-bottom: 15px;
-            margin-bottom: 25px;
-            font-size: 28px;
-        }
-        
-        h2 {
-            color: #2874a6;
-            margin-top: 25px;
-            margin-bottom: 15px;
-            padding: 10px 15px;
-            background: #eaf2f8;
-            border-right: 4px solid #2874a6;
-            font-size: 20px;
-        }
-        
-        h3 {
-            color: #1a5276;
-            margin-top: 20px;
-            margin-bottom: 10px;
-            font-size: 17px;
-        }
-        
-        .section {
-            margin-bottom: 20px;
-            padding: 15px;
-            border: 1px solid #ddd;
-            border-radius: 8px;
-            background: #fafafa;
-        }
-        
-        .field {
-            margin-bottom: 12px;
-        }
-        
-        .field label {
-            display: block;
-            font-weight: bold;
-            color: #333;
-            margin-bottom: 5px;
-        }
-        
-        .field input, .field textarea, .field select {
-            width: 100%;
-            padding: 10px;
-            border: 1px solid #ccc;
-            border-radius: 5px;
-            font-size: 14px;
-            font-family: inherit;
-        }
-        
-        .field textarea {
-            min-height: 80px;
-            resize: vertical;
-        }
-        
-        .grid-2 {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 15px;
-        }
-        
-        .grid-3 {
-            display: grid;
-            grid-template-columns: 1fr 1fr 1fr;
-            gap: 15px;
-        }
-        
-        .objective-box {
-            padding: 15px;
-            border-radius: 8px;
-            margin-bottom: 15px;
-        }
-        
-        .cognitive {
-            background: #d4efdf;
-            border-right: 4px solid #27ae60;
-        }
-        
-        .psychomotor {
-            background: #d6eaf8;
-            border-right: 4px solid #2980b9;
-        }
-        
-        .affective {
-            background: #fadbd8;
-            border-right: 4px solid #e74c3c;
-        }
-        
-        .objective-box h4 {
-            margin-bottom: 8px;
-            font-size: 16px;
-        }
-        
-        .cognitive h4 { color: #1e8449; }
-        .psychomotor h4 { color: #2471a3; }
-        .affective h4 { color: #c0392b; }
-        
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin: 15px 0;
-        }
-        
-        th, td {
-            border: 1px solid #bbb;
-            padding: 10px;
-            text-align: center;
-        }
-        
-        th {
-            background: #2874a6;
-            color: white;
-            font-weight: bold;
-        }
-        
-        tr:nth-child(even) {
-            background: #f2f2f2;
-        }
-        
-        .lesson-steps {
-            counter-reset: step;
-        }
-        
-        .step {
-            position: relative;
-            padding: 15px 15px 15px 60px;
-            margin-bottom: 12px;
-            background: #f8f9fa;
-            border-radius: 8px;
-            border: 1px solid #e0e0e0;
-        }
-        
-        .step::before {
-            counter-increment: step;
-            content: counter(step);
-            position: absolute;
-            right: 15px;
-            top: 15px;
-            width: 35px;
-            height: 35px;
-            background: #2874a6;
-            color: white;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: bold;
-            font-size: 16px;
-        }
-        
-        .step-time {
-            position: absolute;
-            left: 15px;
-            top: 15px;
-            background: #e74c3c;
-            color: white;
-            padding: 5px 10px;
-            border-radius: 15px;
-            font-size: 12px;
-        }
-        
-        .support-section {
-            background: #fef9e7;
-            border: 2px solid #f39c12;
-            border-radius: 8px;
-            padding: 15px;
-            margin-bottom: 15px;
-        }
-        
-        .support-section h4 {
-            color: #d68910;
-            margin-bottom: 10px;
-        }
-        
-        .remedial-section {
-            background: #fdedec;
-            border: 2px solid #e74c3c;
-            border-radius: 8px;
-            padding: 15px;
-            margin-bottom: 15px;
-        }
-        
-        .remedial-section h4 {
-            color: #c0392b;
-            margin-bottom: 10px;
-        }
-        
-        .enrichment-section {
-            background: #e8f8f5;
-            border: 2px solid #1abc9c;
-            border-radius: 8px;
-            padding: 15px;
-            margin-bottom: 15px;
-        }
-        
-        .enrichment-section h4 {
-            color: #148f77;
-            margin-bottom: 10px;
-        }
-        
-        .notes-area {
-            min-height: 200px;
-            border: 2px dashed #999;
-            border-radius: 8px;
-            padding: 15px;
-            background: #fffef0;
-        }
-        
-        .header-info {
-            text-align: center;
-            margin-bottom: 20px;
-            padding-bottom: 15px;
-            border-bottom: 2px solid #eee;
-        }
-        
-        .title-section h1 {
-            border: none;
-            margin: 0;
-            padding: 0;
-        }
-        
-        .title-section p {
-            color: #666;
-            margin-top: 5px;
-        }
-        
-        .cv-section {
-            margin-bottom: 20px;
-        }
-        
-        .cv-section h3 {
-            color: #1a5276;
-            border-bottom: 1px solid #ddd;
-            padding-bottom: 5px;
-        }
-        
-        .cv-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 10px;
-        }
-        
-        .cv-item {
-            padding: 8px;
-            background: #f8f9fa;
-            border-radius: 5px;
-        }
-        
-        .cv-item strong {
-            color: #2874a6;
-        }
-        
-        .checkbox-group {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 10px;
-            margin-top: 10px;
-        }
-        
-        .checkbox-item {
-            display: flex;
-            align-items: center;
-            gap: 5px;
-        }
-        
-        .checkbox-item input[type="checkbox"] {
-            width: 18px;
-            height: 18px;
-        }
-        
-        .signature-area {
-            display: flex;
-            justify-content: space-between;
-            margin-top: 40px;
-            padding-top: 20px;
-            border-top: 2px solid #ddd;
-        }
-        
-        .signature-box {
-            text-align: center;
-        }
-        
-        .signature-box .line {
-            width: 200px;
-            border-bottom: 1px solid #333;
-            margin-bottom: 5px;
-            height: 40px;
-        }
-        
-        @media print {
-            body {
-                background: white;
-                padding: 0;
-            }
-            .page {
-                box-shadow: none;
-                margin: 0;
-                padding: 20px;
-            }
-        }
-        
+
+        /* ===== القائمة الجانبية ===== */
         .sidebar {
             position: fixed;
             right: 0;
@@ -347,779 +28,2129 @@
             padding: 20px 0;
             overflow-y: auto;
             z-index: 1000;
-            box-shadow: -2px 0 10px rgba(0,0,0,0.2);
+            box-shadow: -2px 0 15px rgba(0,0,0,0.3);
+            transition: transform 0.3s ease;
         }
-        
+
+        /* ===== رأس القائمة ===== */
         .sidebar-header {
             text-align: center;
-            padding: 20px;
+            padding: 25px 20px;
             border-bottom: 1px solid rgba(255,255,255,0.1);
-            margin-bottom: 10px;
+            margin-bottom: 15px;
         }
-        
+
+        .sidebar-header .logo {
+            width: 70px;
+            height: 70px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 50%;
+            margin: 0 auto 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 30px;
+            border: 2px solid rgba(255,255,255,0.3);
+        }
+
         .sidebar-header h2 {
             color: white;
             font-size: 20px;
-            margin: 0;
-            padding: 0;
-            background: none;
-            border: none;
+            margin-bottom: 5px;
         }
-        
+
         .sidebar-header p {
             color: #85c1e9;
-            font-size: 12px;
-            margin-top: 5px;
+            font-size: 13px;
         }
-        
+
+        /* ===== قائمة العناصر ===== */
         .sidebar-menu {
             list-style: none;
-            padding: 0;
+            padding: 0 10px;
         }
-        
+
         .sidebar-menu li {
-            margin: 2px 10px;
+            margin: 3px 0;
         }
-        
+
         .sidebar-menu a {
             display: flex;
             align-items: center;
-            gap: 12px;
-            padding: 12px 15px;
+            gap: 15px;
+            padding: 14px 18px;
             color: #d4e6f1;
             text-decoration: none;
-            border-radius: 8px;
-            transition: all 0.3s;
-            font-size: 14px;
+            border-radius: 10px;
+            transition: all 0.3s ease;
+            font-size: 15px;
+            position: relative;
+            overflow: hidden;
         }
-        
+
+        /* تأثير التحويم */
         .sidebar-menu a:hover {
-            background: rgba(255,255,255,0.1);
+            background: rgba(255,255,255,0.15);
             color: white;
-            transform: translateX(-5px);
+            transform: translateX(-8px);
+            padding-right: 25px;
         }
-        
+
+        /* العنصر النشط */
         .sidebar-menu a.active {
-            background: rgba(255,255,255,0.2);
+            background: rgba(255,255,255,0.25);
             color: white;
             font-weight: bold;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
         }
-        
+
+        .sidebar-menu a.active::before {
+            content: '';
+            position: absolute;
+            right: 0;
+            top: 0;
+            width: 4px;
+            height: 100%;
+            background: #f39c12;
+            border-radius: 4px 0 0 4px;
+        }
+
+        /* الأيقونات */
         .sidebar-menu .icon {
-            font-size: 18px;
-            width: 24px;
+            font-size: 20px;
+            width: 28px;
             text-align: center;
+            transition: transform 0.3s ease;
         }
-        
+
+        .sidebar-menu a:hover .icon {
+            transform: scale(1.2) rotate(5deg);
+        }
+
+        /* ===== فاصل الأقسام ===== */
+        .menu-divider {
+            height: 1px;
+            background: rgba(255,255,255,0.1);
+            margin: 15px 20px;
+        }
+
+        .menu-title {
+            color: #85c1e9;
+            font-size: 11px;
+            padding: 10px 20px 5px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        /* ===== المحتوى الرئيسي ===== */
         .main-content {
             margin-right: 280px;
-            padding: 20px;
+            padding: 40px;
+            min-height: 100vh;
         }
-        
-        .tab-buttons {
+
+        .content-card {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+            margin-bottom: 20px;
+        }
+
+        .content-card h1 {
+            color: #1a5276;
+            margin-bottom: 15px;
+        }
+
+        .content-card p {
+            color: #666;
+            line-height: 1.8;
+        }
+
+        /* ===== زر القائمة للجوال ===== */
+        .menu-toggle {
             display: none;
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: #1a5276;
+            color: white;
+            border: none;
+            padding: 12px 18px;
+            border-radius: 8px;
+            cursor: pointer;
+            z-index: 1001;
+            font-size: 16px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
         }
-        
-        .page-content {
-            display: none;
+
+        /* ===== تأثير الظهور ===== */
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateX(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
         }
-        
-        .page-content.active {
-            display: block;
+
+        .sidebar-menu li {
+            animation: slideIn 0.4s ease forwards;
         }
-        
-        .progress-tracker {
+
+        .sidebar-menu li:nth-child(1) { animation-delay: 0.05s; }
+        .sidebar-menu li:nth-child(2) { animation-delay: 0.1s; }
+        .sidebar-menu li:nth-child(3) { animation-delay: 0.15s; }
+        .sidebar-menu li:nth-child(4) { animation-delay: 0.2s; }
+        .sidebar-menu li:nth-child(5) { animation-delay: 0.25s; }
+        .sidebar-menu li:nth-child(6) { animation-delay: 0.3s; }
+        .sidebar-menu li:nth-child(7) { animation-delay: 0.35s; }
+        .sidebar-menu li:nth-child(8) { animation-delay: 0.4s; }
+        .sidebar-menu li:nth-child(9) { animation-delay: 0.45s; }
+        .sidebar-menu li:nth-child(10) { animation-delay: 0.5s; }
+        .sidebar-menu li:nth-child(11) { animation-delay: 0.55s; }
+
+        /* ===== شريط التمرير المخصص ===== */
+        .sidebar::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .sidebar::-webkit-scrollbar-track {
+            background: rgba(255,255,255,0.05);
+        }
+
+        .sidebar::-webkit-scrollbar-thumb {
+            background: rgba(255,255,255,0.2);
+            border-radius: 3px;
+        }
+
+        .sidebar::-webkit-scrollbar-thumb:hover {
+            background: rgba(255,255,255,0.3);
+        }
+
+        /* ===== التجاوب مع الجوال ===== */
+        @media (max-width: 768px) {
+            .sidebar {
+                transform: translateX(100%);
+            }
+
+            .sidebar.open {
+                transform: translateX(0);
+            }
+
+            .main-content {
+                margin-right: 0;
+                padding: 80px 20px 20px;
+            }
+
+            .menu-toggle {
+                display: block;
+            }
+        }
+
+        /* ===== تأثير النبض للأيقونة النشطة ===== */
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+
+        .sidebar-menu a.active .icon {
+            animation: pulse 2s infinite;
+        }
+
+        /* ===== شارة الإشعارات ===== */
+        .badge {
+            background: #e74c3c;
+            color: white;
+            font-size: 10px;
+            padding: 2px 8px;
+            border-radius: 10px;
+            margin-right: auto;
+        }
+
+        /* ===== تأثير الموجة عند النقر ===== */
+        .ripple {
+            position: absolute;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.3);
+            transform: scale(0);
+            animation: ripple 0.6s ease-out;
+            pointer-events: none;
+        }
+
+        @keyframes ripple {
+            to {
+                transform: scale(4);
+                opacity: 0;
+            }
+        }
+
+        /* ===== صندوق البحث ===== */
+        .search-box {
+            padding: 10px 15px;
+            margin: 0 15px 15px;
+            position: relative;
+        }
+
+        .search-box input {
+            width: 100%;
+            padding: 12px 15px 12px 45px;
+            border: none;
+            border-radius: 25px;
+            background: rgba(255,255,255,0.1);
+            color: white;
+            font-size: 14px;
+            transition: all 0.3s ease;
+        }
+
+        .search-box input::placeholder {
+            color: rgba(255,255,255,0.5);
+        }
+
+        .search-box input:focus {
+            outline: none;
+            background: rgba(255,255,255,0.2);
+            box-shadow: 0 0 15px rgba(255,255,255,0.1);
+        }
+
+        .search-box .search-icon {
+            position: absolute;
+            right: 30px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: rgba(255,255,255,0.5);
+            font-size: 16px;
+        }
+
+        /* ===== زر الوضع الليلي ===== */
+        .theme-toggle {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: #1a5276;
+            color: white;
+            border: none;
+            cursor: pointer;
+            font-size: 20px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+            transition: all 0.3s ease;
+            z-index: 1002;
+        }
+
+        .theme-toggle:hover {
+            transform: scale(1.1) rotate(15deg);
+        }
+
+        /* ===== الوضع الليلي ===== */
+        body.dark-mode {
+            background: #1a1a2e;
+        }
+
+        body.dark-mode .content-card {
+            background: #16213e;
+            color: #e4e4e4;
+        }
+
+        body.dark-mode .content-card h1,
+        body.dark-mode .content-card h2 {
+            color: #f39c12;
+        }
+
+        body.dark-mode .content-card p {
+            color: #b0b0b0;
+        }
+
+        /* ===== الإشعارات المنبثقة ===== */
+        .notification {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%) translateY(-100px);
+            background: white;
+            padding: 15px 25px;
+            border-radius: 10px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.2);
+            z-index: 2000;
+            transition: transform 0.4s ease;
             display: flex;
             align-items: center;
             gap: 10px;
-            margin: 10px 0;
         }
-        
-        .progress-tracker input[type="text"] {
+
+        .notification.show {
+            transform: translateX(-50%) translateY(0);
+        }
+
+        .notification.success {
+            border-right: 4px solid #27ae60;
+        }
+
+        .notification-icon {
+            font-size: 24px;
+        }
+
+        .notification-text {
+            color: #333;
+            font-size: 14px;
+        }
+
+        /* ===== إحصائيات سريعة ===== */
+        .stats-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .stat-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 25px;
+            border-radius: 15px;
+            text-align: center;
+            transition: transform 0.3s ease;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .stat-card .stat-icon {
+            font-size: 35px;
+            margin-bottom: 10px;
+        }
+
+        .stat-card .stat-number {
+            font-size: 28px;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .stat-card .stat-label {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+
+        .stat-card:nth-child(2) {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        }
+
+        .stat-card:nth-child(3) {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+        }
+
+        .stat-card:nth-child(4) {
+            background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
+        }
+
+        /* ===== شريط التقدم ===== */
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: #e0e0e0;
+            border-radius: 4px;
+            overflow: hidden;
+            margin-top: 10px;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #2874a6, #1a5276);
+            border-radius: 4px;
+            transition: width 1s ease;
+        }
+
+        /* ===== تلميح الأدوات ===== */
+        .tooltip {
+            position: relative;
+        }
+
+        .tooltip::after {
+            content: attr(data-tooltip);
+            position: absolute;
+            right: 100%;
+            top: 50%;
+            transform: translateY(-50%);
+            background: #333;
+            color: white;
+            padding: 8px 12px;
+            border-radius: 6px;
+            font-size: 12px;
+            white-space: nowrap;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+            margin-right: 10px;
+        }
+
+        .tooltip:hover::after {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        /* ===== قائمة منسدلة ===== */
+        .dropdown {
+            position: relative;
+        }
+
+        .dropdown-menu {
+            position: absolute;
+            right: 100%;
+            top: 0;
+            background: white;
+            min-width: 180px;
+            border-radius: 10px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.2);
+            opacity: 0;
+            visibility: hidden;
+            transform: translateX(10px);
+            transition: all 0.3s ease;
+            z-index: 100;
+        }
+
+        .dropdown:hover .dropdown-menu {
+            opacity: 1;
+            visibility: visible;
+            transform: translateX(0);
+        }
+
+        .dropdown-menu a {
+            display: block;
+            padding: 12px 15px;
+            color: #333;
+            text-decoration: none;
+            transition: background 0.2s;
+        }
+
+        .dropdown-menu a:hover {
+            background: #f0f0f0;
+        }
+
+        /* ===== تأثير التحميل ===== */
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(255,255,255,0.9);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 3000;
+            transition: opacity 0.5s ease;
+        }
+
+        .loading-overlay.hidden {
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .spinner {
+            width: 50px;
+            height: 50px;
+            border: 4px solid #e0e0e0;
+            border-top-color: #2874a6;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* ===== بطاقة الملف الشخصي ===== */
+        .profile-card {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            padding: 15px;
+            background: rgba(255,255,255,0.05);
+            border-radius: 10px;
+            margin: 15px;
+        }
+
+        .profile-avatar {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+        }
+
+        .profile-info h4 {
+            color: white;
+            font-size: 14px;
+            margin-bottom: 3px;
+        }
+
+        .profile-info p {
+            color: #85c1e9;
+            font-size: 12px;
+        }
+
+        .profile-status {
+            width: 10px;
+            height: 10px;
+            background: #27ae60;
+            border-radius: 50%;
+            margin-right: auto;
+        }
+
+        /* ===== قائمة المهام ===== */
+        .todo-list {
+            padding: 20px;
+        }
+
+        .todo-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 15px;
+            background: white;
+            border-radius: 10px;
+            margin-bottom: 10px;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .todo-item:hover {
+            transform: translateX(-5px);
+            box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+        }
+
+        .todo-item.completed {
+            opacity: 0.6;
+        }
+
+        .todo-item.completed .todo-text {
+            text-decoration: line-through;
+        }
+
+        .todo-checkbox {
+            width: 22px;
+            height: 22px;
+            border: 2px solid #2874a6;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+        }
+
+        .todo-checkbox.checked {
+            background: #27ae60;
+            border-color: #27ae60;
+            color: white;
+        }
+
+        .todo-text {
             flex: 1;
+            color: #333;
+            font-size: 14px;
         }
-        
-        .progress-tracker select {
-            width: 120px;
+
+        .todo-priority {
+            padding: 3px 10px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: bold;
         }
-        
-        .grade-input {
-            width: 60px !important;
+
+        .priority-high {
+            background: #ffebee;
+            color: #c62828;
+        }
+
+        .priority-medium {
+            background: #fff3e0;
+            color: #ef6c00;
+        }
+
+        .priority-low {
+            background: #e8f5e9;
+            color: #2e7d32;
+        }
+
+        /* ===== التقويم ===== */
+        .calendar-widget {
+            padding: 20px;
+        }
+
+        .calendar-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .calendar-nav {
+            background: #2874a6;
+            color: white;
+            border: none;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        .calendar-month {
+            color: #1a5276;
+            font-weight: bold;
+            font-size: 16px;
+        }
+
+        .calendar-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 5px;
             text-align: center;
         }
-        
-        .strategy-tag {
-            display: inline-block;
-            padding: 5px 12px;
-            margin: 3px;
-            background: #e8f4f8;
-            border: 1px solid #2874a6;
-            border-radius: 15px;
+
+        .calendar-day-name {
+            color: #666;
+            font-size: 11px;
+            padding: 8px 0;
+            font-weight: bold;
+        }
+
+        .calendar-day {
+            padding: 10px 5px;
+            border-radius: 8px;
             font-size: 13px;
+            color: #333;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .calendar-day:hover {
+            background: #eaf2f8;
+        }
+
+        .calendar-day.today {
+            background: #2874a6;
+            color: white;
+            font-weight: bold;
+        }
+
+        .calendar-day.has-event {
+            position: relative;
+        }
+
+        .calendar-day.has-event::after {
+            content: '';
+            position: absolute;
+            bottom: 3px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 5px;
+            height: 5px;
+            background: #e74c3c;
+            border-radius: 50%;
+        }
+
+        .calendar-day.other-month {
+            color: #ccc;
+        }
+
+        /* ===== الرسائل ===== */
+        .messages-widget {
+            padding: 20px;
+        }
+
+        .message-item {
+            display: flex;
+            gap: 12px;
+            padding: 12px;
+            border-radius: 10px;
+            margin-bottom: 10px;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .message-item:hover {
+            background: #f5f5f5;
+        }
+
+        .message-item.unread {
+            background: #eaf2f8;
+            border-right: 3px solid #2874a6;
+        }
+
+        .message-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            flex-shrink: 0;
+        }
+
+        .message-content {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .message-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 3px;
+        }
+
+        .message-sender {
+            font-weight: bold;
+            color: #333;
+            font-size: 13px;
+        }
+
+        .message-time {
+            color: #999;
+            font-size: 11px;
+        }
+
+        .message-preview {
+            color: #666;
+            font-size: 12px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .unread-badge {
+            background: #e74c3c;
+            color: white;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 11px;
+            margin-right: auto;
+        }
+
+        /* ===== الإحصائيات الدائرية ===== */
+        .circular-progress {
+            position: relative;
+            width: 120px;
+            height: 120px;
+            margin: 20px auto;
+        }
+
+        .circular-progress svg {
+            transform: rotate(-90deg);
+        }
+
+        .circular-progress circle {
+            fill: none;
+            stroke-width: 8;
+        }
+
+        .circular-progress .bg {
+            stroke: #e0e0e0;
+        }
+
+        .circular-progress .progress {
+            stroke: #2874a6;
+            stroke-linecap: round;
+            transition: stroke-dashoffset 1s ease;
+        }
+
+        .circular-progress .percentage {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 24px;
+            font-weight: bold;
             color: #1a5276;
         }
-        
-        .activity-box {
-            background: #f0f8ff;
-            border: 1px solid #b8daff;
-            border-radius: 8px;
-            padding: 12px;
+
+        /* ===== الرسم البياني الشريطي ===== */
+        .chart-container {
+            padding: 20px;
+        }
+
+        .bar-chart {
+            display: flex;
+            align-items: flex-end;
+            justify-content: space-around;
+            height: 150px;
+            padding: 20px 0;
+            border-bottom: 2px solid #e0e0e0;
+        }
+
+        .bar-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .bar {
+            width: 30px;
+            background: linear-gradient(180deg, #2874a6, #1a5276);
+            border-radius: 5px 5px 0 0;
+            transition: height 1s ease;
+        }
+
+        .bar-label {
+            font-size: 11px;
+            color: #666;
+        }
+
+        .bar-value {
+            font-size: 12px;
+            font-weight: bold;
+            color: #1a5276;
+        }
+
+        /* ===== الأحداث ===== */
+        .event-card {
+            background: white;
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 10px;
+            border-right: 4px solid #2874a6;
+            transition: all 0.3s ease;
+        }
+
+        .event-card:hover {
+            transform: translateX(-5px);
+            box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+        }
+
+        .event-time {
+            color: #2874a6;
+            font-size: 12px;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .event-title {
+            color: #333;
+            font-size: 14px;
+            margin-bottom: 5px;
+        }
+
+        .event-location {
+            color: #666;
+            font-size: 12px;
+        }
+
+        /* ===== السجل النشاطي ===== */
+        .activity-timeline {
+            padding: 20px;
+        }
+
+        .timeline-item {
+            display: flex;
+            gap: 15px;
+            padding-bottom: 20px;
+            position: relative;
+        }
+
+        .timeline-item:not(:last-child)::before {
+            content: '';
+            position: absolute;
+            right: 19px;
+            top: 40px;
+            width: 2px;
+            height: calc(100% - 20px);
+            background: #e0e0e0;
+        }
+
+        .timeline-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+            flex-shrink: 0;
+            z-index: 1;
+        }
+
+        .timeline-content {
+            flex: 1;
+        }
+
+        .timeline-title {
+            color: #333;
+            font-size: 14px;
+            margin-bottom: 3px;
+        }
+
+        .timeline-time {
+            color: #999;
+            font-size: 11px;
+        }
+
+        /* ===== التفاصيل القابلة للطي ===== */
+        .collapsible {
             margin-bottom: 10px;
         }
-        
-        .assessment-box {
-            background: #fff8e1;
-            border: 1px solid #ffc107;
+
+        .collapsible-header {
+            background: #f8f9fa;
+            padding: 15px;
             border-radius: 8px;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: all 0.3s ease;
+        }
+
+        .collapsible-header:hover {
+            background: #eaf2f8;
+        }
+
+        .collapsible-header h4 {
+            color: #1a5276;
+            font-size: 14px;
+        }
+
+        .collapsible-header .toggle-icon {
+            transition: transform 0.3s ease;
+        }
+
+        .collapsible-header.active .toggle-icon {
+            transform: rotate(180deg);
+        }
+
+        .collapsible-content {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease;
+            padding: 0 15px;
+        }
+
+        .collapsible-content.active {
+            max-height: 500px;
+            padding: 15px;
+        }
+
+        .collapsible-content p {
+            color: #666;
+            font-size: 13px;
+            line-height: 1.8;
+        }
+
+        /* ===== نظام التبويبات ===== */
+        .tabs {
+            display: flex;
+            gap: 5px;
+            margin-bottom: 20px;
+            border-bottom: 2px solid #e0e0e0;
+        }
+
+        .tab {
+            padding: 12px 20px;
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 14px;
+            color: #666;
+            position: relative;
+            transition: all 0.3s ease;
+        }
+
+        .tab:hover {
+            color: #2874a6;
+        }
+
+        .tab.active {
+            color: #2874a6;
+            font-weight: bold;
+        }
+
+        .tab.active::after {
+            content: '';
+            position: absolute;
+            bottom: -2px;
+            right: 0;
+            left: 0;
+            height: 3px;
+            background: #2874a6;
+            border-radius: 3px 3px 0 0;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+            animation: fadeIn 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* ===== نافذة منبثقة ===== */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 2000;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .modal-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .modal {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            max-width: 500px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+            transform: scale(0.8);
+            transition: transform 0.3s ease;
+        }
+
+        .modal-overlay.active .modal {
+            transform: scale(1);
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .modal-header h3 {
+            color: #1a5276;
+            font-size: 18px;
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 24px;
+            color: #999;
+            cursor: pointer;
+            transition: color 0.3s ease;
+        }
+
+        .modal-close:hover {
+            color: #333;
+        }
+
+        .modal-body {
+            color: #666;
+            line-height: 1.8;
+        }
+
+        .modal-footer {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary {
+            background: #2874a6;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #1a5276;
+        }
+
+        .btn-secondary {
+            background: #e0e0e0;
+            color: #333;
+        }
+
+        .btn-secondary:hover {
+            background: #ccc;
+        }
+
+        /* ===== نموذج الإدخال ===== */
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            color: #333;
+            font-size: 13px;
+            font-weight: bold;
+        }
+
+        .form-group input,
+        .form-group textarea,
+        .form-group select {
+            width: 100%;
             padding: 12px;
-            margin-bottom: 10px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: all 0.3s ease;
+        }
+
+        .form-group input:focus,
+        .form-group textarea:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: #2874a6;
+            box-shadow: 0 0 0 3px rgba(40, 116, 166, 0.1);
+        }
+
+        /* ===== الترقيم ===== */
+        .pagination {
+            display: flex;
+            justify-content: center;
+            gap: 5px;
+            margin-top: 20px;
+        }
+
+        .pagination button {
+            width: 35px;
+            height: 35px;
+            border: 1px solid #ddd;
+            background: white;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .pagination button:hover {
+            background: #eaf2f8;
+        }
+
+        .pagination button.active {
+            background: #2874a6;
+            color: white;
+            border-color: #2874a6;
+        }
+
+        /* ===== شارة التقدم ===== */
+        .achievement-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 15px;
+            background: linear-gradient(135deg, #f39c12, #e67e22);
+            color: white;
+            border-radius: 20px;
+            font-size: 12px;
+            margin: 5px;
+        }
+
+        .achievement-badge .trophy {
+            font-size: 16px;
+        }
+
+        /* ===== بطاقة الرادار ===== */
+        .radar-stats {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            padding: 20px;
+        }
+
+        .radar-item {
+            text-align: center;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 10px;
+        }
+
+        .radar-value {
+            font-size: 24px;
+            font-weight: bold;
+            color: #1a5276;
+        }
+
+        .radar-label {
+            font-size: 12px;
+            color: #666;
+            margin-top: 5px;
+        }
+
+        /* ===== خط الزمن ===== */
+        .timeline-container {
+            padding: 20px;
+            position: relative;
+        }
+
+        .timeline-container::before {
+            content: '';
+            position: absolute;
+            right: 30px;
+            top: 0;
+            bottom: 0;
+            width: 3px;
+            background: linear-gradient(180deg, #2874a6, #1a5276);
+        }
+
+        .timeline-entry {
+            position: relative;
+            padding: 15px 15px 15px 60px;
+            margin-bottom: 20px;
+        }
+
+        .timeline-entry::before {
+            content: '';
+            position: absolute;
+            right: 22px;
+            top: 20px;
+            width: 18px;
+            height: 18px;
+            background: white;
+            border: 3px solid #2874a6;
+            border-radius: 50%;
+        }
+
+        .timeline-entry-content {
+            background: white;
+            padding: 15px;
+            border-radius: 10px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .timeline-entry-title {
+            color: #1a5276;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .timeline-entry-desc {
+            color: #666;
+            font-size: 13px;
         }
     </style>
 </head>
 <body>
 
+<!-- زر القائمة للجوال -->
+<button class="menu-toggle" onclick="toggleSidebar()">☰</button>
+
+<!-- زر الوضع الليلي -->
+<button class="theme-toggle" onclick="toggleDarkMode()">🌙</button>
+
+<!-- الإشعارات -->
+<div class="notification" id="notification">
+    <span class="notification-icon">✅</span>
+    <span class="notification-text">تم الحفظ بنجاح!</span>
+</div>
+
+<!-- شاشة التحميل -->
+<div class="loading-overlay" id="loading">
+    <div class="spinner"></div>
+</div>
+
 <!-- القائمة الجانبية -->
-<nav class="sidebar">
+<nav class="sidebar" id="sidebar">
     <div class="sidebar-header">
-        <h2>🏠 الرئيسية</h2>
+        <div class="logo">🏠</div>
+        <h2>الرئيسية</h2>
         <p>نظام إدارة التعليم</p>
     </div>
+    
+    <!-- صندوق البحث -->
+    <div class="search-box">
+        <span class="search-icon">🔍</span>
+        <input type="text" placeholder="بحث..." id="searchInput" onkeyup="searchMenu()">
+    </div>
+    
+    <!-- بطاقة الملف الشخصي -->
+    <div class="profile-card">
+        <div class="profile-avatar">👨‍🏫</div>
+        <div class="profile-info">
+            <h4>أ. محمد أحمد</h4>
+            <p>معلم رياضيات</p>
+        </div>
+        <div class="profile-status"></div>
+    </div>
+    
     <ul class="sidebar-menu">
-        <li><a href="#" class="active" onclick="showPage('page1')"><span class="icon">🏠</span> الرئيسية</a></li>
-        <li><a href="#" onclick="showPage('page2')"><span class="icon">🤖</span> مساعد المعلم</a></li>
-        <li><a href="#" onclick="showPage('page2')"><span class="icon">📚</span> التحضير الإلكتروني</a></li>
-        <li><a href="#" onclick="showPage('page3')"><span class="icon">📝</span> الاختبارات</a></li>
-        <li><a href="#" onclick="showPage('page4')"><span class="icon">👨‍🎓</span> الطلاب</a></li>
-        <li><a href="#" onclick="showPage('page3')"><span class="icon">📊</span> التحليلات</a></li>
-        <li><a href="#"><span class="icon">📖</span> المكتبة</a></li>
-        <li><a href="#"><span class="icon">🎨</span> استوديو المعلم</a></li>
-        <li><a href="#"><span class="icon">🎓</span> أكاديمية المعلم</a></li>
-        <li><a href="#"><span class="icon">👥</span> مجتمع المعلمين</a></li>
-        <li><a href="#"><span class="icon">⚙️</span> الإعدادات</a></li>
+        <li><a href="#" class="active" onclick="setActive(this)">
+            <span class="icon">🏠</span> الرئيسية
+        </a></li>
+        <li><a href="#" onclick="setActive(this)">
+            <span class="icon">🤖</span> مساعد المعلم
+        </a></li>
+        <li><a href="#" onclick="setActive(this)">
+            <span class="icon">📚</span> التحضير الإلكتروني
+            <span class="badge">3</span>
+        </a></li>
+        <li><a href="#" onclick="setActive(this)">
+            <span class="icon">📝</span> الاختبارات
+        </a></li>
+        <li><a href="#" onclick="setActive(this)">
+            <span class="icon">👨‍🎓</span> الطلاب
+        </a></li>
+        <li><a href="#" onclick="setActive(this)">
+            <span class="icon">📊</span> التحليلات
+        </a></li>
+    </ul>
+    
+    <div class="menu-divider"></div>
+    <div class="menu-title">الخدمات</div>
+    
+    <ul class="sidebar-menu">
+        <li><a href="#" onclick="setActive(this)">
+            <span class="icon">📖</span> المكتبة
+        </a></li>
+        <li><a href="#" onclick="setActive(this)">
+            <span class="icon">🎨</span> استوديو المعلم
+        </a></li>
+        <li><a href="#" onclick="setActive(this)">
+            <span class="icon">🎓</span> أكاديمية المعلم
+        </a></li>
+        <li><a href="#" onclick="setActive(this)">
+            <span class="icon">👥</span> مجتمع المعلمين
+        </a></li>
+    </ul>
+    
+    <div class="menu-divider"></div>
+    <div class="menu-title">النظام</div>
+    
+    <ul class="sidebar-menu">
+        <li><a href="#" onclick="setActive(this)">
+            <span class="icon">⚙️</span> الإعدادات
+        </a></li>
     </ul>
 </nav>
 
 <!-- المحتوى الرئيسي -->
 <div class="main-content">
-
-<!-- الصفحة الأولى: السيرة الذاتية -->
-<div id="page1" class="page-content active">
-    <div class="page">
-        <div class="header-info">
-            <div class="title-section">
-                <h1>كراسة تحضير الدروس</h1>
-                <p>العام الدراسي: 2024 - 2025</p>
-            </div>
-        </div>
+    <div class="content-card">
+        <h1>مرحباً بك في نظام إدارة التعليم</h1>
+        <p>هذا عرض توضيحي للقائمة الجانبية الثابتة مع التأثيرات الحركية. يمكنك النقر على أي عنصر في القائمة لتجربة التفاعل.</p>
         
-        <h2>📋 السيرة الذاتية للمعلم</h2>
-        
-        <div class="cv-section">
-            <h3>البيانات الشخصية</h3>
-            <div class="cv-grid">
-                <div class="cv-item">
-                    <strong>الاسم الكامل:</strong>
-                    <input type="text" placeholder="أدخل اسمك الكامل">
-                </div>
-                <div class="cv-item">
-                    <strong>التخصص:</strong>
-                    <input type="text" placeholder="مثال: رياضيات، لغة عربية...">
-                </div>
-                <div class="cv-item">
-                    <strong>المؤهل العلمي:</strong>
-                    <input type="text" placeholder="مثال: بكالوريوس، ماجستير...">
-                </div>
-                <div class="cv-item">
-                    <strong>سنوات الخبرة:</strong>
-                    <input type="text" placeholder="مثال: 10 سنوات">
-                </div>
-                <div class="cv-item">
-                    <strong>رقم الهاتف:</strong>
-                    <input type="tel" placeholder="05xxxxxxxx">
-                </div>
-                <div class="cv-item">
-                    <strong>البريد الإلكتروني:</strong>
-                    <input type="email" placeholder="example@email.com">
-                </div>
+        <!-- إحصائيات سريعة -->
+        <div class="stats-container">
+            <div class="stat-card">
+                <div class="stat-icon">👨‍🎓</div>
+                <div class="stat-number" id="studentsCount">156</div>
+                <div class="stat-label">طالب</div>
             </div>
-        </div>
-        
-        <div class="cv-section">
-            <h3>الشهادات والدورات التدريبية</h3>
-            <div class="field">
-                <textarea placeholder="اذكر الشهادات والدورات التدريبية التي حصلت عليها..."></textarea>
+            <div class="stat-card">
+                <div class="stat-icon">📚</div>
+                <div class="stat-number">24</div>
+                <div class="stat-label">درس</div>
             </div>
-        </div>
-        
-        <div class="cv-section">
-            <h3>المهارات والكفاءات</h3>
-            <div class="field">
-                <textarea placeholder="اذكر المهارات التي تمتلكها في مجال التدريس..."></textarea>
+            <div class="stat-card">
+                <div class="stat-icon">📝</div>
+                <div class="stat-number">8</div>
+                <div class="stat-label">اختبارات</div>
             </div>
-        </div>
-        
-        <div class="cv-section">
-            <h3>الإنجازات والجوائز</h3>
-            <div class="field">
-                <textarea placeholder="اذكر الإنجازات والجوائز التي حققتها..."></textarea>
-            </div>
-        </div>
-        
-        <div class="cv-section">
-            <h3>فلسفة التدريس</h3>
-            <div class="field">
-                <textarea placeholder="اكتب فلسفتك في التدريس وأهدافك التربوية..."></textarea>
-            </div>
-        </div>
-        
-        <div class="signature-area">
-            <div class="signature-box">
-                <div class="line"></div>
-                <p>توقيع المعلم</p>
-            </div>
-            <div class="signature-box">
-                <div class="line"></div>
-                <p>مدير المدرسة</p>
+            <div class="stat-card">
+                <div class="stat-icon">⭐</div>
+                <div class="stat-number">95%</div>
+                <div class="stat-label">نسبة النجاح</div>
             </div>
         </div>
     </div>
-</div>
+    
+    <div class="content-card">
+        <h2>مميزات القائمة</h2>
+        <p>✅ قائمة ثابتة على الجانب الأيمن<br>
+        ✅ تأثيرات حركية سلسة عند التحويم<br>
+        ✅ تأثير النبض للعنصر النشط<br>
+        ✅ شارة الإشعارات<br>
+        ✅ تصميم متجاوب مع الجوال<br>
+        ✅ شريط تمرير مخصص<br>
+        ✅ تأثير الظهور المتدرج<br>
+        ✅ صندوق بحث في القائمة<br>
+        ✅ الوضع الليلي<br>
+        ✅ الإشعارات المنبثقة<br>
+        ✅ بطاقة الملف الشخصي<br>
+        ✅ إحصائيات سريعة<br>
+        ✅ قائمة المهام<br>
+        ✅ التقويم<br>
+        ✅ الرسائل<br>
+        ✅ الإحصائيات الدائرية<br>
+        ✅ الرسم البياني<br>
+        ✅ الأحداث<br>
+        ✅ السجل النشاطي<br>
+        ✅ التفاصيل القابلة للطي<br>
+        ✅ نظام التبويبات<br>
+        ✅ النوافذ المنبثقة<br>
+        ✅ النماذج<br>
+        ✅ الترقيم<br>
+        ✅ شارات الإنجاز<br>
+        ✅ خط الزمن</p>
+        
+        <h3 style="margin-top: 20px; color: #1a5276;">تقدم المهام</h3>
+        <div class="progress-bar">
+            <div class="progress-fill" style="width: 0%" id="progressBar"></div>
+        </div>
+        <p style="margin-top: 10px; font-size: 14px; color: #666;">تم إنجاز 75% من المهام</p>
+    </div>
 
-<!-- الصفحة الثانية: التحضير اليومي -->
-<div id="page2" class="page-content">
-    <div class="page">
-        <h1>تحضير الدرس اليومي</h1>
-        
-        <div class="section">
-            <div class="grid-3">
-                <div class="field">
-                    <label>التاريخ:</label>
-                    <input type="date">
-                </div>
-                <div class="field">
-                    <label>الصف:</label>
-                    <input type="text" placeholder="مثال: الصف الثالث">
-                </div>
-                <div class="field">
-                    <label>المادة:</label>
-                    <input type="text" placeholder="مثال: الرياضيات">
-                </div>
+    <!-- قائمة المهام -->
+    <div class="content-card">
+        <h2>📋 قائمة المهام</h2>
+        <div class="todo-list">
+            <div class="todo-item" onclick="toggleTodo(this)">
+                <div class="todo-checkbox"></div>
+                <span class="todo-text">تحضير درس الرياضيات</span>
+                <span class="todo-priority priority-high">عاجل</span>
             </div>
-            <div class="grid-2">
-                <div class="field">
-                    <label>عنوان الدرس:</label>
-                    <input type="text" placeholder="موضوع الدرس">
-                </div>
-                <div class="field">
-                    <label>الحصة:</label>
-                    <input type="text" placeholder="مثال: الحصة الثالثة">
-                </div>
+            <div class="todo-item completed" onclick="toggleTodo(this)">
+                <div class="todo-checkbox checked">✓</div>
+                <span class="todo-text">تصحيح اختبار اللغة العربية</span>
+                <span class="todo-priority priority-medium">متوسط</span>
             </div>
-        </div>
-        
-        <h2>🎯 الأهداف التعليمية</h2>
-        
-        <div class="objective-box cognitive">
-            <h4>🎓 الهدف المعرفي (المعرفي)</h4>
-            <p><small>يخص المعلومات والمعارف التي يجب أن يكتسبها الطالب</small></p>
-            <div class="field">
-                <textarea placeholder="مثال: أن يذكر الطالب تعريف الكسر وأنواعه..."></textarea>
+            <div class="todo-item" onclick="toggleTodo(this)">
+                <div class="todo-checkbox"></div>
+                <span class="todo-text">اجتماع أولياء الأمور</span>
+                <span class="todo-priority priority-low">عادي</span>
             </div>
-        </div>
-        
-        <div class="objective-box psychomotor">
-            <h4>🛠️ الهدف المهاري (النفس حركي)</h4>
-            <p><small>يخص المهارات العملية والحركية التي يجب أن يتقنها الطالب</small></p>
-            <div class="field">
-                <textarea placeholder="مثال: أن يتمكن الطالب من حل مسائل جمع الكسور..."></textarea>
-            </div>
-        </div>
-        
-        <div class="objective-box affective">
-            <h4>❤️ الهدف الوجداني (الوجداني)</h4>
-            <p><small>يخص القيم والاتجاهات والميول التي يجب أن يكتسبها الطالب</small></p>
-            <div class="field">
-                <textarea placeholder="مثال: أن يقدر الطالب أهمية الرياضيات في الحياة اليومية..."></textarea>
-            </div>
-        </div>
-        
-        <h2>📚 الوسائل التعليمية</h2>
-        <div class="section">
-            <div class="checkbox-group">
-                <label class="checkbox-item"><input type="checkbox"> سبورة</label>
-                <label class="checkbox-item"><input type="checkbox"> حاسوب</label>
-                <label class="checkbox-item"><input type="checkbox"> عارض ضوئي</label>
-                <label class="checkbox-item"><input type="checkbox"> وسائل تعليمية</label>
-                <label class="checkbox-item"><input type="checkbox"> بطاقات</label>
-                <label class="checkbox-item"><input type="checkbox"> مجسمات</label>
-                <label class="checkbox-item"><input type="checkbox"> فيديو</label>
-                <label class="checkbox-item"><input type="checkbox"> أخرى</label>
-            </div>
-            <div class="field" style="margin-top: 10px;">
-                <input type="text" placeholder="حدد الوسائل المستخدمة بالتفصيل">
-            </div>
-        </div>
-        
-        <h2>🎬 التمهيد</h2>
-        <div class="section">
-            <div class="field">
-                <label>تمهيد للدرس (5 دقائق):</label>
-                <textarea placeholder="كيف ستبدأ الدرس؟ ما الأسئلة أو الأنشطة التي ستستخدمها لجذب انتباه الطلاب؟"></textarea>
-            </div>
-        </div>
-        
-        <h2>📝 خطوات سير الدرس</h2>
-        <div class="section lesson-steps">
-            <div class="step">
-                <span class="step-time">5 دقائق</span>
-                <strong>التمهيد والتهيئة:</strong>
-                <textarea placeholder="اكتب خطوات التمهيد..."></textarea>
-            </div>
-            <div class="step">
-                <span class="step-time">10 دقائق</span>
-                <strong>عرض الدرس:</strong>
-                <textarea placeholder="اكتب خطوات عرض الدرس..."></textarea>
-            </div>
-            <div class="step">
-                <span class="step-time">15 دقيقة</span>
-                <strong>التطبيق والتدريب:</strong>
-                <textarea placeholder="اكتب أنشطة التطبيق..."></textarea>
-            </div>
-            <div class="step">
-                <span class="step-time">10 دقائق</span>
-                <strong>التقويم الختامي:</strong>
-                <textarea placeholder="اكتب أسئلة التقويم..."></textarea>
-            </div>
-        </div>
-        
-        <h2>🎯 استراتيجيات التدريس</h2>
-        <div class="section">
-            <div class="checkbox-group">
-                <label class="checkbox-item"><input type="checkbox"> التعلم التعاوني</label>
-                <label class="checkbox-item"><input type="checkbox"> التعلم النشط</label>
-                <label class="checkbox-item"><input type="checkbox"> حل المشكلات</label>
-                <label class="checkbox-item"><input type="checkbox"> الاكتشاف</label>
-                <label class="checkbox-item"><input type="checkbox"> العصف الذهني</label>
-                <label class="checkbox-item"><input type="checkbox"> لعب الأدوار</label>
-                <label class="checkbox-item"><input type="checkbox"> التعلم الذاتي</label>
-                <label class="checkbox-item"><input type="checkbox"> أخرى</label>
-            </div>
-        </div>
-        
-        <h2>📋 الأنشطة والتطبيقات</h2>
-        <div class="section">
-            <div class="activity-box">
-                <strong>نشاط صفي:</strong>
-                <textarea placeholder="اكتب النشاط الصفي..."></textarea>
-            </div>
-            <div class="activity-box">
-                <strong>نشاط منزلي:</strong>
-                <textarea placeholder="اكتب النشاط المنزلي..."></textarea>
-            </div>
-        </div>
-        
-        <h2>📊 التقويم</h2>
-        <div class="section">
-            <div class="assessment-box">
-                <strong>التقويم القبلي:</strong>
-                <textarea placeholder="أسئلة التقويم القبلي..."></textarea>
-            </div>
-            <div class="assessment-box">
-                <strong>التقويم البنائي:</strong>
-                <textarea placeholder="أسئلة التقويم البنائي..."></textarea>
-            </div>
-            <div class="assessment-box">
-                <strong>التقويم الختامي:</strong>
-                <textarea placeholder="أسئلة التقويم الختامي..."></textarea>
-            </div>
-        </div>
-        
-        <h2>👥 الطلاب الذين يحتاجون دعم</h2>
-        <div class="support-section">
-            <h4>الطلاب المتعثرون</h4>
-            <table>
-                <thead>
-                    <tr>
-                        <th>اسم الطالب</th>
-                        <th>نقاط الضعف</th>
-                        <th>الإجراءات العلاجية</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td><input type="text"></td>
-                        <td><input type="text"></td>
-                        <td><input type="text"></td>
-                    </tr>
-                    <tr>
-                        <td><input type="text"></td>
-                        <td><input type="text"></td>
-                        <td><input type="text"></td>
-                    </tr>
-                    <tr>
-                        <td><input type="text"></td>
-                        <td><input type="text"></td>
-                        <td><input type="text"></td>
-                    </tr>
-                </tbody>
-            </table>
-        </div>
-        
-        <h2>⚠️ صعوبات التعلم والمشكلات الملحوظة</h2>
-        <div class="remedial-section">
-            <h4>المشكلات الملحوظة</h4>
-            <div class="field">
-                <textarea placeholder="اكتب المشكلات التي لاحظتها أثناء الدرس..."></textarea>
-            </div>
-        </div>
-        
-        <h2>💡 الإجراءات العلاجية والإثرائية</h2>
-        <div class="enrichment-section">
-            <h4>الإجراءات العلاجية</h4>
-            <div class="field">
-                <textarea placeholder="اكتب الإجراءات العلاجية للطلاب المتعثرين..."></textarea>
-            </div>
-        </div>
-        <div class="enrichment-section">
-            <h4>الإجراءات الإثرائية</h4>
-            <div class="field">
-                <textarea placeholder="اكتب الأنشطة الإثرائية للطلاب المتفوقين..."></textarea>
-            </div>
-        </div>
-        
-        <div class="signature-area">
-            <div class="signature-box">
-                <div class="line"></div>
-                <p>توقيع المعلم</p>
-            </div>
-            <div class="signature-box">
-                <div class="line"></div>
-                <p>توقيع المشرف</p>
+            <div class="todo-item" onclick="toggleTodo(this)">
+                <div class="todo-checkbox"></div>
+                <span class="todo-text">تحديث سجل الدرجات</span>
+                <span class="todo-priority priority-medium">متوسط</span>
             </div>
         </div>
     </div>
-</div>
 
-<!-- الصفحة الثالثة: سجل الدرجات -->
-<div id="page3" class="page-content">
-    <div class="page">
-        <h1>سجل الدرجات والتقويم</h1>
-        
-        <div class="section">
-            <div class="grid-3">
-                <div class="field">
-                    <label>الصف:</label>
-                    <input type="text">
-                </div>
-                <div class="field">
-                    <label>المادة:</label>
-                    <input type="text">
-                </div>
-                <div class="field">
-                    <label>الفصل الدراسي:</label>
-                    <select>
-                        <option>الأول</option>
-                        <option>الثاني</option>
-                        <option>الثالث</option>
-                    </select>
-                </div>
+    <!-- التقويم -->
+    <div class="content-card">
+        <h2>📅 التقويم</h2>
+        <div class="calendar-widget">
+            <div class="calendar-header">
+                <button class="calendar-nav" onclick="changeMonth(-1)">›</button>
+                <span class="calendar-month" id="currentMonth">أكتوبر 2026</span>
+                <button class="calendar-nav" onclick="changeMonth(1)">‹</button>
             </div>
-        </div>
-        
-        <h2>📊 سجل درجات الاختبارات</h2>
-        <table>
-            <thead>
-                <tr>
-                    <th>م</th>
-                    <th>اسم الطالب</th>
-                    <th>اختبار قصير (10)</th>
-                    <th>واجب (10)</th>
-                    <th>مشاركة (10)</th>
-                    <th>اختبار شهري (30)</th>
-                    <th>المجموع (60)</th>
-                    <th>التقدير</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr>
-                    <td>1</td>
-                    <td><input type="text"></td>
-                    <td><input type="number" class="grade-input" min="0" max="10"></td>
-                    <td><input type="number" class="grade-input" min="0" max="10"></td>
-                    <td><input type="number" class="grade-input" min="0" max="10"></td>
-                    <td><input type="number" class="grade-input" min="0" max="30"></td>
-                    <td><input type="number" class="grade-input" min="0" max="60"></td>
-                    <td><input type="text" class="grade-input"></td>
-                </tr>
-                <tr>
-                    <td>2</td>
-                    <td><input type="text"></td>
-                    <td><input type="number" class="grade-input" min="0" max="10"></td>
-                    <td><input type="number" class="grade-input" min="0" max="10"></td>
-                    <td><input type="number" class="grade-input" min="0" max="10"></td>
-                    <td><input type="number" class="grade-input" min="0" max="30"></td>
-                    <td><input type="number" class="grade-input" min="0" max="60"></td>
-                    <td><input type="text" class="grade-input"></td>
-                </tr>
-                <tr>
-                    <td>3</td>
-                    <td><input type="text"></td>
-                    <td><input type="number" class="grade-input" min="0" max="10"></td>
-                    <td><input type="number" class="grade-input" min="0" max="10"></td>
-                    <td><input type="number" class="grade-input" min="0" max="10"></td>
-                    <td><input type="number" class="grade-input" min="0" max="30"></td>
-                    <td><input type="number" class="grade-input" min="0" max="60"></td>
-                    <td><input type="text" class="grade-input"></td>
-                </tr>
-                <tr>
-                    <td>4</td>
-                    <td><input type="text"></td>
-                    <td><input type="number" class="grade-input" min="0" max="10"></td>
-                    <td><input type="number" class="grade-input" min="0" max="10"></td>
-                    <td><input type="number" class="grade-input" min="0" max="10"></td>
-                    <td><input type="number" class="grade-input" min="0" max="30"></td>
-                    <td><input type="number" class="grade-input" min="0" max="60"></td>
-                    <td><input type="text" class="grade-input"></td>
-                </tr>
-                <tr>
-                    <td>5</td>
-                    <td><input type="text"></td>
-                    <td><input type="number" class="grade-input" min="0" max="10"></td>
-                    <td><input type="number" class="grade-input" min="0" max="10"></td>
-                    <td><input type="number" class="grade-input" min="0" max="10"></td>
-                    <td><input type="number" class="grade-input" min="0" max="30"></td>
-                    <td><input type="number" class="grade-input" min="0" max="60"></td>
-                    <td><input type="text" class="grade-input"></td>
-                </tr>
-            </tbody>
-        </table>
-        
-        <h2>📈 إحصائيات الصف</h2>
-        <div class="grid-3">
-            <div class="field">
-                <label>أعلى درجة:</label>
-                <input type="number">
-            </div>
-            <div class="field">
-                <label>أدنى درجة:</label>
-                <input type="number">
-            </div>
-            <div class="field">
-                <label>متوسط الدرجات:</label>
-                <input type="number">
+            <div class="calendar-grid" id="calendarGrid">
+                <!-- يتم إنشاؤه بواسطة JavaScript -->
             </div>
         </div>
     </div>
-</div>
 
-<!-- الصفحة الرابعة: متابعة الطلاب -->
-<div id="page4" class="page-content">
-    <div class="page">
-        <h1>متابعة تطور الطلاب</h1>
-        
-        <div class="section">
-            <div class="grid-2">
-                <div class="field">
-                    <label>الصف:</label>
-                    <input type="text">
+    <!-- الرسائل -->
+    <div class="content-card">
+        <h2>💬 الرسائل</h2>
+        <div class="messages-widget">
+            <div class="message-item unread">
+                <div class="message-avatar" style="background: #e3f2fd;">👨‍👩‍👧</div>
+                <div class="message-content">
+                    <div class="message-header">
+                        <span class="message-sender">ولي أمر أحمد</span>
+                        <span class="message-time">منذ 5 دقائق</span>
+                    </div>
+                    <div class="message-preview">أريد الاستفسار عن مستوى ابني في الرياضيات...</div>
                 </div>
-                <div class="field">
-                    <label>المادة:</label>
-                    <input type="text">
+                <div class="unread-badge">1</div>
+            </div>
+            <div class="message-item unread">
+                <div class="message-avatar" style="background: #f3e5f5;">👩‍💼</div>
+                <div class="message-content">
+                    <div class="message-header">
+                        <span class="message-sender">مديرة المدرسة</span>
+                        <span class="message-time">منذ ساعة</span>
+                    </div>
+                    <div class="message-preview">اجتماع المعلمين غداً الساعة 10 صباحاً...</div>
                 </div>
+                <div class="unread-badge">2</div>
             </div>
-        </div>
-        
-        <h2>📋 سجل المتابعة الفردية</h2>
-        <table>
-            <thead>
-                <tr>
-                    <th>اسم الطالب</th>
-                    <th>مستوى البداية</th>
-                    <th>مستوى الحالي</th>
-                    <th>التقدم</th>
-                    <th>ملاحظات</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr>
-                    <td><input type="text"></td>
-                    <td>
-                        <select>
-                            <option>ضعيف</option>
-                            <option>مقبول</option>
-                            <option>جيد</option>
-                            <option>جيد جداً</option>
-                            <option>ممتاز</option>
-                        </select>
-                    </td>
-                    <td>
-                        <select>
-                            <option>ضعيف</option>
-                            <option>مقبول</option>
-                            <option>جيد</option>
-                            <option>جيد جداً</option>
-                            <option>ممتاز</option>
-                        </select>
-                    </td>
-                    <td>
-                        <select>
-                            <option>تحسن كبير</option>
-                            <option>تحسن</option>
-                            <option>ثابت</option>
-                            <option>تراجع</option>
-                        </select>
-                    </td>
-                    <td><input type="text"></td>
-                </tr>
-                <tr>
-                    <td><input type="text"></td>
-                    <td>
-                        <select>
-                            <option>ضعيف</option>
-                            <option>مقبول</option>
-                            <option>جيد</option>
-                            <option>جيد جداً</option>
-                            <option>ممتاز</option>
-                        </select>
-                    </td>
-                    <td>
-                        <select>
-                            <option>ضعيف</option>
-                            <option>مقبول</option>
-                            <option>جيد</option>
-                            <option>جيد جداً</option>
-                            <option>ممتاز</option>
-                        </select>
-                    </td>
-                    <td>
-                        <select>
-                            <option>تحسن كبير</option>
-                            <option>تحسن</option>
-                            <option>ثابت</option>
-                            <option>تراجع</option>
-                        </select>
-                    </td>
-                    <td><input type="text"></td>
-                </tr>
-                <tr>
-                    <td><input type="text"></td>
-                    <td>
-                        <select>
-                            <option>ضعيف</option>
-                            <option>مقبول</option>
-                            <option>جيد</option>
-                            <option>جيد جداً</option>
-                            <option>ممتاز</option>
-                        </select>
-                    </td>
-                    <td>
-                        <select>
-                            <option>ضعيف</option>
-                            <option>مقبول</option>
-                            <option>جيد</option>
-                            <option>جيد جداً</option>
-                            <option>ممتاز</option>
-                        </select>
-                    </td>
-                    <td>
-                        <select>
-                            <option>تحسن كبير</option>
-                            <option>تحسن</option>
-                            <option>ثابت</option>
-                            <option>تراجع</option>
-                        </select>
-                    </td>
-                    <td><input type="text"></td>
-                </tr>
-            </tbody>
-        </table>
-        
-        <h2>🎯 خطة التحسين</h2>
-        <div class="section">
-            <div class="field">
-                <label>الأهداف المرجوة خلال الفترة القادمة:</label>
-                <textarea placeholder="اكتب الأهداف التي تسعى لتحقيقها..."></textarea>
-            </div>
-            <div class="field">
-                <label>الاستراتيجيات المقترحة:</label>
-                <textarea placeholder="اكتب الاستراتيجيات التي ستستخدمها..."></textarea>
+            <div class="message-item">
+                <div class="message-avatar" style="background: #e8f5e9;">👨‍🏫</div>
+                <div class="message-content">
+                    <div class="message-header">
+                        <span class="message-sender">زكريا محمد</span>
+                        <span class="message-time">أمس</span>
+                    </div>
+                    <div class="message-preview">شكراً على المساعدة في تحضير الدرس...</div>
+                </div>
             </div>
         </div>
     </div>
-</div>
 
-<!-- الصفحة الخامسة: الملاحظات -->
-<div id="page5" class="page-content">
-    <div class="page">
-        <h1>صفحة الملاحظات</h1>
-        
-        <div class="notes-area">
-            <div class="field">
-                <label>ملاحظات عامة:</label>
-                <textarea style="min-height: 150px;" placeholder="اكتب ملاحظاتك هنا..."></textarea>
-            </div>
+    <!-- الإحصائيات الدائرية -->
+    <div class="content-card">
+        <h2>📊 الإحصائيات الدائرية</h2>
+        <div class="circular-progress">
+            <svg width="120" height="120">
+                <circle class="bg" cx="60" cy="60" r="50"></circle>
+                <circle class="progress" cx="60" cy="60" r="50" 
+                    stroke-dasharray="314" 
+                    stroke-dashoffset="314"
+                    id="circularProgress"></circle>
+            </svg>
+            <div class="percentage" id="circularPercentage">0%</div>
         </div>
-        
-        <div class="section" style="margin-top: 20px;">
-            <h3>💡 أفكار وتوصيات</h3>
-            <div class="field">
-                <textarea placeholder="اكتب أفكارك وتوصياتك هنا..."></textarea>
-            </div>
-        </div>
-        
-        <div class="section">
-            <h3>📌 متطلبات الدرس القادم</h3>
-            <div class="field">
-                <textarea placeholder="اكتب ما تحتاجه للدرس القادم..."></textarea>
-            </div>
-        </div>
-        
-        <div class="section">
-            <h3>🔄 تقييم ذاتي للدرس</h3>
-            <div class="grid-2">
-                <div class="field">
-                    <label>ما الذي نجح في الدرس؟</label>
-                    <textarea placeholder="اكتب هنا..."></textarea>
-                </div>
-                <div class="field">
-                    <label>ما الذي يحتاج تحسين؟</label>
-                    <textarea placeholder="اكتب هنا..."></textarea>
-                </div>
-            </div>
-        </div>
-        
-        <div class="signature-area">
-            <div class="signature-box">
-                <div class="line"></div>
-                <p>توقيع المعلم</p>
-            </div>
-            <div class="signature-box">
-                <div class="line"></div>
-                <p>التاريخ</p>
+        <p style="text-align: center; color: #666; margin-top: 10px;">نسبة إنجاز المنهج الدراسي</p>
+    </div>
+
+    <!-- الرسم البياني الشريطي -->
+    <div class="content-card">
+        <h2>📈 الرسم البياني الشريطي</h2>
+        <div class="chart-container">
+            <div class="bar-chart" id="barChart">
+                <!-- يتم إنشاؤه بواسطة JavaScript -->
             </div>
         </div>
     </div>
+
+    <!-- الأحداث -->
+    <div class="content-card">
+        <h2>📅 الأحداث القادمة</h2>
+        <div class="event-card">
+            <div class="event-time">🕐 10:00 صباحاً - 11:30 صباحاً</div>
+            <div class="event-title">اجتماع المعلمين الأسبوعي</div>
+            <div class="event-location">📍 قاعة الاجتماعات</div>
+        </div>
+        <div class="event-card">
+            <div class="event-time">🕐 01:00 مساءً - 02:30 مساءً</div>
+            <div class="event-title">ورشة عمل: استخدام التكنولوجيا في التعليم</div>
+            <div class="event-location">📍 معمل الحاسوب</div>
+        </div>
+        <div class="event-card">
+            <div class="event-time">🕐 09:00 صباحاً - 12:00 ظهراً</div>
+            <div class="event-title">اختبار منتصف الفصل الدراسي</div>
+            <div class="event-location">📍 الفصول الدراسية</div>
+        </div>
+    </div>
+
+    <!-- السجل النشاطي -->
+    <div class="content-card">
+        <h2>📜 السجل النشاطي</h2>
+        <div class="activity-timeline">
+            <div class="timeline-item">
+                <div class="timeline-icon" style="background: #e3f2fd;">📝</div>
+                <div class="timeline-content">
+                    <div class="timeline-title">تم تحضير درس الرياضيات</div>
+                    <div class="timeline-time">منذ 30 دقيقة</div>
+                </div>
+            </div>
+            <div class="timeline-item">
+                <div class="timeline-icon" style="background: #f3e5f5;">✅</div>
+                <div class="timeline-content">
+                    <div class="timeline-title">تم تصحيح اختبار اللغة العربية</div>
+                    <div class="timeline-time">منذ ساعتين</div>
+                </div>
+            </div>
+            <div class="timeline-item">
+                <div class="timeline-icon" style="background: #e8f5e9;">📊</div>
+                <div class="timeline-content">
+                    <div class="timeline-title">تم تحديث سجل الدرجات</div>
+                    <div class="timeline-time">منذ 3 ساعات</div>
+                </div>
+            </div>
+            <div class="timeline-item">
+                <div class="timeline-icon" style="background: #fff3e0;">💬</div>
+                <div class="timeline-content">
+                    <div class="timeline-title">تم الرد على رسالة ولي الأمر</div>
+                    <div class="timeline-time">منذ 5 ساعات</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- التفاصيل القابلة للطي -->
+    <div class="content-card">
+        <h2>📖 التفاصيل القابلة للطي</h2>
+        <div class="collapsible">
+            <div class="collapsible-header" onclick="toggleCollapsible(this)">
+                <h4>📚 خطة المنهج الدراسي</h4>
+                <span class="toggle-icon">▼</span>
+            </div>
+            <div class="collapsible-content">
+                <p>يتضمن المنهج الدراسي جميع الوحدات والمقررات التي سيتم تدريسها خلال الفصل الدراسي، مع تحديد الأهداف التعليمية لكل وحدة والوسائل التعليمية المطلوبة.</p>
+            </div>
+        </div>
+        <div class="collapsible">
+            <div class="collapsible-header" onclick="toggleCollapsible(this)">
+                <h4>📋 سياسات التقييم</h4>
+                <span class="toggle-icon">▼</span>
+            </div>
+            <div class="collapsible-content">
+                <p>يتم تقييم الطلاب بناءً على الاختبارات القصيرة، الواجبات المنزلية، المشاركة الصفية، والمشاريع. توزع الدرجات كالتالي: اختبارات قصيرة 30%، واجبات 20%، مشاركة 20%، اختبار نهائي 30%.</p>
+            </div>
+        </div>
+        <div class="collapsible">
+            <div class="collapsible-header" onclick="toggleCollapsible(this)">
+                <h4>👥 التواصل مع أولياء الأمور</h4>
+                <span class="toggle-icon">▼</span>
+            </div>
+            <div class="collapsible-content">
+                <p>يمكن التواصل مع أولياء الأمور من خلال الاجتماعات الدورية، أو عبر البريد الإلكتروني، أو من خلال دفتر المتابعة اليومي. نحرص على التواصل المستمر لمتابعة مستوى الطلاب.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- نظام التبويبات -->
+    <div class="content-card">
+        <h2>📑 نظام التبويبات</h2>
+        <div class="tabs">
+            <button class="tab active" onclick="switchTab(this, 'tab1')">الطلاب</button>
+            <button class="tab" onclick="switchTab(this, 'tab2')">الدروس</button>
+            <button class="tab" onclick="switchTab(this, 'tab3')">التقارير</button>
+        </div>
+        <div class="tab-content active" id="tab1">
+            <h4>قائمة الطلاب</h4>
+            <p>أحمد محمد - ممتاز</p>
+            <p>سارة علي - جيد جداً</p>
+            <p>عمر خالد - جيد</p>
+        </div>
+        <div class="tab-content" id="tab2">
+            <h4>قائمة الدروس</h4>
+            <p>درس 1: الأعداد الصحيحة</p>
+            <p>درس 2: الكسور</p>
+            <p>درس 3: النسب المئوية</p>
+        </div>
+        <div class="tab-content" id="tab3">
+            <h4>التقارير</h4>
+            <p>تقرير الأداء الشهري</p>
+            <p>تقرير الحضور والغياب</p>
+            <p>تقرير سلوك الطلاب</p>
+        </div>
+    </div>
+
+    <!-- شارات الإنجاز -->
+    <div class="content-card">
+        <h2>🏆 شارات الإنجاز</h2>
+        <div style="text-align: center;">
+            <span class="achievement-badge">
+                <span class="trophy">🏆</span> أفضل معلم
+            </span>
+            <span class="achievement-badge">
+                <span class="trophy">⭐</span> 100% حضور
+            </span>
+            <span class="achievement-badge">
+                <span class="trophy">📚</span> 20 درس
+            </span>
+            <span class="achievement-badge">
+                <span class="trophy">👨‍🎓</span> 50 طالب
+            </span>
+        </div>
+    </div>
+
+    <!-- خط الزمن -->
+    <div class="content-card">
+        <h2>⏱️ خط الزمن</h2>
+        <div class="timeline-container">
+            <div class="timeline-entry">
+                <div class="timeline-entry-content">
+                    <div class="timeline-entry-title">بداية الفصل الدراسي</div>
+                    <div class="timeline-entry-desc">بدء العام الدراسي الجديد واستقبال الطلاب</div>
+                </div>
+            </div>
+            <div class="timeline-entry">
+                <div class="timeline-entry-content">
+                    <div class="timeline-entry-title">أول اختبار قصير</div>
+                    <div class="timeline-entry-desc">إجراء أول اختبار قصير لتقييم مستوى الطلاب</div>
+                </div>
+            </div>
+            <div class="timeline-entry">
+                <div class="timeline-entry-content">
+                    <div class="timeline-entry-title">اجتماع أولياء الأمور</div>
+                    <div class="timeline-entry-desc">عقد أول اجتماع دوري مع أولياء الأمور</div>
+                </div>
+            </div>
+            <div class="timeline-entry">
+                <div class="timeline-entry-content">
+                    <div class="timeline-entry-title">منتصف الفصل الدراسي</div>
+                    <div class="timeline-entry-desc">اختبارات منتصف الفصل وتقييم الأداء</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- الترقيم -->
+    <div class="content-card">
+        <h2>📄 الترقيم</h2>
+        <div class="pagination">
+            <button onclick="changePage(this, 1)">1</button>
+            <button class="active" onclick="changePage(this, 2)">2</button>
+            <button onclick="changePage(this, 3)">3</button>
+            <button onclick="changePage(this, 4)">4</button>
+            <button onclick="changePage(this, 5)">5</button>
+        </div>
+    </div>
+
+    <!-- نموذج الإدخال -->
+    <div class="content-card">
+        <h2>📝 نموذج إضافة مهمة جديدة</h2>
+        <form onsubmit="addTask(event)">
+            <div class="form-group">
+                <label>عنوان المهمة</label>
+                <input type="text" id="taskTitle" placeholder="أدخل عنوان المهمة" required>
+            </div>
+            <div class="form-group">
+                <label>الوصف</label>
+                <textarea id="taskDesc" placeholder="أدخل وصف المهمة" rows="3"></textarea>
+            </div>
+            <div class="form-group">
+                <label>الأولوية</label>
+                <select id="taskPriority">
+                    <option value="high">عاجل</option>
+                    <option value="medium">متوسط</option>
+                    <option value="low">عادي</option>
+                </select>
+            </div>
+            <button type="submit" class="btn btn-primary">إضافة المهمة</button>
+        </form>
+    </div>
 </div>
 
-</div><!-- نهاية main-content -->
+<!-- النافذة المنبثقة -->
+<div class="modal-overlay" id="modalOverlay" onclick="closeModal(event)">
+    <div class="modal" onclick="event.stopPropagation()">
+        <div class="modal-header">
+            <h3 id="modalTitle">عنوان النافذة</h3>
+            <button class="modal-close" onclick="closeModal()">&times;</button>
+        </div>
+        <div class="modal-body" id="modalBody">
+            محتوى النافذة المنبثقة
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-secondary" onclick="closeModal()">إغلاق</button>
+            <button class="btn btn-primary" onclick="closeModal()">حفظ</button>
+        </div>
+    </div>
+</div>
 
 <script>
-    function showPage(pageId) {
-        // إخفاء جميع الصفحات
-        document.querySelectorAll('.page-content').forEach(page => {
-            page.classList.remove('active');
-        });
-        
-        // إظهار الصفحة المطلوبة
-        document.getElementById(pageId).classList.add('active');
-        
-        // تحديث القائمة الجانبية
+    // تعيين العنصر النشط
+    function setActive(element) {
+        // إزالة النشاط من جميع العناصر
         document.querySelectorAll('.sidebar-menu a').forEach(link => {
             link.classList.remove('active');
         });
-        event.target.closest('a').classList.add('active');
+        
+        // إضافة النشاط للعنصر المحدد
+        element.classList.add('active');
+        
+        // إضافة تأثير الموجة
+        createRipple(element);
+        
+        // إظهار إشعار
+        showNotification('تم الانتقال إلى: ' + element.textContent.trim());
+        
+        // إغلاق القائمة في الجوال
+        if (window.innerWidth <= 768) {
+            document.getElementById('sidebar').classList.remove('open');
+        }
     }
+
+    // تأثير الموجة عند النقر
+    function createRipple(element) {
+        const ripple = document.createElement('span');
+        ripple.classList.add('ripple');
+        
+        const rect = element.getBoundingClientRect();
+        const size = Math.max(rect.width, rect.height);
+        
+        ripple.style.width = ripple.style.height = size + 'px';
+        ripple.style.left = (event.clientX - rect.left - size / 2) + 'px';
+        ripple.style.top = (event.clientY - rect.top - size / 2) + 'px';
+        
+        element.appendChild(ripple);
+        
+        setTimeout(() => ripple.remove(), 600);
+    }
+
+    // تبديل القائمة في الجوال
+    function toggleSidebar() {
+        document.getElementById('sidebar').classList.toggle('open');
+    }
+
+    // إغلاق القائمة عند النقر خارجها في الجوال
+    document.addEventListener('click', function(e) {
+        if (window.innerWidth <= 768) {
+            const sidebar = document.getElementById('sidebar');
+            const toggle = document.querySelector('.menu-toggle');
+            
+            if (!sidebar.contains(e.target) && !toggle.contains(e.target)) {
+                sidebar.classList.remove('open');
+            }
+        }
+    });
+
+    // تبديل الوضع الليلي
+    function toggleDarkMode() {
+        document.body.classList.toggle('dark-mode');
+        const btn = document.querySelector('.theme-toggle');
+        btn.textContent = document.body.classList.contains('dark-mode') ? '☀️' : '🌙';
+        showNotification(document.body.classList.contains('dark-mode') ? 'تم تفعيل الوضع الليلي' : 'تم إيقاف الوضع الليلي');
+    }
+
+    // إظهار الإشعارات
+    function showNotification(message) {
+        const notification = document.getElementById('notification');
+        notification.querySelector('.notification-text').textContent = message;
+        notification.classList.add('show');
+        
+        setTimeout(() => {
+            notification.classList.remove('show');
+        }, 3000);
+    }
+
+    // البحث في القائمة
+    function searchMenu() {
+        const input = document.getElementById('searchInput');
+        const filter = input.value.toLowerCase();
+        const menuItems = document.querySelectorAll('.sidebar-menu li');
+        
+        menuItems.forEach(item => {
+            const text = item.textContent.toLowerCase();
+            item.style.display = text.includes(filter) ? 'block' : 'none';
+        });
+    }
+
+    // إخفاء شاشة التحميل
+    window.addEventListener('load', function() {
+        setTimeout(() => {
+            document.getElementById('loading').classList.add('hidden');
+        }, 1000);
+    });
+
+    // تحريك شريط التقدم
+    window.addEventListener('load', function() {
+        setTimeout(() => {
+            document.getElementById('progressBar').style.width = '75%';
+        }, 1500);
+    });
+
+    // عداد الأرقام المتحركة
+    function animateValue(id, start, end, duration) {
+        const obj = document.getElementById(id);
+        const range = end - start;
+        const startTime = performance.now();
+        
+        function update(currentTime) {
+            const elapsed = currentTime - startTime;
+            const progress = Math.min(elapsed / duration, 1);
+            obj.textContent = Math.floor(start + range * progress);
+            
+            if (progress < 1) {
+                requestAnimationFrame(update);
+            }
+        }
+        
+        requestAnimationFrame(update);
+    }
+
+    // تشغيل العداد عند تحميل الصفحة
+    window.addEventListener('load', function() {
+        animateValue('studentsCount', 0, 156, 2000);
+    });
+
+    // تبديل حالة المهمة
+    function toggleTodo(element) {
+        element.classList.toggle('completed');
+        const checkbox = element.querySelector('.todo-checkbox');
+        checkbox.classList.toggle('checked');
+        checkbox.textContent = checkbox.classList.contains('checked') ? '✓' : '';
+        showNotification(checkbox.classList.contains('checked') ? 'تم إنجاز المهمة' : 'تم إلغاء إنجاز المهمة');
+    }
+
+    // التقويم
+    let currentDate = new Date();
+    
+    function generateCalendar() {
+        const grid = document.getElementById('calendarGrid');
+        const monthLabel = document.getElementById('currentMonth');
+        
+        const year = currentDate.getFullYear();
+        const month = currentDate.getMonth();
+        
+        const monthNames = ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو',
+                           'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'];
+        
+        monthLabel.textContent = monthNames[month] + ' ' + year;
+        
+        const firstDay = new Date(year, month, 1).getDay();
+        const daysInMonth = new Date(year, month + 1, 0).getDate();
+        const today = new Date();
+        
+        let html = '';
+        const dayNames = ['أحد', 'إثنين', 'ثلاثاء', 'أربعاء', 'خميس', 'جمعة', 'سبت'];
+        
+        dayNames.forEach(day => {
+            html += `<div class="calendar-day-name">${day}</div>`;
+        });
+        
+        for (let i = 0; i < firstDay; i++) {
+            html += '<div class="calendar-day other-month"></div>';
+        }
+        
+        for (let day = 1; day <= daysInMonth; day++) {
+            const isToday = today.getDate() === day && today.getMonth() === month && today.getFullYear() === year;
+            const hasEvent = [5, 12, 18, 25].includes(day);
+            let classes = 'calendar-day';
+            if (isToday) classes += ' today';
+            if (hasEvent) classes += ' has-event';
+            html += `<div class="${classes}" onclick="selectDate(${day})">${day}</div>`;
+        }
+        
+        grid.innerHTML = html;
+    }
+    
+    function changeMonth(delta) {
+        currentDate.setMonth(currentDate.getMonth() + delta);
+        generateCalendar();
+    }
+    
+    function selectDate(day) {
+        showNotification('تم اختيار تاريخ: ' + day + '/' + (currentDate.getMonth() + 1) + '/' + currentDate.getFullYear());
+    }
+
+    // الرسم البياني الشريطي
+    function generateBarChart() {
+        const chart = document.getElementById('barChart');
+        const data = [
+            { label: 'الأحد', value: 65 },
+            { label: 'الإثنين', value: 80 },
+            { label: 'الثلاثاء', value: 45 },
+            { label: 'الأربعاء', value: 90 },
+            { label: 'الخميس', value: 70 }
+        ];
+        
+        let html = '';
+        data.forEach(item => {
+            html += `
+                <div class="bar-item">
+                    <div class="bar-value">${item.value}%</div>
+                    <div class="bar" style="height: ${item.value}px"></div>
+                    <div class="bar-label">${item.label}</div>
+                </div>
+            `;
+        });
+        
+        chart.innerHTML = html;
+    }
+
+    // الإحصائيات الدائرية
+    function animateCircularProgress() {
+        const circle = document.getElementById('circularProgress');
+        const percentage = document.getElementById('circularPercentage');
+        const target = 75;
+        const circumference = 2 * Math.PI * 50;
+        const offset = circumference - (target / 100) * circumference;
+        
+        circle.style.strokeDashoffset = offset;
+        
+        let current = 0;
+        const interval = setInterval(() => {
+            current++;
+            percentage.textContent = current + '%';
+            if (current >= target) {
+                clearInterval(interval);
+            }
+        }, 20);
+    }
+
+    // التفاصيل القابلة للطي
+    function toggleCollapsible(header) {
+        header.classList.toggle('active');
+        const content = header.nextElementSibling;
+        content.classList.toggle('active');
+    }
+
+    // نظام التبويبات
+    function switchTab(tab, tabId) {
+        document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+        document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+        
+        tab.classList.add('active');
+        document.getElementById(tabId).classList.add('active');
+    }
+
+    // الترقيم
+    function changePage(btn, page) {
+        document.querySelectorAll('.pagination button').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        showNotification('تم الانتقال إلى الصفحة ' + page);
+    }
+
+    // إضافة مهمة جديدة
+    function addTask(event) {
+        event.preventDefault();
+        const title = document.getElementById('taskTitle').value;
+        const desc = document.getElementById('taskDesc').value;
+        const priority = document.getElementById('taskPriority').value;
+        
+        const priorityClass = priority === 'high' ? 'priority-high' : priority === 'medium' ? 'priority-medium' : 'priority-low';
+        const priorityText = priority === 'high' ? 'عاجل' : priority === 'medium' ? 'متوسط' : 'عادي';
+        
+        const todoList = document.querySelector('.todo-list');
+        const newTask = document.createElement('div');
+        newTask.className = 'todo-item';
+        newTask.onclick = function() { toggleTodo(this); };
+        newTask.innerHTML = `
+            <div class="todo-checkbox"></div>
+            <span class="todo-text">${title}</span>
+            <span class="todo-priority ${priorityClass}">${priorityText}</span>
+        `;
+        
+        todoList.insertBefore(newTask, todoList.firstChild);
+        
+        document.getElementById('taskTitle').value = '';
+        document.getElementById('taskDesc').value = '';
+        
+        showNotification('تم إضافة المهمة بنجاح');
+    }
+
+    // النافذة المنبثقة
+    function openModal(title, content) {
+        document.getElementById('modalTitle').textContent = title;
+        document.getElementById('modalBody').innerHTML = content;
+        document.getElementById('modalOverlay').classList.add('active');
+    }
+
+    function closeModal(event) {
+        if (!event || event.target.id === 'modalOverlay' || event.target.classList.contains('modal-close') || event.target.classList.contains('btn')) {
+            document.getElementById('modalOverlay').classList.remove('active');
+        }
+    }
+
+    // تهيئة الصفحة
+    window.addEventListener('load', function() {
+        generateCalendar();
+        generateBarChart();
+        setTimeout(() => {
+            animateCircularProgress();
+        }, 500);
+    });
 </script>
 
 </body>
