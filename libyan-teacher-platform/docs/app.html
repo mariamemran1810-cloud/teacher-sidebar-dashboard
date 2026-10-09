@@ -1,0 +1,572 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>لوحة المعلم | منصة المعلم الليبي الرقمي</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet">
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+tailwind.config = {
+  darkMode: 'class',
+  theme: { extend: { colors: {
+    primary: {700:'#0f766e', 800:'#115e59'},
+    gold: {500:'#f59e0b', 600:'#d97706'}
+  }, fontFamily: { sans: ['Cairo','Tajawal','sans-serif'] } } }
+}
+</script>
+<style>
+body{font-family:'Cairo','Tajawal',sans-serif}
+.nav-item{display:flex;align-items:center;gap:.7rem;padding:.6rem .9rem;border-radius:.8rem;font-weight:700;font-size:.9rem;cursor:pointer;transition:.2s;color:#d1fae5;width:100%;text-align:right}
+.nav-item:hover{background:rgba(255,255,255,.12);color:#fff}
+.nav-item.active{background:#fff;color:#0f766e}
+.view{display:none}
+.view.active{display:block;animation:fade .3s ease}
+@keyframes fade{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+.stat-card{position:relative;overflow:hidden;border-radius:1rem;padding:1.2rem;color:#fff;box-shadow:0 8px 20px rgba(0,0,0,.1)}
+.stat-card .big-ic{position:absolute;left:.6rem;bottom:-.4rem;font-size:2.6rem;opacity:.25}
+.s-blue{background:linear-gradient(135deg,#2563eb,#1e40af)}
+.s-green{background:linear-gradient(135deg,#0f766e,#115e59)}
+.s-gold{background:linear-gradient(135deg,#f59e0b,#b45309)}
+.s-navy{background:linear-gradient(135deg,#1e3a5f,#0b1f3a)}
+.card{background:#fff;border:1px solid #e5e7eb;border-radius:1rem;padding:1.2rem;transition:.2s}
+.dark .card{background:#0e2831;border-color:#1c3b45}
+.card:hover{box-shadow:0 10px 26px rgba(15,90,100,.10)}
+.section-title{font-weight:800;font-size:1rem;margin-bottom:.8rem;color:#115e59}
+.dark .section-title{color:#5eead4}
+.field label{display:block;font-weight:800;font-size:.84rem;margin-bottom:.3rem;color:#115e59}
+.dark .field label{color:#5eead4}
+.field input,.field select,.field textarea{width:100%;border:1.5px solid #e5e7eb;border-radius:.7rem;padding:.6rem .8rem;background:#f9fafb;color:#111827}
+.dark .field input,.dark .field select,.dark .field textarea{background:#071b22;color:#e9f4f5;border-color:#1c3b45}
+.field input:focus,.field select:focus,.field textarea:focus{outline:none;border-color:#0d9488}
+.btn{border:none;border-radius:.7rem;padding:.6rem 1.1rem;font-weight:800;font-size:.88rem;cursor:pointer;display:inline-flex;align-items:center;gap:.4rem;transition:.2s}
+.btn-primary{background:linear-gradient(135deg,#0f766e,#0d9488);color:#fff}
+.btn-primary:hover{transform:translateY(-2px)}
+.btn-gold{background:linear-gradient(135deg,#f59e0b,#d97706);color:#fff}
+.btn-ghost{background:#fff;border:1.5px solid #e5e7eb;color:#374151}
+.dark .btn-ghost{background:#0e2831;border-color:#1c3b45;color:#e9f4f5}
+.btn-sm{padding:.35rem .7rem;font-size:.78rem}
+.table-wrap{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:.88rem}
+th{background:#f0fdfa;color:#115e59;font-weight:800;padding:.6rem .8rem;text-align:right;border-bottom:2px solid #ccfbf1}
+.dark th{background:#0d3a3a;color:#5eead4;border-color:#1c3b45}
+td{padding:.55rem .8rem;border-bottom:1px solid #f3f4f6}
+.dark td{border-color:#1c3b45}
+.output{margin-top:1rem;background:#f9fafb;border:1px dashed #d1d5db;border-radius:.8rem;padding:1rem;min-height:60px;white-space:pre-wrap}
+.dark .output{background:#071b22;border-color:#1c3b45}
+.pill{display:inline-block;background:#d7f3ee;color:#115e59;border-radius:1rem;padding:.1rem .7rem;font-size:.74rem;font-weight:800;margin:.1rem}
+.dark .pill{background:#0d3a3a;color:#5eead4}
+.empty{text-align:center;padding:2.5rem;color:#6b7280}
+</style>
+</head>
+<body class="bg-gray-100 dark:bg-gray-900 text-gray-800 dark:text-gray-100">
+
+<div class="flex min-h-screen">
+
+  <!-- Sidebar -->
+  <aside class="sidebar w-64 bg-gradient-to-b from-emerald-800 to-emerald-900 text-white flex flex-col fixed md:static inset-y-0 right-0 z-40 transform md:translate-x-0 translate-x-full transition-transform" id="sidebar">
+    <div class="p-4 border-b border-emerald-700/50 flex items-center gap-2">
+      <span class="text-2xl">🎓</span>
+      <div><b class="text-sm">المعلم الليبي الرقمي</b><br><span class="text-emerald-300 text-xs">لوحة التحكم</span></div>
+    </div>
+    <nav class="flex-1 p-3 space-y-1 overflow-y-auto" id="sideNav">
+      <button class="nav-item active" data-view="dashboard">🏠 لوحة التحكم</button>
+      <button class="nav-item" data-view="students">👨‍🎓 الطلاب</button>
+      <button class="nav-item" data-view="teachers">👨‍🏫 المدرسون</button>
+      <button class="nav-item" data-view="subjects">📚 المواد</button>
+      <button class="nav-item" data-view="prep">📝 التحضير الذكي</button>
+      <button class="nav-item" data-view="ai">🤖 مساعد AI</button>
+      <button class="nav-item" data-view="exams">📊 الاختبارات</button>
+      <button class="nav-item" data-view="grades">📈 الدرجات</button>
+      <button class="nav-item" data-view="attendance">🗓️ الحضور</button>
+      <button class="nav-item" data-view="payments">💰 المدفوعات</button>
+      <button class="nav-item" data-view="followups">📋 المتابعة</button>
+      <button class="nav-item" data-view="messages">💬 الرسائل</button>
+      <button class="nav-item" data-view="library">📦 المكتبة</button>
+      <button class="nav-item" data-view="training">🎓 التدريب</button>
+      <button class="nav-item" data-view="community">📢 المجتمع</button>
+      <button class="nav-item" data-view="schedule">🗓️ الجدول</button>
+      <button class="nav-item" data-view="notifications">🔔 الإشعارات</button>
+      <button class="nav-item" data-view="profile">👤 الملف الشخصي</button>
+    </nav>
+    <div class="p-3 border-t border-emerald-700/50">
+      <a href="index.html" class="btn btn-ghost w-full justify-center text-xs">🏠 الصفحة الرئيسية</a>
+    </div>
+  </aside>
+
+  <!-- Main -->
+  <div class="flex-1 flex flex-col min-w-0">
+    <header class="bg-white dark:bg-gray-800 shadow-sm sticky top-0 z-30">
+      <div class="flex items-center justify-between h-14 px-4">
+        <div class="flex items-center gap-3">
+          <button class="md:hidden text-xl" id="menuBtn">☰</button>
+          <span class="font-bold" id="pageTitle">لوحة التحكم</span>
+        </div>
+        <div class="flex items-center gap-2">
+          <button class="btn btn-ghost btn-sm" id="themeBtn">🌙</button>
+          <a href="index.html" class="btn btn-ghost btn-sm">🏠</a>
+        </div>
+      </div>
+    </header>
+
+    <main class="p-4 md:p-6 flex-1">
+      <div id="msgBox"></div>
+
+      <!-- Dashboard -->
+      <section class="view active" id="view-dashboard">
+        <div class="mb-5">
+          <h2 class="text-xl font-black">👋 أهلاً بك، <span id="dashName">معلمنا</span></h2>
+          <p class="text-sm text-gray-500">هذه نظرة سريعة على يومك التعليمي وأداء طلابك.</p>
+        </div>
+        <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-5">
+          <div class="stat-card s-blue"><div class="text-3xl font-black" id="kpiStudents">0</div><div class="text-xs opacity-90">عدد الطلاب</div><div class="big-ic">👨‍🎓</div></div>
+          <div class="stat-card s-green"><div class="text-3xl font-black" id="kpiPreps">0</div><div class="text-xs opacity-90">تحاضير محفوظة</div><div class="big-ic">📝</div></div>
+          <div class="stat-card s-gold"><div class="text-3xl font-black" id="kpiExams">0</div><div class="text-xs opacity-90">اختبارات</div><div class="big-ic">📊</div></div>
+          <div class="stat-card s-navy"><div class="text-3xl font-black" id="kpiAvg">0%</div><div class="text-xs opacity-90">متوسط الدرجات</div><div class="big-ic">📈</div></div>
+        </div>
+        <div class="grid md:grid-cols-2 gap-4">
+          <div class="card">
+            <h3 class="section-title">✅ مهامي</h3>
+            <div id="dashTodos" class="space-y-2 text-sm"></div>
+            <div class="flex gap-2 mt-3">
+              <input id="todoInput" placeholder="أضف مهمة جديدة…" class="field flex-1" style="border:1.5px solid #e5e7eb;border-radius:.7rem;padding:.5rem .8rem">
+              <button class="btn btn-primary btn-sm" id="todoAdd">إضافة</button>
+            </div>
+          </div>
+          <div class="card">
+            <h3 class="section-title">⚡ إجراءات سريعة</h3>
+            <div class="grid grid-cols-2 gap-2">
+              <button class="btn btn-ghost btn-sm justify-center" data-goto="prep">📝 تحضير جديد</button>
+              <button class="btn btn-ghost btn-sm justify-center" data-goto="exams">📊 اختبار جديد</button>
+              <button class="btn btn-ghost btn-sm justify-center" data-goto="students">👨‍🎓 سجل الطلاب</button>
+              <button class="btn btn-ghost btn-sm justify-center" data-goto="attendance">🗓️ الحضور اليوم</button>
+            </div>
+            <div class="mt-4 text-xs text-gray-500 p-3 rounded-xl" style="background:#f0fdfa">💡 تُحفظ كل بياناتك تلقائياً في متصفحك — لا حاجة لتسجيل خروجك.</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Students -->
+      <section class="view" id="view-students">
+        <div class="flex items-center justify-between mb-4 flex-wrap gap-2">
+          <h2 class="text-lg font-black">👨‍🎓 إدارة الطلاب</h2>
+          <div class="flex gap-2">
+            <input id="stSearch" placeholder="🔍 بحث عن طالب…" class="input" style="border:1.5px solid #e5e7eb;border-radius:.7rem;padding:.5rem .8rem">
+            <button class="btn btn-primary btn-sm" id="addStudent">➕ إضافة طالب</button>
+          </div>
+        </div>
+        <div class="card mb-4" id="stForm" style="display:none">
+          <div class="grid md:grid-cols-3 gap-3">
+            <div class="field"><label>اسم الطالب</label><input id="st_name" placeholder="الاسم الكامل"></div>
+            <div class="field"><label>الصف</label>
+              <select id="st_grade">
+                <option>الأول الأساسي</option><option>الثاني الأساسي</option><option>الثالث الأساسي</option>
+                <option>الرابع الأساسي</option><option>الخامس الأساسي</option><option>السادس الأساسي</option>
+                <option>السابع الأساسي</option><option>الثامن الأساسي</option><option>التاسع الأساسي</option>
+                <option>الأول الثانوي</option><option>الثاني الثانوي</option><option>الثالث الثانوي</option>
+              </select>
+            </div>
+            <div class="field"><label>هاتف ولي الأمر</label><input id="st_parent" placeholder="+218..."></div>
+          </div>
+          <div class="flex gap-2 mt-2">
+            <button class="btn btn-primary btn-sm" id="stSave">💾 حفظ</button>
+            <button class="btn btn-ghost btn-sm" id="stCancel">إلغاء</button>
+          </div>
+        </div>
+        <div class="card table-wrap">
+          <table>
+            <thead><tr><th>م</th><th>اسم الطالب</th><th>الصف</th><th>هاتف ولي الأمر</th><th>الحضور</th><th>متوسط الدرجات</th><th></th></tr></thead>
+            <tbody id="stBody"></tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- Teachers -->
+      <section class="view" id="view-teachers">
+        <div class="flex items-center justify-between mb-4">
+          <h2 class="text-lg font-black">👨‍🏫 المدرسون</h2>
+          <button class="btn btn-primary btn-sm" id="addTeacher">➕ إضافة مدرس</button>
+        </div>
+        <div class="card mb-4" id="tcForm" style="display:none">
+          <div class="grid md:grid-cols-3 gap-3">
+            <div class="field"><label>اسم المدرس</label><input id="tc_name"></div>
+            <div class="field"><label>التخصص</label><input id="tc_spec" placeholder="مثال: رياضيات"></div>
+            <div class="field"><label>الهاتف</label><input id="tc_phone"></div>
+          </div>
+          <div class="flex gap-2 mt-2">
+            <button class="btn btn-primary btn-sm" id="tcSave">💾 حفظ</button>
+            <button class="btn btn-ghost btn-sm" id="tcCancel">إلغاء</button>
+          </div>
+        </div>
+        <div class="card table-wrap">
+          <table>
+            <thead><tr><th>م</th><th>الاسم</th><th>التخصص</th><th>الهاتف</th><th></th></tr></thead>
+            <tbody id="tcBody"></tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- Subjects -->
+      <section class="view" id="view-subjects">
+        <div class="flex items-center justify-between mb-4">
+          <h2 class="text-lg font-black">📚 المواد الدراسية</h2>
+          <button class="btn btn-primary btn-sm" id="addSubject">➕ إضافة مادة</button>
+        </div>
+        <div class="card mb-4" id="sbForm" style="display:none">
+          <div class="grid md:grid-cols-3 gap-3">
+            <div class="field"><label>اسم المادة</label><input id="sb_name"></div>
+            <div class="field"><label>المرحلة</label>
+              <select id="sb_stage"><option>أساسي</option><option>إعدادي</option><option>ثانوي</option></select>
+            </div>
+            <div class="field"><label>الوصف</label><input id="sb_desc"></div>
+          </div>
+          <div class="flex gap-2 mt-2">
+            <button class="btn btn-primary btn-sm" id="sbSave">💾 حفظ</button>
+            <button class="btn btn-ghost btn-sm" id="sbCancel">إلغاء</button>
+          </div>
+        </div>
+        <div class="grid md:grid-cols-3 gap-4" id="sbBox"></div>
+      </section>
+
+      <!-- Lesson Prep -->
+      <section class="view" id="view-prep">
+        <div class="mb-4">
+          <h2 class="text-lg font-black">📝 التحضير الذكي</h2>
+          <p class="text-sm text-gray-500">أنشئ تحضير درس كاملاً واحفظه في سجل تحاضيرك، ثم اطبعه.</p>
+        </div>
+        <div class="card">
+          <div class="grid md:grid-cols-3 gap-3">
+            <div class="field"><label>عنوان الدرس</label><input id="pp_title" placeholder="مثال: الأشكال المجسمة"></div>
+            <div class="field"><label>المادة</label><input id="pp_subject" placeholder="مثال: الرياضيات"></div>
+            <div class="field"><label>الصف</label><input id="pp_grade" placeholder="مثال: الثامن الأساسي"></div>
+          </div>
+          <div class="flex gap-2 flex-wrap mt-2">
+            <button class="btn btn-primary" id="prepGenerate">✨ توليد التحضير</button>
+            <button class="btn btn-gold" id="prepSave">💾 حفظ</button>
+            <button class="btn btn-ghost" id="prepPrint">🖨️ طباعة</button>
+          </div>
+          <div class="output" id="prepOut">اكتب عنوان الدرس والمادة ثم اضغط «توليد» ليظهر التحضير الكامل جاهزاً… 🎓</div>
+        </div>
+        <div class="card mt-4">
+          <h3 class="section-title">🗂️ تحاضيري المحفوظة</h3>
+          <div id="prepSavedBox" class="space-y-2 text-sm"></div>
+        </div>
+      </section>
+
+      <!-- AI Assistant -->
+      <section class="view" id="view-ai">
+        <div class="mb-4">
+          <h2 class="text-lg font-black">🤖 مساعد المعلم بالذكاء الاصطناعي</h2>
+          <p class="text-sm text-gray-500">اربط مفتاحك المجاني، واختبر الاتصال، ثم ولّد خطط الدروس والأسئلة فوراً.</p>
+        </div>
+        <div class="p-3 rounded-xl text-sm mb-4" style="background:#fef3d8">🔑 <b>مفتاح مجاني (Google Gemini):</b> ادخل aistudio.google.com/apikey ← «Create API Key» ← انسخه والصقه أدناه. 🔒 يُحفظ المفتاح في متصفحك فقط.</div>
+        <div class="card">
+          <div class="grid md:grid-cols-3 gap-3">
+            <div class="field"><label>المزوّد</label>
+              <select id="aiProvider">
+                <option value="gemini">Google Gemini</option>
+                <option value="groq">Groq</option>
+                <option value="openrouter">OpenRouter</option>
+                <option value="openai">OpenAI</option>
+              </select>
+            </div>
+            <div class="field"><label>مفتاح API</label><input type="password" id="aiKey" placeholder="الصق المفتاح هنا"></div>
+            <div class="field"><label>&nbsp;</label>
+              <div class="flex gap-2">
+                <button class="btn btn-ghost btn-sm" id="aiSaveKey">💾 حفظ</button>
+                <button class="btn btn-ghost btn-sm" id="aiTest">🔌 اختبار</button>
+              </div>
+            </div>
+          </div>
+          <div class="grid md:grid-cols-3 gap-3 mt-2">
+            <div class="field"><label>نوع المطلوب</label>
+              <select id="aiTask">
+                <option value="plan">📋 خطة درس كاملة</option>
+                <option value="mcq">❓ أسئلة اختيار من متعدد</option>
+                <option value="worksheet">📄 ورقة عمل</option>
+                <option value="activity">🎭 أنشطة صفية</option>
+                <option value="simplify">🪄 تبسيط الدرس</option>
+              </select>
+            </div>
+            <div class="field"><label>المادة</label><input id="aiSubject" placeholder="الرياضيات"></div>
+            <div class="field"><label>الصف</label><input id="aiGrade" placeholder="الثامن الأساسي"></div>
+          </div>
+          <div class="field"><label>عنوان الدرس / الموضوع</label><input id="aiTopic" placeholder="الأشكال المجسمة"></div>
+          <button class="btn btn-primary" id="aiRun">✨ ولّد المحتوى</button>
+          <span id="aiConnMsg" class="text-xs mr-2"></span>
+          <div class="output" id="aiOut">اختر النوع واملأ التفاصيل ثم اضغط «ولّد المحتوى»… 🤖</div>
+        </div>
+      </section>
+
+      <!-- Exams -->
+      <section class="view" id="view-exams">
+        <div class="flex items-center justify-between mb-4 flex-wrap gap-2">
+          <h2 class="text-lg font-black">📊 الاختبارات</h2>
+          <button class="btn btn-primary btn-sm" id="addExam">➕ اختبار جديد</button>
+        </div>
+        <div class="card mb-4" id="exForm" style="display:none">
+          <div class="grid md:grid-cols-3 gap-3">
+            <div class="field"><label>عنوان الاختبار</label><input id="ex_title"></div>
+            <div class="field"><label>المادة</label><input id="ex_subject"></div>
+            <div class="field"><label>الدرجة الكلية</label><input type="number" id="ex_marks" value="100"></div>
+            <div class="field"><label>التاريخ</label><input type="date" id="ex_date"></div>
+            <div class="field"><label>النوع</label>
+              <select id="ex_type"><option value="quiz">فرض</option><option value="midterm">نصف الفصل</option><option value="final">نهائي</option></select>
+            </div>
+          </div>
+          <div class="flex gap-2 mt-2">
+            <button class="btn btn-primary btn-sm" id="exSave">💾 حفظ</button>
+            <button class="btn btn-ghost btn-sm" id="exCancel">إلغاء</button>
+          </div>
+        </div>
+        <div class="card table-wrap">
+          <table>
+            <thead><tr><th>م</th><th>العنوان</th><th>المادة</th><th>النوع</th><th>الدرجة الكلية</th><th>التاريخ</th><th></th></tr></thead>
+            <tbody id="exBody"></tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- Grades -->
+      <section class="view" id="view-grades">
+        <div class="flex items-center justify-between mb-4 flex-wrap gap-2">
+          <h2 class="text-lg font-black">📈 سجل الدرجات</h2>
+          <button class="btn btn-primary btn-sm" id="addGrade">➕ إضافة درجة</button>
+        </div>
+        <div class="card mb-4" id="grForm" style="display:none">
+          <div class="grid md:grid-cols-5 gap-3">
+            <div class="field"><label>الطالب</label><input id="gr_student" placeholder="اسم الطالب"></div>
+            <div class="field"><label>أعمال (20)</label><input type="number" id="gr_work" value="18" min="0" max="20"></div>
+            <div class="field"><label>فرض (20)</label><input type="number" id="gr_quiz" value="16" min="0" max="20"></div>
+            <div class="field"><label>امتحان (60)</label><input type="number" id="gr_exam" value="52" min="0" max="60"></div>
+            <div class="field"><label>&nbsp;</label><button class="btn btn-primary btn-sm" id="grSave" style="width:100%">💾 حفظ</button></div>
+          </div>
+        </div>
+        <div class="card table-wrap">
+          <table>
+            <thead><tr><th>م</th><th>الطالب</th><th>أعمال (20)</th><th>فرض (20)</th><th>امتحان (60)</th><th>المجموع</th><th>التقدير</th><th></th></tr></thead>
+            <tbody id="grBody"></tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- Attendance -->
+      <section class="view" id="view-attendance">
+        <div class="flex items-center justify-between mb-4 flex-wrap gap-2">
+          <h2 class="text-lg font-black">🗓️ الحضور والغياب</h2>
+          <div class="flex items-center gap-2 flex-wrap">
+            <input type="date" id="attDate" class="input" style="border:1.5px solid #e5e7eb;border-radius:.7rem;padding:.45rem .7rem">
+            <button class="btn btn-ghost btn-sm" id="attAllPresent">✔ تحضير الكل</button>
+            <span class="pill" id="attSummary">حاضر: 0 | غائب: 0 | متأخر: 0</span>
+            <button class="btn btn-primary btn-sm" id="attSave">💾 حفظ اليوم</button>
+          </div>
+        </div>
+        <div class="card table-wrap">
+          <table>
+            <thead><tr><th>م</th><th>اسم الطالب</th><th>الحالة</th></tr></thead>
+            <tbody id="attBody"></tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- Payments -->
+      <section class="view" id="view-payments">
+        <div class="flex items-center justify-between mb-4 flex-wrap gap-2">
+          <h2 class="text-lg font-black">💰 المدفوعات والرسوم</h2>
+          <button class="btn btn-primary btn-sm" id="addPayment">➕ إضافة دفعة</button>
+        </div>
+        <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-4">
+          <div class="stat-card s-green"><div class="text-2xl font-black" id="payTotal">0</div><div class="text-xs opacity-90">إجمالي المحصّل</div></div>
+          <div class="stat-card s-gold"><div class="text-2xl font-black" id="payPending">0</div><div class="text-xs opacity-90">قيد الانتظار</div></div>
+          <div class="stat-card s-blue"><div class="text-2xl font-black" id="payCount">0</div><div class="text-xs opacity-90">عدد المعاملات</div></div>
+          <div class="stat-card s-navy"><div class="text-2xl font-black" id="payRate">0%</div><div class="text-xs opacity-90">نسبة التحصيل</div></div>
+        </div>
+        <div class="card mb-4" id="pyForm" style="display:none">
+          <div class="grid md:grid-cols-4 gap-3">
+            <div class="field"><label>اسم الطالب</label><input id="py_student"></div>
+            <div class="field"><label>المبلغ (د.ل)</label><input type="number" id="py_amount"></div>
+            <div class="field"><label>النوع</label>
+              <select id="py_type"><option value="tuition">رسوم دراسية</option><option value="exam">رسوم امتحان</option><option value="activity">نشاط</option><option value="other">أخرى</option></select>
+            </div>
+            <div class="field"><label>الحالة</label>
+              <select id="py_status"><option value="paid">مدفوع</option><option value="pending">معلّق</option></select>
+            </div>
+          </div>
+          <div class="flex gap-2 mt-2">
+            <button class="btn btn-primary btn-sm" id="pySave">💾 حفظ</button>
+            <button class="btn btn-ghost btn-sm" id="pyCancel">إلغاء</button>
+          </div>
+        </div>
+        <div class="card table-wrap">
+          <table>
+            <thead><tr><th>م</th><th>الطالب</th><th>المبلغ</th><th>النوع</th><th>الحالة</th><th>التاريخ</th><th></th></tr></thead>
+            <tbody id="pyBody"></tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- Followups -->
+      <section class="view" id="view-followups">
+        <div class="mb-4">
+          <h2 class="text-lg font-black">📋 المتابعة الأسبوعية والشهرية</h2>
+          <p class="text-sm text-gray-500">سجّل ما تم دراسته ونتائج التقدم وخطط الأسبوع القادم.</p>
+        </div>
+        <div class="card mb-4">
+          <h3 class="section-title">➕ متابعة أسبوعية جديدة</h3>
+          <div class="grid md:grid-cols-2 gap-3">
+            <div class="field"><label>المواد المغطاة</label><textarea id="fu_topics" rows="3" placeholder="ما تم دراسته هذا الأسبوع…"></textarea></div>
+            <div class="field"><label>الأنشطة المنفذة</label><textarea id="fu_activities" rows="3" placeholder="الأنشطة والتطبيقات…"></textarea></div>
+            <div class="field"><label>التحديات</label><textarea id="fu_challenges" rows="3" placeholder="ما واجهته من صعوبات…"></textarea></div>
+            <div class="field"><label>خطة الأسبوع القادم</label><textarea id="fu_next" rows="3" placeholder="الخطة القادمة…"></textarea></div>
+          </div>
+          <button class="btn btn-primary btn-sm mt-1" id="fuSave">💾 حفظ المتابعة</button>
+        </div>
+        <div class="card">
+          <h3 class="section-title">🗂️ سجل المتابعات</h3>
+          <div id="fuBox" class="space-y-3 text-sm"></div>
+        </div>
+      </section>
+
+      <!-- Messages -->
+      <section class="view" id="view-messages">
+        <div class="mb-4">
+          <h2 class="text-lg font-black">💬 رسائل أولياء الأمور</h2>
+          <p class="text-sm text-gray-500">تواصل مع أولياء الأمور وتابع رسائلهم.</p>
+        </div>
+        <div class="card mb-4">
+          <div class="grid md:grid-cols-3 gap-3">
+            <div class="field"><label>إلى (اسم الطالب / ولي الأمر)</label><input id="ms_to"></div>
+            <div class="field" style="grid-column:span 2"><label>الرسالة</label><input id="ms_text" placeholder="اكتب رسالتك…"></div>
+          </div>
+          <button class="btn btn-primary btn-sm mt-1" id="msSend">📤 إرسال</button>
+        </div>
+        <div class="card">
+          <div id="msBox" class="space-y-3 text-sm"></div>
+        </div>
+      </section>
+
+      <!-- Library -->
+      <section class="view" id="view-library">
+        <div class="flex items-center justify-between mb-4 flex-wrap gap-2">
+          <h2 class="text-lg font-black">📦 المكتبة الرقمية</h2>
+          <button class="btn btn-primary btn-sm" id="addLib">➕ إضافة مورد</button>
+        </div>
+        <div class="card mb-4" id="lbForm" style="display:none">
+          <div class="grid md:grid-cols-3 gap-3">
+            <div class="field"><label>عنوان المورد</label><input id="lb_title"></div>
+            <div class="field"><label>النوع</label>
+              <select id="lb_type"><option value="book">كتاب</option><option value="worksheet">ورقة عمل</option><option value="slides">عرض تقديمي</option><option value="video">فيديو</option><option value="exam">نموذج امتحان</option></select>
+            </div>
+            <div class="field"><label>رابط (اختياري)</label><input id="lb_url" placeholder="https://..."></div>
+          </div>
+          <div class="flex gap-2 mt-2">
+            <button class="btn btn-primary btn-sm" id="lbSave">💾 حفظ</button>
+            <button class="btn btn-ghost btn-sm" id="lbCancel">إلغاء</button>
+          </div>
+        </div>
+        <div class="grid md:grid-cols-3 gap-4" id="lbBox"></div>
+      </section>
+
+      <!-- Training -->
+      <section class="view" id="view-training">
+        <div class="mb-4">
+          <h2 class="text-lg font-black">🎓 التدريب المهني للمعلم</h2>
+          <p class="text-sm text-gray-500">دورات رقمية في مسار «المعلم الرقمي المحترف» وتنتهي بشهادة.</p>
+        </div>
+        <div class="grid md:grid-cols-3 gap-4" id="trBox"></div>
+        <div class="card mt-4">
+          <h3 class="section-title">🏅 سجل إنجازي</h3>
+          <div class="flex justify-between text-sm py-1"><span>الدورات المكتملة</span><b id="trDone">0</b></div>
+          <div class="flex justify-between text-sm py-1"><span>نسبة إكمال المسار</span><b id="trPct">0%</b></div>
+          <div class="h-2 rounded-full mt-2" style="background:#e5e7eb"><div class="h-2 rounded-full" id="trBar" style="width:0%;background:linear-gradient(90deg,#0f766e,#0d9488);border-radius:1rem;transition:.4s"></div></div>
+        </div>
+      </section>
+
+      <!-- Community -->
+      <section class="view" id="view-community">
+        <div class="mb-4">
+          <h2 class="text-lg font-black">📢 مجتمع المعلمين</h2>
+          <p class="text-sm text-gray-500">شارك تحاضيرك وأنشطتك وتجاربك مع معلمي ليبيا.</p>
+        </div>
+        <div class="card mb-4">
+          <div class="field"><label>شارك تجربة أو نشاطاً</label><textarea id="cmText" rows="3" placeholder="اكتب منشورك…"></textarea></div>
+          <button class="btn btn-primary btn-sm" id="cmAdd">📢 نشر</button>
+        </div>
+        <div class="space-y-4" id="cmBox"></div>
+      </section>
+
+      <!-- Schedule -->
+      <section class="view" id="view-schedule">
+        <div class="flex items-center justify-between mb-4 flex-wrap gap-2">
+          <h2 class="text-lg font-black">🗓️ الجدول الأسبوعي</h2>
+          <button class="btn btn-primary btn-sm" id="addSch">➕ إضافة حصة</button>
+        </div>
+        <div class="card mb-4" id="scForm" style="display:none">
+          <div class="grid md:grid-cols-4 gap-3">
+            <div class="field"><label>اليوم</label>
+              <select id="sc_day"><option>الأحد</option><option>الاثنين</option><option>الثلاثاء</option><option>الأربعاء</option><option>الخميس</option></select>
+            </div>
+            <div class="field"><label>الحصة</label>
+              <select id="sc_period"><option>الأولى</option><option>الثانية</option><option>الثالثة</option><option>الرابعة</option><option>الخامسة</option><option>السادسة</option></select>
+            </div>
+            <div class="field"><label>المادة</label><input id="sc_subject"></div>
+            <div class="field"><label>الصف</label><input id="sc_class"></div>
+          </div>
+          <div class="flex gap-2 mt-2">
+            <button class="btn btn-primary btn-sm" id="scSave">💾 حفظ</button>
+            <button class="btn btn-ghost btn-sm" id="scCancel">إلغاء</button>
+          </div>
+        </div>
+        <div class="card table-wrap">
+          <table>
+            <thead><tr><th>اليوم</th><th>الحصة</th><th>المادة</th><th>الصف</th><th></th></tr></thead>
+            <tbody id="scBody"></tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- Notifications -->
+      <section class="view" id="view-notifications">
+        <div class="mb-4">
+          <h2 class="text-lg font-black">🔔 الإشعارات</h2>
+        </div>
+        <div class="space-y-3" id="ntBox"></div>
+      </section>
+
+      <!-- Profile -->
+      <section class="view" id="view-profile">
+        <div class="mb-4">
+          <h2 class="text-lg font-black">👤 الملف الشخصي</h2>
+        </div>
+        <div class="card mb-4">
+          <h3 class="section-title">المعلومات الأساسية</h3>
+          <div class="grid md:grid-cols-2 gap-3">
+            <div class="field"><label>الاسم الكامل</label><input id="pf_name"></div>
+            <div class="field"><label>البريد الإلكتروني</label><input id="pf_email"></div>
+            <div class="field"><label>الهاتف</label><input id="pf_phone"></div>
+            <div class="field"><label>التخصص</label><input id="pf_spec"></div>
+          </div>
+          <button class="btn btn-primary btn-sm mt-1" id="pfSave">💾 حفظ التغييرات</button>
+        </div>
+        <div class="card">
+          <h3 class="section-title">🔑 تغيير كلمة المرور</h3>
+          <div class="grid md:grid-cols-3 gap-3">
+            <div class="field"><label>كلمة المرور الحالية</label><input type="password" id="pf_old"></div>
+            <div class="field"><label>كلمة المرور الجديدة</label><input type="password" id="pf_new"></div>
+            <div class="field"><label>تأكيد كلمة المرور</label><input type="password" id="pf_conf"></div>
+          </div>
+          <button class="btn btn-gold btn-sm mt-1" id="pfPass">تحديث كلمة المرور</button>
+        </div>
+      </section>
+
+    </main>
+  </div>
+</div>
+
+<div id="toast" style="position:fixed;bottom:1.2rem;left:1.2rem;z-index:50;padding:.8rem 1.3rem;border-radius:1rem;color:#fff;font-weight:800;display:none;box-shadow:0 12px 30px rgba(0,0,0,.25)"></div>
+
+<script src="js/app.js"></script>
+</body>
+</html>

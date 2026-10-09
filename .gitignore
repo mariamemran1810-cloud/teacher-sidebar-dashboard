@@ -1,0 +1,14 @@
+# ملفات النظام
+Thumbs.db
+desktop.ini
+.DS_Store
+
+# مجلدات المحررات
+.vscode/
+.idea/
+
+# ملفات مؤقتة
+*.log
+*.tmp
+
+.vercel
