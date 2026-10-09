@@ -750,12 +750,21 @@ td{padding:.55rem .8rem;border-bottom:1px solid #f3f4f6}
         </div>
         <div class="card mb-4">
           <h3 class="section-title">🔑 تغيير كلمة المرور</h3>
+          <p class="text-xs text-gray-500 mb-2">تُتحقق المنصة من كلمة المرور الحالية قبل التحديث — اختر كلمة من 6 أحرف على الأقل.</p>
           <div class="grid md:grid-cols-3 gap-3">
-            <div class="field"><label>كلمة المرور الحالية</label><input type="password" id="pf_old"></div>
-            <div class="field"><label>كلمة المرور الجديدة</label><input type="password" id="pf_new"></div>
-            <div class="field"><label>تأكيد كلمة المرور</label><input type="password" id="pf_conf"></div>
+            <div class="field"><label>كلمة المرور الحالية</label><input type="password" id="pf_old" placeholder="••••••"></div>
+            <div class="field"><label>كلمة المرور الجديدة</label><input type="password" id="pf_new" placeholder="6 أحرف على الأقل"></div>
+            <div class="field"><label>تأكيد كلمة المرور</label><input type="password" id="pf_conf" placeholder="••••••"></div>
           </div>
-          <button class="btn btn-gold btn-sm mt-1" id="pfPass">تحديث كلمة المرور</button>
+          <button class="btn btn-gold btn-sm mt-1" id="pfPass">🔑 تحديث كلمة المرور</button>
+        </div>
+        <div class="card mb-4">
+          <h3 class="section-title">🔒 الجلسة</h3>
+          <p class="text-xs text-gray-500 mb-3">أنهِ جلستك على هذا الجهاز — سيُطلب منك تسجيل الدخول مجدداً، ولا يُمسح أي شيء من بياناتك.</p>
+          <div class="flex gap-2 flex-wrap items-center">
+            <button class="btn btn-ghost btn-sm" id="pfLogout" style="color:#e11d48">⏻ تسجيل الخروج</button>
+            <span class="text-xs text-gray-500">الحساب الحالي: <b id="pfWho">—</b></span>
+          </div>
         </div>
         <div class="card">
           <h3 class="section-title">💾 النسخ الاحتياطي الخاص بك</h3>

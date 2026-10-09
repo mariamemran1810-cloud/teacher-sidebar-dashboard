@@ -1084,8 +1084,10 @@ function renderProfile() {
   $('pf_email').value = u.email || db.profile.email || '';
   $('pf_phone').value = db.profile.phone || '';
   $('pf_spec').value = u.spec || db.profile.spec || '';
+  if ($('pfWho')) $('pfWho').textContent = (u.name || '—') + (u.email ? ' • ' + u.email : '');
   paintAvatar();
 }
+$('pfLogout')?.addEventListener('click', () => $('logoutBtn').click());
 $('pfSave')?.addEventListener('click', () => {
   const u = me(); if (!u) return;
   const email = $('pf_email').value.trim().toLowerCase();
