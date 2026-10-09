@@ -7,17 +7,125 @@ const store = {
   set(k, v) { localStorage.setItem('ltp_' + k, JSON.stringify(v)); }
 };
 
-let db = store.get('db', {
-  students: [], teachers: [], subjects: [], preps: [], exams: [], grades: [],
-  attendance: [], payments: [], followups: [], messages: [], library: [],
-  training: [], community: [], schedule: [], todos: [], notifications: [
-    { id: 1, title: 'مرحباً بك في المنصة', text: 'ابدأ بإضافة طلابك وتحضير دروسك', read: false }
-  ],
-  profile: { name: 'معلمنا', email: '', phone: '', spec: '' }
-});
+const SCHEMA = 2;
+function freshDb() {
+  return {
+    v: SCHEMA, users: [], students: [], teachers: [], subjects: [], preps: [], exams: [], grades: [],
+    attendance: [], payments: [], followups: [], messages: [], library: [],
+    training: [], courses: [], community: [], schedule: [], todos: [], notifications: [],
+    settings: { school: '', city: '', phone: '', email: '' },
+    profile: { name: '', email: '', phone: '', spec: '' }
+  };
+}
+let db = store.get('db');
+if (!db || db.v !== SCHEMA) { db = freshDb(); store.set('db', db); }
+else {
+  db.settings = db.settings || { school: '', city: '', phone: '', email: '' };
+  db.courses = db.courses || [];
+}
+let session = store.get('session', null);
 
 function save() { store.set('db', db); }
 function uid() { return Date.now() + Math.floor(Math.random() * 1000); }
+function hashPw(s) { let h = 5381; for (let i = 0; i < s.length; i++) h = ((h << 5) + h + s.charCodeAt(i)) | 0; return 'h' + Math.abs(h); }
+function me() { return db.users.find(u => u.id === session) || null; }
+function isOwner() { const u = me(); return u && u.role === 'owner'; }
+function stars(n) { const v = Math.round(n || 0); return '⭐'.repeat(v) + '☆'.repeat(5 - v); }
+
+/* ================= الصلاحيات ================= */
+const ownerViews = ['teachers', 'payments', 'reports', 'settings'];
+function applyRole() {
+  const owner = isOwner();
+  document.querySelectorAll('[data-owner]').forEach(el => el.classList.toggle('owner-hide', !owner));
+}
+function paintAvatar() {
+  const u = me(); if (!u) return;
+  const html = u.avatar ? `<img src="${u.avatar}" alt="" style="width:100%;height:100%;object-fit:cover">` : esc((u.name || 'م')[0]);
+  $('uAv').innerHTML = html;
+  const p = $('pfAvatarImg'); if (p) p.innerHTML = html;
+}
+
+/* ================= الحسابات: إعداد المالك / دخول / خروج ================= */
+function showAuthPart(part) {
+  $('authScreen').style.display = 'flex';
+  $('appRoot').style.display = 'none';
+  ['setup', 'login', 'register'].forEach(p => $('auth-' + p)?.classList.toggle('hidden', p !== part));
+  $('authTabs')?.classList.toggle('hidden', part === 'setup');
+  $('authSubtitle').textContent = part === 'setup' ? 'أنشئ حساب المالك للبدء' : part === 'register' ? 'حساب معلم جديد' : 'سجّل الدخول إلى حسابك';
+  ['suMsg', 'lgMsg', 'rgMsg'].forEach(id => { const el = $(id); if (el) { el.textContent = ''; el.style.color = ''; } });
+}
+function enterApp() {
+  $('authScreen').style.display = 'none';
+  $('appRoot').style.display = '';
+  const u = me();
+  applyRole();
+  paintAvatar();
+  $('uName').textContent = u.name;
+  $('uRole').textContent = isOwner() ? '👑 مالك المنصة' : '👨‍🏫 معلم';
+  if (!db.profile.name) {
+    db.profile = { ...db.profile, name: u.name, email: u.email, spec: u.spec || '' };
+    save();
+  }
+  go('dashboard');
+}
+function bootAuth() {
+  const ownerExists = db.users.some(u => u.role === 'owner');
+  if (!ownerExists) showAuthPart('setup');
+  else if (session && me()) enterApp();
+  else { session = null; showAuthPart('login'); }
+}
+
+document.querySelectorAll('[data-auth]').forEach(b => b.addEventListener('click', () => {
+  document.querySelectorAll('[data-auth]').forEach(x => { x.classList.remove('btn-primary'); x.classList.add('btn-ghost'); });
+  b.classList.add('btn-primary'); b.classList.remove('btn-ghost');
+  showAuthPart(b.dataset.auth);
+}));
+
+$('suBtn')?.addEventListener('click', () => {
+  const name = $('suName').value.trim(), email = $('suEmail').value.trim().toLowerCase(), pass = $('suPass').value;
+  if (!name || !email || !pass) return $('suMsg').textContent = 'أكمل جميع الحقول';
+  if (pass.length < 6) return $('suMsg').textContent = 'كلمة المرور 6 أحرف على الأقل';
+  if (!/^\S+@\S+\.\S+$/.test(email)) return $('suMsg').textContent = 'بريد إلكتروني غير صحيح';
+  if (db.users.some(u => u.email === email)) return $('suMsg').textContent = 'البريد مستخدم مسبقاً';
+  const u = { id: uid(), name, email, pass: hashPw(pass), role: 'owner' };
+  db.users.push(u);
+  session = u.id; store.set('session', session);
+  db.notifications.push({ id: uid(), title: '🎉 أهلاً بك يا ' + name, text: 'أنشأت حساب المالك. يمكنك الآن إضافة المعلمين من قسم «المدرسون».', read: false });
+  save(); enterApp(); toast('🎉 تم إنشاء حساب المالك');
+});
+
+$('lgBtn')?.addEventListener('click', () => {
+  const email = $('lgEmail').value.trim().toLowerCase(), pass = $('lgPass').value;
+  const u = db.users.find(x => x.email === email);
+  if (!u || u.pass !== hashPw(pass)) return $('lgMsg').textContent = 'البريد أو كلمة المرور غير صحيحة';
+  if (u.status === 'pending') return $('lgMsg').textContent = '⏳ حسابك بانتظار موافقة المالك قبل الدخول';
+  if (u.status === 'suspended') return $('lgMsg').textContent = '⛔ حسابك معلّق — تواصل مع مالك المنصة';
+  session = u.id; store.set('session', session);
+  $('lgPass').value = '';
+  enterApp(); toast('👋 أهلاً ' + u.name);
+});
+
+$('rgBtn')?.addEventListener('click', () => {
+  const name = $('rgName').value.trim(), email = $('rgEmail').value.trim().toLowerCase(), pass = $('rgPass').value, spec = $('rgSpec').value.trim();
+  if (!name || !email || !pass) return $('rgMsg').textContent = 'أكمل جميع الحقول';
+  if (pass.length < 6) return $('rgMsg').textContent = 'كلمة المرور 6 أحرف على الأقل';
+  if (!/^\S+@\S+\.\S+$/.test(email)) return $('rgMsg').textContent = 'بريد إلكتروني غير صحيح';
+  if (db.users.some(u => u.email === email)) return $('rgMsg').textContent = 'البريد مستخدم مسبقاً';
+  const u = { id: uid(), name, email, pass: hashPw(pass), role: 'teacher', spec, status: 'pending', joined: new Date().toLocaleDateString('ar-LY') };
+  db.users.push(u);
+  const owner = db.users.find(x => x.role === 'owner');
+  if (owner) db.notifications.push({ id: uid(), uid: owner.id, title: '📝 طلب انضمام جديد', text: name + ' (' + (spec || 'معلم') + ') ينتظر موافقتك — من قسم «المعلمون».', read: false });
+  save();
+  $('rgMsg').textContent = '✅ تم إنشاء الحساب — بانتظار موافقة المالك قبل تسجيل الدخول';
+  $('rgMsg').style.color = '#0d9488';
+  toast('⏳ تم إرسال الطلب للمالك');
+});
+
+$('logoutBtn')?.addEventListener('click', () => {
+  session = null; store.set('session', null);
+  ['lgEmail', 'lgPass'].forEach(id => { const el = $(id); if (el) el.value = ''; });
+  showAuthPart('login'); toast('👋 تم تسجيل الخروج');
+});
 
 function toast(text, ok = true) {
   const t = $('toast');
@@ -30,14 +138,19 @@ function toast(text, ok = true) {
 
 /* ================= التنقل بين الأقسام ================= */
 const titles = {
-  dashboard: 'لوحة التحكم', students: 'إدارة الطلاب', teachers: 'المدرسون', subjects: 'المواد',
+  dashboard: 'لوحة التحكم', students: 'إدارة الطلاب', teachers: 'إدارة المعلمين', subjects: 'المواد',
   prep: 'التحضير الذكي', ai: 'مساعد AI', exams: 'الاختبارات', grades: 'سجل الدرجات',
   attendance: 'الحضور والغياب', payments: 'المدفوعات', followups: 'المتابعة',
   messages: 'الرسائل', library: 'المكتبة', training: 'التدريب', community: 'المجتمع',
-  schedule: 'الجدول', notifications: 'الإشعارات', profile: 'الملف الشخصي'
+  schedule: 'الجدول', notifications: 'الإشعارات', profile: 'الملف الشخصي',
+  reports: 'التقارير', settings: 'الإعدادات'
 };
 
 function go(view) {
+  if (ownerViews.includes(view) && !isOwner()) {
+    toast('⛔ هذا القسم متاح لمالك المنصة فقط', false);
+    view = 'dashboard';
+  }
   document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
   document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
   $('view-' + view)?.classList.add('active');
@@ -73,14 +186,15 @@ function render(view) {
     grades: renderGrades, attendance: renderAttendance, payments: renderPayments,
     followups: renderFollowups, messages: renderMessages, library: renderLibrary,
     training: renderTraining, community: renderCommunity, schedule: renderSchedule,
-    notifications: renderNotifications, profile: renderProfile
+    notifications: renderNotifications, profile: renderProfile,
+    reports: renderReports, settings: renderSettings
   }[view];
   if (r) r();
 }
 
 /* ================= لوحة التحكم ================= */
 function renderDashboard() {
-  $('dashName').textContent = db.profile.name || 'معلمنا';
+  $('dashName').textContent = (me()?.name) || db.profile.name || 'معلمنا';
   $('kpiStudents').textContent = db.students.length;
   $('kpiPreps').textContent = db.preps.length;
   $('kpiExams').textContent = db.exams.length;
@@ -163,16 +277,59 @@ function gradeOf(name) {
   return { total, label, color };
 }
 
-/* ================= المدرسون ================= */
+/* ================= إدارة حسابات المعلمين (للمالك) ================= */
+function statusPill(st) {
+  st = st || 'active';
+  if (st === 'pending') return '<span class="pill" style="color:#d97706">⏳ بانتظار الموافقة</span>';
+  if (st === 'suspended') return '<span class="pill" style="color:#e11d48">⏸ معلّق</span>';
+  return '<span class="pill" style="color:#0d9488">✔ نشط</span>';
+}
 function renderTeachers() {
+  if (!isOwner()) return;
+  const list = db.users.filter(u => u.role === 'teacher');
+  const c = {
+    active: list.filter(u => (u.status || 'active') === 'active').length,
+    pending: list.filter(u => u.status === 'pending').length,
+    suspended: list.filter(u => u.status === 'suspended').length
+  };
+  $('tcStats').innerHTML = `
+    <span class="pill" style="color:#0d9488">✔ نشطون: ${c.active}</span>
+    <span class="pill" style="color:#d97706">⏳ بانتظار الموافقة: ${c.pending}</span>
+    <span class="pill" style="color:#e11d48">⏸ معلّقون: ${c.suspended}</span>
+    <span class="pill">الكل: ${list.length}</span>`;
   const body = $('tcBody');
-  body.innerHTML = db.teachers.length ? '' : '<tr><td colspan="5" class="text-center" style="padding:2rem">لا يوجد مدرسون</td></tr>';
-  db.teachers.forEach((t, i) => {
+  body.innerHTML = list.length ? '' : '<tr><td colspan="6" class="text-center" style="padding:2rem">لا توجد حسابات معلمين — اضغط «إضافة حساب معلم»</td></tr>';
+  list.forEach((u, i) => {
+    const st = u.status || 'active';
+    let actions = '';
+    if (st === 'pending') actions += `<button class="btn btn-primary btn-sm" data-approve="${i}">✔ موافقة</button> `;
+    if (st === 'active') actions += `<button class="btn btn-ghost btn-sm" data-suspend="${i}">⏸ تعليق</button> `;
+    if (st === 'suspended') actions += `<button class="btn btn-primary btn-sm" data-approve="${i}">▶️ تفعيل</button> `;
+    actions += `<button class="btn btn-ghost btn-sm" data-reset="${i}">🔑 كلمة مرور</button>
+      <button class="btn btn-ghost btn-sm" data-del="${i}" style="color:#e11d48">🗑️</button>`;
     const tr = document.createElement('tr');
-    tr.innerHTML = `<td>${i + 1}</td><td class="font-bold">${esc(t.name)}</td><td>${esc(t.spec)}</td><td>${esc(t.phone)}</td>
-      <td><button class="btn btn-ghost btn-sm">🗑️</button></td>`;
-    tr.querySelector('button').addEventListener('click', () => {
-      if (confirm('حذف المدرس؟')) { db.teachers = db.teachers.filter(x => x.id !== t.id); save(); renderTeachers(); }
+    tr.innerHTML = `<td>${i + 1}</td><td class="font-bold">${esc(u.name)}</td><td>${esc(u.email)}</td>
+      <td>${esc(u.spec || '—')}</td><td>${statusPill(st)}</td><td><div class="flex gap-1 flex-wrap">${actions}</div></td>`;
+    tr.querySelector('[data-approve]')?.addEventListener('click', () => {
+      u.status = 'active';
+      db.notifications.push({ id: uid(), uid: u.id, title: '✅ تمت الموافقة على حسابك', text: 'مرحباً ' + u.name + '، يمكنك الآن تسجيل الدخول واستخدام المنصة.', read: false });
+      save(); renderTeachers(); toast('✔ تمت الموافقة على حساب ' + u.name);
+    });
+    tr.querySelector('[data-suspend]')?.addEventListener('click', () => {
+      if (!confirm('تعليق حساب ' + u.name + '؟ لن يتمكن من الدخول.')) return;
+      u.status = 'suspended'; save(); renderTeachers(); toast('⏸ تم تعليق الحساب');
+    });
+    tr.querySelector('[data-reset]')?.addEventListener('click', () => {
+      const np = prompt('كلمة المرور الجديدة لـ ' + u.name + ' (6 أحرف على الأقل):');
+      if (!np) return;
+      if (np.length < 6) return toast('كلمة المرور 6 أحرف على الأقل', false);
+      u.pass = hashPw(np); save(); toast('🔑 تم إعادة تعيين كلمة المرور');
+    });
+    tr.querySelector('[data-del]')?.addEventListener('click', () => {
+      if (u.id === session) return toast('لا يمكنك حذف حسابك الحالي', false);
+      if (!confirm('حذف حساب ' + u.name + ' نهائياً؟')) return;
+      db.users = db.users.filter(x => x.id !== u.id);
+      save(); renderTeachers(); toast('🗑️ تم حذف الحساب');
     });
     body.appendChild(tr);
   });
@@ -180,26 +337,25 @@ function renderTeachers() {
 $('addTeacher')?.addEventListener('click', () => { $('tcForm').style.display = $('tcForm').style.display === 'none' ? 'block' : 'none'; });
 $('tcCancel')?.addEventListener('click', () => $('tcForm').style.display = 'none');
 $('tcSave')?.addEventListener('click', () => {
-  const name = $('tc_name').value.trim();
-  if (!name) return toast('اكتب اسم المدرس', false);
-  db.teachers.push({ id: uid(), name, spec: $('tc_spec').value.trim(), phone: $('tc_phone').value.trim() });
-  $('tc_name').value = ''; $('tc_spec').value = ''; $('tc_phone').value = '';
-  save(); $('tcForm').style.display = 'none'; renderTeachers(); toast('✅ تمت إضافة المدرس');
+  if (!isOwner()) return toast('⛔ الإضافة متاحة للمالك فقط', false);
+  const name = $('tc_name').value.trim(), email = $('tc_email').value.trim().toLowerCase(), pass = $('tc_pass').value;
+  if (!name || !email || !pass) return toast('أكمل جميع الحقول', false);
+  if (pass.length < 6) return toast('كلمة المرور 6 أحرف على الأقل', false);
+  if (!/^\S+@\S+\.\S+$/.test(email)) return toast('بريد إلكتروني غير صحيح', false);
+  if (db.users.some(u => u.email === email)) return toast('البريد مستخدم مسبقاً', false);
+  db.users.push({
+    id: uid(), name, email, pass: hashPw(pass), role: 'teacher',
+    spec: $('tc_spec').value.trim(), status: 'active', joined: new Date().toLocaleDateString('ar-LY')
+  });
+  $('tc_name').value = ''; $('tc_email').value = ''; $('tc_pass').value = ''; $('tc_spec').value = '';
+  save(); $('tcForm').style.display = 'none'; renderTeachers(); toast('✅ تم إنشاء حساب المعلم');
 });
 
 /* ================= المواد ================= */
-const defaultSubjects = [
-  { name: 'اللغة العربية', stage: 'أساسي', desc: 'قراءة، نحو، بلاغة' },
-  { name: 'الرياضيات', stage: 'أساسي', desc: 'حساب، جبر، هندسة' },
-  { name: 'اللغة الإنجليزية', stage: 'أساسي', desc: 'قواعد، محادثة، كتابة' },
-  { name: 'العلوم', stage: 'أساسي', desc: 'أحياء، كيمياء، فيزياء' },
-  { name: 'التربية الإسلامية', stage: 'أساسي', desc: 'قرآن، عقيدة، سيرة' },
-  { name: 'الدراسات الاجتماعية', stage: 'أساسي', desc: 'تاريخ، جغرافيا' }
-];
 function renderSubjects() {
-  const list = db.subjects.length ? db.subjects : defaultSubjects;
+  const list = db.subjects;
   const box = $('sbBox');
-  box.innerHTML = '';
+  box.innerHTML = list.length ? '' : '<div class="empty" style="grid-column:1/-1">لا توجد مواد بعد — اضغط «إضافة مادة» لإضافة أول مادة</div>';
   list.forEach((s, i) => {
     const card = document.createElement('div');
     card.className = 'card';
@@ -207,7 +363,7 @@ function renderSubjects() {
       <h3 class="font-black mt-2">${esc(s.name)}</h3>
       <p class="text-xs text-gray-500 mt-1">${esc(s.desc || '')}</p>
       <span class="pill">${esc(s.stage)}</span>
-      ${db.subjects.length ? '<button class="btn btn-ghost btn-sm mt-2">🗑️</button>' : ''}`;
+      <button class="btn btn-ghost btn-sm mt-2">🗑️</button>`;
     card.querySelector('button')?.addEventListener('click', () => {
       db.subjects = db.subjects.filter(x => x.id !== s.id); save(); renderSubjects();
     });
@@ -258,25 +414,114 @@ function buildPrep(title, subject, grade) {
 
 📚 الواجب: حل التمارين المرتبطة بـ ${title} من الكتاب المقرر.`;
 }
+function prepAvg(p) {
+  const rs = p.reviews || [];
+  return rs.length ? rs.reduce((a, r) => a + r.score, 0) / rs.length : 0;
+}
 function renderPreps() {
   const box = $('prepSavedBox');
   box.innerHTML = db.preps.length ? '' : '<div class="empty" style="padding:1rem">لا توجد تحاضير محفوظة بعد</div>';
   db.preps.forEach((p, i) => {
+    const avg = prepAvg(p);
+    const st = p.status === 'published'
+      ? '<span class="pill" style="color:#0d9488">✔ منشور</span>'
+      : '<span class="pill" style="color:#d97706">مسودة</span>';
     const div = document.createElement('div');
-    div.className = 'p-3 rounded-xl flex items-center gap-2';
+    div.className = 'p-3 rounded-xl flex items-center gap-2 flex-wrap';
     div.style.background = '#f9fafb';
-    div.innerHTML = `<span>📝</span><span style="flex:1"><b>${esc(p.title)}</b> — ${esc(p.subject)}<br><small class="text-gray-500">${esc(p.date)}</small></span>
-      <button class="btn btn-ghost btn-sm" data-view="${i}">عرض</button>
+    div.innerHTML = `<span>📝</span><span style="flex:1;min-width:180px"><b>${esc(p.title)}</b> — ${esc(p.subject)}<br>
+        <small class="text-gray-500">${esc(p.date)}</small> ${st}<br>
+        <span class="text-xs">${stars(avg)} ${avg ? avg.toFixed(1) + '/5' : 'بدون مراجعة'}</span></span>
+      <button class="btn btn-ghost btn-sm" data-open="${i}">👁️ معاينة</button>
+      <button class="btn btn-gold btn-sm" data-rev="${i}">⭐ مراجعة</button>
       <button class="btn btn-ghost btn-sm" data-del="${i}">🗑️</button>`;
-    div.querySelector('[data-view]').addEventListener('click', () => {
-      $('prepOut').innerHTML = esc(p.content).replace(/\n/g, '<br>');
-    });
+    div.querySelector('[data-open]').addEventListener('click', () => openPrep(i));
+    div.querySelector('[data-rev]').addEventListener('click', () => openReview(i));
     div.querySelector('[data-del]').addEventListener('click', () => {
+      if (!confirm('حذف التحضير؟')) return;
       db.preps.splice(i, 1); save(); renderPreps();
     });
     box.appendChild(div);
   });
+  renderRevLog();
 }
+function renderRevLog() {
+  const box = $('revBox'); if (!box) return;
+  const rows = [];
+  db.preps.forEach((p, pi) => (p.reviews || []).forEach((r, ri) => rows.push({ p, r, pi, ri })));
+  box.innerHTML = rows.length ? '' : '<div class="empty" style="padding:1rem">لا توجد مراجعات بعد — اضغط ⭐ مراجعة أمام أي درس</div>';
+  rows.forEach(({ p, r, pi, ri }) => {
+    const div = document.createElement('div');
+    div.className = 'p-3 rounded-xl flex items-start gap-2';
+    div.style.background = '#f9fafb';
+    div.innerHTML = `<span>⭐</span>
+      <div style="flex:1"><b>${esc(p.title)}</b> — <span class="text-xs">${stars(r.score)} ${r.score}/5</span><br>
+        ${r.comment ? `<span class="text-gray-600">${esc(r.comment)}</span><br>` : ''}
+        <small class="text-gray-500">بواسطة: ${esc(r.by || '—')} • ${esc(r.date)}</small></div>
+      <button class="btn btn-ghost btn-sm">🗑️</button>`;
+    div.querySelector('button').addEventListener('click', () => {
+      db.preps[pi].reviews.splice(ri, 1); save(); renderPreps();
+    });
+    box.appendChild(div);
+  });
+}
+
+/* ---- نافذة المعاينة ---- */
+let pmIdx = -1, revIdx = -1, revScore = 0;
+function paintRevStars() {
+  document.querySelectorAll('#revStars [data-star]').forEach(s => {
+    s.textContent = Number(s.dataset.star) <= revScore ? '⭐' : '☆';
+  });
+}
+function openPrep(i) {
+  const p = db.preps[i]; if (!p) return;
+  pmIdx = i;
+  $('pmTitle').textContent = '📝 ' + p.title;
+  $('pmStatus').innerHTML = p.status === 'published'
+    ? '<span class="pill" style="color:#0d9488">✔ منشور</span>'
+    : '<span class="pill" style="color:#d97706">مسودة</span>';
+  $('pmBody').innerHTML = esc(p.content).replace(/\n/g, '<br>');
+  $('pmPublish').textContent = p.status === 'published' ? '↩️ إلغاء النشر' : '✅ اعتماد ونشر';
+  $('prepModal').style.display = 'flex';
+}
+function openReview(i) {
+  const p = db.preps[i]; if (!p) return;
+  revIdx = i; revScore = 0;
+  $('revTitle').textContent = p.title;
+  $('revComment').value = '';
+  paintRevStars();
+  $('revModal').style.display = 'flex';
+}
+$('pmClose')?.addEventListener('click', () => $('prepModal').style.display = 'none');
+$('pmPublish')?.addEventListener('click', () => {
+  const p = db.preps[pmIdx]; if (!p) return;
+  p.status = p.status === 'published' ? 'draft' : 'published';
+  save(); openPrep(pmIdx); renderPreps();
+  toast(p.status === 'published' ? '✅ تم اعتماد ونشر الدرس' : '↩️ أُرجع الدرس مسودة');
+});
+$('pmPrint')?.addEventListener('click', () => {
+  const w = window.open('', '_blank');
+  w.document.write(`<html dir="rtl"><head><meta charset="utf-8"><title>تحضير</title>
+  <style>body{font-family:Cairo,sans-serif;padding:2rem;line-height:1.9;white-space:pre-wrap}</style></head>
+  <body onload="window.print()">${$('pmBody').innerHTML}</body></html>`);
+  w.document.close();
+});
+$('pmReview')?.addEventListener('click', () => { $('prepModal').style.display = 'none'; openReview(pmIdx); });
+$('revClose')?.addEventListener('click', () => $('revModal').style.display = 'none');
+document.querySelectorAll('#revStars [data-star]').forEach(s => s.addEventListener('click', () => {
+  revScore = Number(s.dataset.star); paintRevStars();
+}));
+$('revSave')?.addEventListener('click', () => {
+  const p = db.preps[revIdx]; if (!p) return;
+  if (!revScore) return toast('اختر عدد النجوم أولاً', false);
+  p.reviews = p.reviews || [];
+  p.reviews.push({
+    score: revScore, comment: $('revComment').value.trim(),
+    by: (me()?.name) || 'معلم', date: new Date().toLocaleDateString('ar-LY')
+  });
+  save(); $('revModal').style.display = 'none'; renderPreps();
+  toast('⭐ تم حفظ المراجعة');
+});
 $('prepGenerate')?.addEventListener('click', () => {
   const t = $('pp_title').value.trim(), s = $('pp_subject').value.trim();
   if (!t || !s) return toast('اكتب عنوان الدرس والمادة', false);
@@ -286,8 +531,12 @@ $('prepGenerate')?.addEventListener('click', () => {
 $('prepSave')?.addEventListener('click', () => {
   const t = $('pp_title').value.trim(), s = $('pp_subject').value.trim();
   if (!t || !s) return toast('ولّد التحضير أولاً', false);
-  db.preps.push({ title: t, subject: s, grade: $('pp_grade').value, content: buildPrep(t, s, $('pp_grade').value), date: new Date().toLocaleDateString('ar-LY') });
-  save(); renderPreps(); toast('💾 تم حفظ التحضير');
+  db.preps.push({
+    id: uid(), title: t, subject: s, grade: $('pp_grade').value,
+    content: buildPrep(t, s, $('pp_grade').value), date: new Date().toLocaleDateString('ar-LY'),
+    status: 'draft', reviews: []
+  });
+  save(); renderPreps(); toast('💾 تم حفظ التحضير — يمكنك مراجعته من «تحاضيري المحفوظة»');
 });
 $('prepPrint')?.addEventListener('click', () => {
   const w = window.open('', '_blank');
@@ -608,25 +857,18 @@ $('lbSave')?.addEventListener('click', () => {
 });
 
 /* ================= التدريب ================= */
-const defaultCourses = [
-  { id: 1, title: 'استخدام التكنولوجيا في التعليم', desc: 'تعلم استخدام الأدوات التكنولوجية الحديثة في الفصل', hours: 20, level: 'مبتدئ', cat: 'تكنولوجيا' },
-  { id: 2, title: 'تصميم الاختبارات الإلكترونية', desc: 'أساليب تصميم اختبارات فعالة وموثوقة', hours: 15, level: 'متوسط', cat: 'التقويم' },
-  { id: 3, title: 'إدارة الصف الدراسي', desc: 'استراتيجيات فعالة لإدارة الصف وتنظيم التعلم', hours: 10, level: 'مبتدئ', cat: 'إدارة' },
-  { id: 4, title: 'التعليم التفاعلي', desc: 'تفعيل مشاركة الطلاب في عملية التعلم', hours: 25, level: 'متقدم', cat: 'استراتيجيات' },
-  { id: 5, title: 'التقويم من أجل التعلم', desc: 'تقويم تكويني وبدائل التقييم التقليدي', hours: 12, level: 'متوسط', cat: 'التقويم' },
-  { id: 6, title: 'الصف المقلوب', desc: 'التعلم القائم على المشروعات والواجبات المنزلية', hours: 18, level: 'متقدم', cat: 'استراتيجيات' }
-];
 function renderTraining() {
   const box = $('trBox');
-  box.innerHTML = '';
-  defaultCourses.forEach(c => {
+  const courses = db.courses || [];
+  box.innerHTML = courses.length ? '' : '<div class="empty" style="grid-column:1/-1">لا توجد دورات بعد — يمكن للمالك إضافتها من زر «إضافة دورة»</div>';
+  courses.forEach(c => {
     const done = db.training.includes(c.id);
     const card = document.createElement('div');
     card.className = 'card';
     card.innerHTML = `<div class="text-3xl">🎓</div>
       <h3 class="font-black mt-2">${esc(c.title)}</h3>
-      <p class="text-xs text-gray-500 mt-1">${esc(c.desc)}</p>
-      <div class="flex gap-2 mt-2"><span class="pill">${c.level}</span><span class="pill">${c.hours} ساعة</span><span class="pill">${c.cat}</span></div>
+      <p class="text-xs text-gray-500 mt-1">${esc(c.desc || '')}</p>
+      <div class="flex gap-2 mt-2"><span class="pill">${esc(c.level || 'عام')}</span><span class="pill">${c.hours || 1} ساعة</span><span class="pill">${esc(c.cat || 'عام')}</span></div>
       <button class="btn ${done ? 'btn-ghost' : 'btn-primary'} btn-sm mt-3 w-full justify-center">
         ${done ? '✅ مكتملة' : '▶️ ابدأ الدورة'}</button>`;
     card.querySelector('button').addEventListener('click', () => {
@@ -637,11 +879,26 @@ function renderTraining() {
     });
     box.appendChild(card);
   });
+  db.training = db.training.filter(id => courses.some(c => c.id === id));
   $('trDone').textContent = db.training.length;
-  const pct = Math.round(db.training.length / defaultCourses.length * 100);
+  const pct = courses.length ? Math.round(db.training.length / courses.length * 100) : 0;
   $('trPct').textContent = pct + '%';
   $('trBar').style.width = pct + '%';
 }
+$('addCourse')?.addEventListener('click', () => { $('crForm').style.display = $('crForm').style.display === 'none' ? 'block' : 'none'; });
+$('crCancel')?.addEventListener('click', () => $('crForm').style.display = 'none');
+$('crSave')?.addEventListener('click', () => {
+  if (!isOwner()) return toast('إضافة الدورات متاحة للمالك فقط', false);
+  const title = $('cr_title').value.trim();
+  if (!title) return toast('اكتب عنوان الدورة', false);
+  db.courses.push({
+    id: uid(), title, desc: $('cr_desc').value.trim(),
+    hours: Number($('cr_hours').value) || 1, level: 'عام',
+    cat: $('cr_cat').value.trim() || 'عام'
+  });
+  $('cr_title').value = ''; $('cr_desc').value = ''; $('cr_cat').value = '';
+  save(); $('crForm').style.display = 'none'; renderTraining(); toast('✅ تمت إضافة الدورة');
+});
 
 /* ================= المجتمع ================= */
 function renderCommunity() {
@@ -668,7 +925,7 @@ function renderCommunity() {
 $('cmAdd')?.addEventListener('click', () => {
   const text = $('cmText').value.trim();
   if (!text) return toast('اكتب منشورك', false);
-  db.community.push({ id: uid(), author: db.profile.name || 'معلم', text, likes: 0, comments: 0, date: new Date().toLocaleDateString('ar-LY') });
+  db.community.push({ id: uid(), author: (me()?.name) || db.profile.name || 'معلم', text, likes: 0, comments: 0, date: new Date().toLocaleDateString('ar-LY') });
   $('cmText').value = '';
   save(); renderCommunity(); toast('📢 تم النشر');
 });
@@ -698,8 +955,9 @@ $('scSave')?.addEventListener('click', () => {
 /* ================= الإشعارات ================= */
 function renderNotifications() {
   const box = $('ntBox');
-  box.innerHTML = db.notifications.length ? '' : '<div class="empty">لا توجد إشعارات</div>';
-  db.notifications.forEach((n, i) => {
+  const list = db.notifications.filter(n => isOwner() || !n.uid || n.uid === session);
+  box.innerHTML = list.length ? '' : '<div class="empty">لا توجد إشعارات</div>';
+  list.forEach((n, i) => {
     const div = document.createElement('div');
     div.className = 'card';
     div.style.opacity = n.read ? '.6' : '1';
@@ -715,22 +973,181 @@ function renderNotifications() {
 
 /* ================= الملف الشخصي ================= */
 function renderProfile() {
-  $('pf_name').value = db.profile.name || '';
-  $('pf_email').value = db.profile.email || '';
+  const u = me() || {};
+  $('pf_name').value = u.name || db.profile.name || '';
+  $('pf_email').value = u.email || db.profile.email || '';
   $('pf_phone').value = db.profile.phone || '';
-  $('pf_spec').value = db.profile.spec || '';
+  $('pf_spec').value = u.spec || db.profile.spec || '';
+  paintAvatar();
 }
 $('pfSave')?.addEventListener('click', () => {
-  db.profile = { name: $('pf_name').value.trim(), email: $('pf_email').value.trim(), phone: $('pf_phone').value.trim(), spec: $('pf_spec').value.trim() };
-  save(); toast('💾 تم حفظ الملف الشخصي');
+  const u = me(); if (!u) return;
+  const email = $('pf_email').value.trim().toLowerCase();
+  if (email && email !== u.email && db.users.some(x => x.email === email)) return toast('البريد الإلكتروني مستخدم مسبقاً', false);
+  db.profile = {
+    name: $('pf_name').value.trim(), email,
+    phone: $('pf_phone').value.trim(), spec: $('pf_spec').value.trim()
+  };
+  u.name = $('pf_name').value.trim() || u.name;
+  if (email) u.email = email;
+  u.spec = $('pf_spec').value.trim();
+  save();
+  $('uName').textContent = u.name;
+  toast('💾 تم حفظ الملف الشخصي');
 });
 $('pfPass')?.addEventListener('click', () => {
+  const u = me(); if (!u) return;
   const o = $('pf_old').value, n = $('pf_new').value, c = $('pf_conf').value;
   if (!o || !n) return toast('أكمل الحقول', false);
+  if (u.pass !== hashPw(o)) return toast('كلمة المرور الحالية غير صحيحة', false);
+  if (n.length < 6) return toast('كلمة المرور الجديدة 6 أحرف على الأقل', false);
   if (n !== c) return toast('كلمتا المرور غير متطابقتين', false);
+  u.pass = hashPw(n); save();
   $('pf_old').value = ''; $('pf_new').value = ''; $('pf_conf').value = '';
   toast('🔑 تم تحديث كلمة المرور');
 });
 
+/* ---- الصورة الشخصية ---- */
+function resizeImg(file, cb) {
+  const r = new FileReader();
+  r.onload = e => {
+    const img = new Image();
+    img.onload = () => {
+      const size = 160, c = document.createElement('canvas');
+      c.width = c.height = size;
+      const ctx = c.getContext('2d');
+      const min = Math.min(img.width, img.height);
+      ctx.drawImage(img, (img.width - min) / 2, (img.height - min) / 2, min, min, 0, 0, size, size);
+      cb(c.toDataURL('image/jpeg', 0.82));
+    };
+    img.src = e.target.result;
+  };
+  r.readAsDataURL(file);
+}
+$('pfAvatar')?.addEventListener('change', e => {
+  const f = e.target.files[0]; if (!f) return;
+  if (!f.type.startsWith('image/')) return toast('اختر ملف صورة', false);
+  if (f.size > 5 * 1024 * 1024) return toast('الصورة كبيرة — الحد 5MB', false);
+  resizeImg(f, url => {
+    const u = me(); if (!u) return;
+    u.avatar = url; save(); paintAvatar(); toast('🖼️ تم تحديث الصورة الشخصية');
+  });
+  e.target.value = '';
+});
+$('pfAvatarRemove')?.addEventListener('click', () => {
+  const u = me(); if (!u) return;
+  delete u.avatar; save(); paintAvatar(); toast('🗑️ تم حذف الصورة');
+});
+
+/* ================= النسخ الاحتياطي ================= */
+function exportData() {
+  const blob = new Blob([JSON.stringify(db, null, 2)], { type: 'application/json' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'teacher-backup-' + new Date().toISOString().slice(0, 10) + '.json';
+  a.click();
+  setTimeout(() => URL.revokeObjectURL(a.href), 3000);
+  toast('⬇️ تم تصدير النسخة الاحتياطية');
+}
+function importData(file) {
+  const r = new FileReader();
+  r.onload = e => {
+    try {
+      const d = JSON.parse(e.target.result);
+      if (!d || !Array.isArray(d.users) || !Array.isArray(d.students)) throw new Error('ملف نسخة غير صالح');
+      db = d;
+      db.v = SCHEMA;
+      db.settings = db.settings || { school: '', city: '', phone: '', email: '' };
+      db.courses = db.courses || [];
+      save();
+      toast('⬆️ تم استيراد النسخة بنجاح — جارٍ إعادة التحميل…');
+      setTimeout(() => location.reload(), 900);
+    } catch (err) {
+      toast('❌ الملف غير صالح: ' + err.message, false);
+    }
+  };
+  r.readAsText(file);
+}
+$('pfExport')?.addEventListener('click', exportData);
+$('setExport')?.addEventListener('click', exportData);
+$('pfImportBtn')?.addEventListener('click', () => $('pfImport').click());
+$('setImportBtn')?.addEventListener('click', () => $('setImport').click());
+$('pfImport')?.addEventListener('change', e => { if (e.target.files[0]) importData(e.target.files[0]); e.target.value = ''; });
+$('setImport')?.addEventListener('change', e => { if (e.target.files[0]) importData(e.target.files[0]); e.target.value = ''; });
+
+/* ================= الإعدادات (للمالك) ================= */
+function dataStatsText() {
+  const kb = (JSON.stringify(db).length / 1024).toFixed(1);
+  return `الطلاب ${db.students.length} • المعلمون ${db.users.filter(u => u.role === 'teacher').length} • المواد ${db.subjects.length} • التحاضير ${db.preps.length} • الاختبارات ${db.exams.length} • الدرجات ${db.grades.length} • المدفوعات ${db.payments.length} • الدورات ${(db.courses || []).length} • الحجم ${kb} KB`;
+}
+function renderSettings() {
+  if (!isOwner()) return;
+  const s = db.settings || (db.settings = { school: '', city: '', phone: '', email: '' });
+  $('set_school').value = s.school || '';
+  $('set_city').value = s.city || '';
+  $('set_phone').value = s.phone || '';
+  $('set_email').value = s.email || '';
+  $('setDataStats').textContent = dataStatsText();
+}
+$('setSave')?.addEventListener('click', () => {
+  if (!isOwner()) return;
+  db.settings = {
+    school: $('set_school').value.trim(), city: $('set_city').value.trim(),
+    phone: $('set_phone').value.trim(), email: $('set_email').value.trim()
+  };
+  save(); toast('💾 حُفظت بيانات المدرسة');
+});
+$('setReset')?.addEventListener('click', () => {
+  if (!isOwner()) return toast('⛔ متاح للمالك فقط', false);
+  if (!confirm('سيتم حذف جميع البيانات (طلاب، تحاضير، اختبارات…) وإبقاء حساب المالك فقط. هل أنت متأكد؟')) return;
+  const users = db.users.filter(u => u.role === 'owner');
+  const settings = db.settings;
+  db = freshDb();
+  db.users = users;
+  db.settings = settings;
+  session = users.length ? users[0].id : null;
+  store.set('session', session);
+  save();
+  toast('🗑️ تم حذف كل البيانات وإبقاء حساب المالك');
+  go('dashboard');
+});
+
+/* ================= التقارير (للمالك) ================= */
+function renderReports() {
+  if (!isOwner()) return;
+  const t = db.users.filter(u => u.role === 'teacher');
+  $('rpTeachers').textContent = t.length;
+  $('rpActive').textContent = t.filter(u => (u.status || 'active') === 'active').length;
+  $('rpPending').textContent = t.filter(u => u.status === 'pending').length;
+  $('rpStudents').textContent = db.students.length;
+  $('rpPreps').textContent = db.preps.length;
+  $('rpExams').textContent = db.exams.length;
+  $('rpAvg').textContent = avgGrade() + '%';
+  const paid = db.payments.filter(p => p.status === 'paid').reduce((a, p) => a + Number(p.amount), 0);
+  $('rpPaid').textContent = paid.toLocaleString('ar-EG') + ' د.ل';
+
+  const body = $('rpBody');
+  body.innerHTML = t.length ? '' : '<tr><td colspan="6" class="text-center" style="padding:2rem">لا توجد حسابات معلمين</td></tr>';
+  t.forEach((u, i) => {
+    const tr = document.createElement('tr');
+    tr.innerHTML = `<td>${i + 1}</td><td class="font-bold">${esc(u.name)}</td><td>${esc(u.spec || '—')}</td>
+      <td>${esc(u.email)}</td><td>${statusPill(u.status)}</td><td>${esc(u.joined || '—')}</td>`;
+    body.appendChild(tr);
+  });
+
+  const top = [...db.students]
+    .map(s => ({ s, g: gradeOf(s.name), a: attOf(s.name) }))
+    .sort((x, y) => y.g.total - x.g.total)
+    .slice(0, 5);
+  const tb = $('rpTopBody');
+  tb.innerHTML = top.length ? '' : '<tr><td colspan="5" class="text-center" style="padding:2rem">لا يوجد طلاب بعد</td></tr>';
+  top.forEach(({ s, g, a }, i) => {
+    const tr = document.createElement('tr');
+    tr.innerHTML = `<td>${i + 1}</td><td class="font-bold">${esc(s.name)}</td><td>${esc(s.grade)}</td>
+      <td>${g.total}% <span class="pill" style="color:${g.color}">${g.label}</span></td><td>${a}%</td>`;
+    tb.appendChild(tr);
+  });
+}
+
 /* ================= تهيئة ================= */
-go('dashboard');
+bootAuth();

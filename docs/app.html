@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
 <meta charset="UTF-8">
@@ -59,11 +59,58 @@ td{padding:.55rem .8rem;border-bottom:1px solid #f3f4f6}
 .pill{display:inline-block;background:#d7f3ee;color:#115e59;border-radius:1rem;padding:.1rem .7rem;font-size:.74rem;font-weight:800;margin:.1rem}
 .dark .pill{background:#0d3a3a;color:#5eead4}
 .empty{text-align:center;padding:2.5rem;color:#6b7280}
+.owner-hide{display:none !important}
 </style>
 </head>
 <body class="bg-gray-100 dark:bg-gray-900 text-gray-800 dark:text-gray-100">
 
-<div class="flex min-h-screen">
+<!-- ============ شاشة الحساب (إعداد المالك / دخول / تسجيل) ============ -->
+<div id="authScreen" class="fixed inset-0 z-50 flex items-center justify-center p-4" style="background:linear-gradient(135deg,#064e3b,#115e59,#0f766e)">
+  <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl w-full max-w-md p-6">
+    <div class="text-center mb-5">
+      <div class="text-4xl">🎓</div>
+      <h1 class="text-xl font-black mt-2">منصة المعلم الليبي الرقمي</h1>
+      <p class="text-sm text-gray-500" id="authSubtitle">سجّل الدخول إلى حسابك</p>
+    </div>
+
+    <div class="flex gap-2 mb-4" id="authTabs">
+      <button class="btn flex-1 justify-center btn-primary" data-auth="login">تسجيل الدخول</button>
+      <button class="btn flex-1 justify-center btn-ghost" data-auth="register">حساب جديد</button>
+    </div>
+
+    <!-- إعداد المالك (أول تشغيل) -->
+    <div id="auth-setup" class="hidden">
+      <div class="p-3 rounded-xl text-sm mb-4" style="background:#fef3d8">👑 أهلاً بك! أنشئ <b>حساب المالك</b> لإدارة المنصة بالكامل — إضافة المعلمين والاطلاع على جميع البيانات.</div>
+      <div class="field"><label>اسم المالك</label><input id="suName" placeholder="الاسم الكامل"></div>
+      <div class="field"><label>البريد الإلكتروني</label><input id="suEmail" type="email" placeholder="owner@example.com"></div>
+      <div class="field"><label>كلمة المرور</label><input id="suPass" type="password" placeholder="6 أحرف على الأقل"></div>
+      <button class="btn btn-gold w-full justify-center mt-2" id="suBtn">👑 إنشاء حساب المالك</button>
+      <p id="suMsg" class="text-xs mt-3 text-center text-red-500 font-bold"></p>
+    </div>
+
+    <!-- تسجيل الدخول -->
+    <div id="auth-login">
+      <div class="field"><label>البريد الإلكتروني</label><input id="lgEmail" type="email" placeholder="teacher@example.com"></div>
+      <div class="field"><label>كلمة المرور</label><input id="lgPass" type="password" placeholder="••••••"></div>
+      <button class="btn btn-primary w-full justify-center mt-2" id="lgBtn">🔓 تسجيل الدخول</button>
+      <p id="lgMsg" class="text-xs mt-3 text-center text-red-500 font-bold"></p>
+    </div>
+
+    <!-- حساب جديد (معلم) -->
+    <div id="auth-register" class="hidden">
+      <div class="p-3 rounded-xl text-xs mb-3" style="background:#f0fdfa">📝 الحسابات الجديدة <b>للمعلمين</b> وتحتاج موافقة المالك قبل الدخول.</div>
+      <div class="field"><label>الاسم الكامل</label><input id="rgName" placeholder="مثال: محمد عبدالله"></div>
+      <div class="field"><label>البريد الإلكتروني</label><input id="rgEmail" type="email" placeholder="teacher@example.com"></div>
+      <div class="field"><label>كلمة المرور</label><input id="rgPass" type="password" placeholder="6 أحرف على الأقل"></div>
+      <div class="field"><label>التخصص</label><input id="rgSpec" placeholder="مثال: رياضيات"></div>
+      <button class="btn btn-gold w-full justify-center mt-2" id="rgBtn">✨ إنشاء الحساب</button>
+      <p id="rgMsg" class="text-xs mt-3 text-center text-red-500 font-bold"></p>
+    </div>
+  </div>
+</div>
+
+<!-- ============ التطبيق ============ -->
+<div class="flex min-h-screen" id="appRoot" style="display:none">
 
   <!-- Sidebar -->
   <aside class="sidebar w-64 bg-gradient-to-b from-emerald-800 to-emerald-900 text-white flex flex-col fixed md:static inset-y-0 right-0 z-40 transform md:translate-x-0 translate-x-full transition-transform" id="sidebar">
@@ -74,14 +121,14 @@ td{padding:.55rem .8rem;border-bottom:1px solid #f3f4f6}
     <nav class="flex-1 p-3 space-y-1 overflow-y-auto" id="sideNav">
       <button class="nav-item active" data-view="dashboard">🏠 لوحة التحكم</button>
       <button class="nav-item" data-view="students">👨‍🎓 الطلاب</button>
-      <button class="nav-item" data-view="teachers">👨‍🏫 المدرسون</button>
+      <button class="nav-item" data-view="teachers" data-owner="1">👑 المعلمون</button>
       <button class="nav-item" data-view="subjects">📚 المواد</button>
       <button class="nav-item" data-view="prep">📝 التحضير الذكي</button>
       <button class="nav-item" data-view="ai">🤖 مساعد AI</button>
       <button class="nav-item" data-view="exams">📊 الاختبارات</button>
       <button class="nav-item" data-view="grades">📈 الدرجات</button>
       <button class="nav-item" data-view="attendance">🗓️ الحضور</button>
-      <button class="nav-item" data-view="payments">💰 المدفوعات</button>
+      <button class="nav-item" data-view="payments" data-owner="1">💰 المدفوعات</button>
       <button class="nav-item" data-view="followups">📋 المتابعة</button>
       <button class="nav-item" data-view="messages">💬 الرسائل</button>
       <button class="nav-item" data-view="library">📦 المكتبة</button>
@@ -89,9 +136,19 @@ td{padding:.55rem .8rem;border-bottom:1px solid #f3f4f6}
       <button class="nav-item" data-view="community">📢 المجتمع</button>
       <button class="nav-item" data-view="schedule">🗓️ الجدول</button>
       <button class="nav-item" data-view="notifications">🔔 الإشعارات</button>
+      <button class="nav-item" data-view="reports" data-owner="1">📊 التقارير</button>
+      <button class="nav-item" data-view="settings" data-owner="1">⚙️ الإعدادات</button>
       <button class="nav-item" data-view="profile">👤 الملف الشخصي</button>
     </nav>
-    <div class="p-3 border-t border-emerald-700/50">
+    <div class="p-3 border-t border-emerald-700/50 space-y-2">
+      <div class="flex items-center gap-2">
+        <div class="w-9 h-9 rounded-full bg-emerald-600 flex items-center justify-center font-bold text-sm" id="uAv">؟</div>
+        <div class="flex-1 min-w-0">
+          <p class="text-sm font-bold truncate" id="uName">—</p>
+          <p class="text-xs text-emerald-300" id="uRole">—</p>
+        </div>
+      </div>
+      <button class="btn btn-ghost w-full justify-center text-xs" id="logoutBtn">⏻ تسجيل الخروج</button>
       <a href="index.html" class="btn btn-ghost w-full justify-center text-xs">🏠 الصفحة الرئيسية</a>
     </div>
   </aside>
@@ -183,26 +240,31 @@ td{padding:.55rem .8rem;border-bottom:1px solid #f3f4f6}
         </div>
       </section>
 
-      <!-- Teachers -->
+      <!-- إدارة حسابات المعلمين (للمالك فقط) -->
       <section class="view" id="view-teachers">
-        <div class="flex items-center justify-between mb-4">
-          <h2 class="text-lg font-black">👨‍🏫 المدرسون</h2>
-          <button class="btn btn-primary btn-sm" id="addTeacher">➕ إضافة مدرس</button>
+        <div class="flex items-center justify-between mb-3 flex-wrap gap-2">
+          <div>
+            <h2 class="text-lg font-black">👑 إدارة حسابات المعلمين</h2>
+            <p class="text-xs text-gray-500">أنشئ الحسابات، وافق على طلبات الانضمام، علّق أو احذف الحسابات.</p>
+          </div>
+          <button class="btn btn-primary btn-sm" id="addTeacher">➕ إضافة حساب معلم</button>
         </div>
+        <div class="flex gap-2 flex-wrap mb-4" id="tcStats"></div>
         <div class="card mb-4" id="tcForm" style="display:none">
-          <div class="grid md:grid-cols-3 gap-3">
-            <div class="field"><label>اسم المدرس</label><input id="tc_name"></div>
+          <div class="grid md:grid-cols-4 gap-3">
+            <div class="field"><label>الاسم الكامل</label><input id="tc_name" placeholder="مثال: محمد عبدالله"></div>
+            <div class="field"><label>البريد الإلكتروني</label><input id="tc_email" type="email" placeholder="teacher@example.com"></div>
+            <div class="field"><label>كلمة المرور المؤقتة</label><input id="tc_pass" type="password" placeholder="6 أحرف على الأقل"></div>
             <div class="field"><label>التخصص</label><input id="tc_spec" placeholder="مثال: رياضيات"></div>
-            <div class="field"><label>الهاتف</label><input id="tc_phone"></div>
           </div>
           <div class="flex gap-2 mt-2">
-            <button class="btn btn-primary btn-sm" id="tcSave">💾 حفظ</button>
+            <button class="btn btn-primary btn-sm" id="tcSave">💾 إنشاء الحساب</button>
             <button class="btn btn-ghost btn-sm" id="tcCancel">إلغاء</button>
           </div>
         </div>
         <div class="card table-wrap">
           <table>
-            <thead><tr><th>م</th><th>الاسم</th><th>التخصص</th><th>الهاتف</th><th></th></tr></thead>
+            <thead><tr><th>م</th><th>الاسم</th><th>البريد</th><th>التخصص</th><th>الحالة</th><th>الإجراءات</th></tr></thead>
             <tbody id="tcBody"></tbody>
           </table>
         </div>
@@ -251,7 +313,12 @@ td{padding:.55rem .8rem;border-bottom:1px solid #f3f4f6}
         </div>
         <div class="card mt-4">
           <h3 class="section-title">🗂️ تحاضيري المحفوظة</h3>
+          <p class="text-xs text-gray-500 mb-2">👁️ معاينة = عرض الدرس ومعتمده — ⭐ مراجعة = تقييم بالنجوم وتعليق بعد مراجعته.</p>
           <div id="prepSavedBox" class="space-y-2 text-sm"></div>
+        </div>
+        <div class="card mt-4">
+          <h3 class="section-title">⭐ سجل مراجعة الدروس</h3>
+          <div id="revBox" class="space-y-2 text-sm"></div>
         </div>
       </section>
 
@@ -471,9 +538,24 @@ td{padding:.55rem .8rem;border-bottom:1px solid #f3f4f6}
 
       <!-- Training -->
       <section class="view" id="view-training">
-        <div class="mb-4">
-          <h2 class="text-lg font-black">🎓 التدريب المهني للمعلم</h2>
-          <p class="text-sm text-gray-500">دورات رقمية في مسار «المعلم الرقمي المحترف» وتنتهي بشهادة.</p>
+        <div class="mb-4 flex items-center justify-between flex-wrap gap-2">
+          <div>
+            <h2 class="text-lg font-black">🎓 التدريب المهني للمعلم</h2>
+            <p class="text-sm text-gray-500">دورات رقمية في مسار «المعلم الرقمي المحترف» وتنتهي بشهادة.</p>
+          </div>
+          <button class="btn btn-primary btn-sm" id="addCourse" data-owner="1">➕ إضافة دورة</button>
+        </div>
+        <div class="card mb-4" data-owner="1" id="crForm" style="display:none">
+          <div class="grid md:grid-cols-4 gap-3">
+            <div class="field"><label>عنوان الدورة</label><input id="cr_title"></div>
+            <div class="field"><label>الوصف</label><input id="cr_desc"></div>
+            <div class="field"><label>الساعات</label><input type="number" id="cr_hours" value="10" min="1"></div>
+            <div class="field"><label>التصنيف</label><input id="cr_cat" placeholder="مثال: تكنولوجيا"></div>
+          </div>
+          <div class="flex gap-2 mt-2">
+            <button class="btn btn-primary btn-sm" id="crSave">💾 حفظ الدورة</button>
+            <button class="btn btn-ghost btn-sm" id="crCancel">إلغاء</button>
+          </div>
         </div>
         <div class="grid md:grid-cols-3 gap-4" id="trBox"></div>
         <div class="card mt-4">
@@ -535,10 +617,86 @@ td{padding:.55rem .8rem;border-bottom:1px solid #f3f4f6}
         <div class="space-y-3" id="ntBox"></div>
       </section>
 
+      <!-- التقارير (للمالك فقط) -->
+      <section class="view" id="view-reports">
+        <div class="mb-4">
+          <h2 class="text-lg font-black">📊 التقارير والإحصائيات</h2>
+          <p class="text-sm text-gray-500">نظرة شاملة على جميع حسابات المعلمين وبيانات المنصة.</p>
+        </div>
+        <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
+          <div class="stat-card s-green"><div class="text-3xl font-black" id="rpTeachers">0</div><div class="text-xs opacity-90">حسابات المعلمين</div><div class="big-ic">👨‍🏫</div></div>
+          <div class="stat-card s-blue"><div class="text-3xl font-black" id="rpActive">0</div><div class="text-xs opacity-90">معلمون نشطون</div><div class="big-ic">✔</div></div>
+          <div class="stat-card s-gold"><div class="text-3xl font-black" id="rpPending">0</div><div class="text-xs opacity-90">بانتظار الموافقة</div><div class="big-ic">⏳</div></div>
+          <div class="stat-card s-navy"><div class="text-3xl font-black" id="rpStudents">0</div><div class="text-xs opacity-90">إجمالي الطلاب</div><div class="big-ic">👨‍🎓</div></div>
+        </div>
+        <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
+          <div class="stat-card s-blue"><div class="text-3xl font-black" id="rpPreps">0</div><div class="text-xs opacity-90">تحاضير محفوظة</div><div class="big-ic">📝</div></div>
+          <div class="stat-card s-gold"><div class="text-3xl font-black" id="rpExams">0</div><div class="text-xs opacity-90">اختبارات</div><div class="big-ic">📊</div></div>
+          <div class="stat-card s-green"><div class="text-3xl font-black" id="rpAvg">0%</div><div class="text-xs opacity-90">متوسط الدرجات</div><div class="big-ic">📈</div></div>
+          <div class="stat-card s-navy"><div class="text-3xl font-black" id="rpPaid">0</div><div class="text-xs opacity-90">المدفوعات المحصّلة</div><div class="big-ic">💰</div></div>
+        </div>
+        <div class="card table-wrap mb-4">
+          <h3 class="section-title">👨‍🏫 تقرير حسابات المعلمين</h3>
+          <table>
+            <thead><tr><th>م</th><th>المعلم</th><th>التخصص</th><th>البريد</th><th>الحالة</th><th>تاريخ الانضمام</th></tr></thead>
+            <tbody id="rpBody"></tbody>
+          </table>
+        </div>
+        <div class="card table-wrap">
+          <h3 class="section-title">🏆 أفضل 5 طلاب (الدرجات + الحضور)</h3>
+          <table>
+            <thead><tr><th>م</th><th>الطالب</th><th>الصف</th><th>متوسط الدرجات</th><th>نسبة الحضور</th></tr></thead>
+            <tbody id="rpTopBody"></tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- الإعدادات (للمالك فقط) -->
+      <section class="view" id="view-settings">
+        <div class="mb-4">
+          <h2 class="text-lg font-black">⚙️ إعدادات المنصة</h2>
+          <p class="text-sm text-gray-500">بيانات المدرسة والنسخ الاحتياطي وإدارة البيانات.</p>
+        </div>
+        <div class="card mb-4">
+          <h3 class="section-title">🏫 بيانات المدرسة</h3>
+          <div class="grid md:grid-cols-2 gap-3">
+            <div class="field"><label>اسم المدرسة</label><input id="set_school"></div>
+            <div class="field"><label>المدينة</label><input id="set_city"></div>
+            <div class="field"><label>الهاتف</label><input id="set_phone"></div>
+            <div class="field"><label>البريد الإلكتروني</label><input id="set_email"></div>
+          </div>
+          <button class="btn btn-primary btn-sm mt-1" id="setSave">💾 حفظ البيانات</button>
+        </div>
+        <div class="card">
+          <h3 class="section-title">💾 النسخ الاحتياطي والبيانات</h3>
+          <p class="text-xs text-gray-500 mb-3">صدّر نسخة احتياطية من جميع البيانات كملف JSON، أو استعد نسخة سابقة، أو ابدأ من جديد.</p>
+          <div class="flex gap-2 flex-wrap">
+            <button class="btn btn-primary btn-sm" id="setExport">⬇️ تصدير نسخة احتياطية</button>
+            <button class="btn btn-ghost btn-sm" id="setImportBtn">⬆️ استيراد نسخة</button>
+            <input type="file" id="setImport" accept=".json,application/json" class="hidden">
+            <button class="btn btn-ghost btn-sm" id="setReset" style="color:#e11d48">🗑️ حذف كل البيانات (إبقاء حساب المالك)</button>
+          </div>
+          <div class="mt-3 text-xs text-gray-500 p-3 rounded-xl" style="background:#fef3d8">📊 <b>ملخص البيانات:</b> <span id="setDataStats">—</span></div>
+        </div>
+      </section>
+
       <!-- Profile -->
       <section class="view" id="view-profile">
         <div class="mb-4">
           <h2 class="text-lg font-black">👤 الملف الشخصي</h2>
+        </div>
+        <div class="card mb-4">
+          <h3 class="section-title">🖼️ الصورة الشخصية</h3>
+          <div class="flex items-center gap-4 flex-wrap">
+            <div class="w-20 h-20 rounded-full bg-emerald-600 flex items-center justify-center text-white text-3xl font-black overflow-hidden" id="pfAvatarImg">؟</div>
+            <div class="flex gap-2 flex-wrap">
+              <label class="btn btn-primary btn-sm" style="cursor:pointer">📤 رفع صورة
+                <input type="file" id="pfAvatar" accept="image/*" class="hidden">
+              </label>
+              <button class="btn btn-ghost btn-sm" id="pfAvatarRemove">🗑️ حذف الصورة</button>
+            </div>
+          </div>
+          <p class="text-xs text-gray-500 mt-2">تُصغَّر الصورة تلقائياً وتُحفظ في متصفحك — تظهر في القائمة الجانبية.</p>
         </div>
         <div class="card mb-4">
           <h3 class="section-title">المعلومات الأساسية</h3>
@@ -550,7 +708,7 @@ td{padding:.55rem .8rem;border-bottom:1px solid #f3f4f6}
           </div>
           <button class="btn btn-primary btn-sm mt-1" id="pfSave">💾 حفظ التغييرات</button>
         </div>
-        <div class="card">
+        <div class="card mb-4">
           <h3 class="section-title">🔑 تغيير كلمة المرور</h3>
           <div class="grid md:grid-cols-3 gap-3">
             <div class="field"><label>كلمة المرور الحالية</label><input type="password" id="pf_old"></div>
@@ -559,9 +717,51 @@ td{padding:.55rem .8rem;border-bottom:1px solid #f3f4f6}
           </div>
           <button class="btn btn-gold btn-sm mt-1" id="pfPass">تحديث كلمة المرور</button>
         </div>
+        <div class="card">
+          <h3 class="section-title">💾 النسخ الاحتياطي الخاص بك</h3>
+          <p class="text-xs text-gray-500 mb-3">صدّر جميع بياناتك كملف JSON للاحتفاظ بها، أو استعد نسخة سابقة.</p>
+          <div class="flex gap-2 flex-wrap">
+            <button class="btn btn-primary btn-sm" id="pfExport">⬇️ تصدير نسختي</button>
+            <button class="btn btn-ghost btn-sm" id="pfImportBtn">⬆️ استيراد نسخة</button>
+            <input type="file" id="pfImport" accept=".json,application/json" class="hidden">
+          </div>
+        </div>
       </section>
 
     </main>
+  </div>
+</div>
+
+<!-- ============ نافذة معاينة الدرس ============ -->
+<div id="prepModal" style="display:none;position:fixed;inset:0;z-index:60;background:rgba(0,0,0,.55);align-items:center;justify-content:center;padding:1rem">
+  <div class="bg-white dark:bg-gray-800 rounded-2xl max-w-3xl w-full max-h-[85vh] overflow-auto p-5">
+    <div class="flex items-center justify-between mb-3 gap-2 flex-wrap">
+      <h3 class="font-black" id="pmTitle">—</h3>
+      <span id="pmStatus"></span>
+      <button class="btn btn-ghost btn-sm" id="pmClose">✕ إغلاق</button>
+    </div>
+    <div class="output" id="pmBody" style="margin-top:0"></div>
+    <div class="flex gap-2 mt-3 flex-wrap">
+      <button class="btn btn-primary btn-sm" id="pmPublish">✅ اعتماد ونشر</button>
+      <button class="btn btn-ghost btn-sm" id="pmPrint">🖨️ طباعة</button>
+      <button class="btn btn-gold btn-sm" id="pmReview">⭐ مراجعة الدرس</button>
+    </div>
+  </div>
+</div>
+
+<!-- ============ نافذة مراجعة الدرس (نجوم + تعليق) ============ -->
+<div id="revModal" style="display:none;position:fixed;inset:0;z-index:61;background:rgba(0,0,0,.55);align-items:center;justify-content:center;padding:1rem">
+  <div class="bg-white dark:bg-gray-800 rounded-2xl max-w-md w-full p-5">
+    <div class="flex items-center justify-between mb-3">
+      <h3 class="font-black">⭐ مراجعة الدرس</h3>
+      <button class="btn btn-ghost btn-sm" id="revClose">✕</button>
+    </div>
+    <p class="text-sm text-gray-500 mb-2" id="revTitle">—</p>
+    <div class="text-3xl mb-2" id="revStars" style="cursor:pointer">
+      <span data-star="1">☆</span><span data-star="2">☆</span><span data-star="3">☆</span><span data-star="4">☆</span><span data-star="5">☆</span>
+    </div>
+    <div class="field"><label>ملاحظات المراجعة</label><textarea id="revComment" rows="3" placeholder="مثال: الدرس واضح، أضف نشاطاً تفاعلياً في التقويم…"></textarea></div>
+    <button class="btn btn-primary btn-sm mt-2 w-full justify-center" id="revSave">💾 حفظ المراجعة</button>
   </div>
 </div>
 
