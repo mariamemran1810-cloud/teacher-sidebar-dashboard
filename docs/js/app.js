@@ -13,6 +13,7 @@ function freshDb() {
     v: SCHEMA, users: [], students: [], teachers: [], subjects: [], preps: [], exams: [], grades: [],
     attendance: [], payments: [], followups: [], messages: [], library: [],
     training: [], courses: [], community: [], schedule: [], todos: [], notifications: [],
+    activity: [], announcements: [],
     settings: { school: '', city: '', phone: '', email: '' },
     profile: { name: '', email: '', phone: '', spec: '' }
   };
@@ -22,6 +23,8 @@ if (!db || db.v !== SCHEMA) { db = freshDb(); store.set('db', db); }
 else {
   db.settings = db.settings || { school: '', city: '', phone: '', email: '' };
   db.courses = db.courses || [];
+  db.activity = db.activity || [];
+  db.announcements = db.announcements || [];
 }
 let session = store.get('session', null);
 
@@ -32,8 +35,25 @@ function me() { return db.users.find(u => u.id === session) || null; }
 function isOwner() { const u = me(); return u && u.role === 'owner'; }
 function stars(n) { const v = Math.round(n || 0); return '⭐'.repeat(v) + '☆'.repeat(5 - v); }
 
+/* ================= عزل البيانات: كل معلم يرى بياناته فقط ================= */
+function isOwnerUserId(id) { const u = db.users.find(x => x.id === id); return !!u && u.role === 'owner'; }
+function visible(list) { return isOwner() ? list : list.filter(x => x.by === session || isOwnerUserId(x.by)); }
+function canTouch(x) { return isOwner() || x.by === session; }
+
+/* ================= سجل النشاط ================= */
+function logAct(action, detail, whoOverride) {
+  db.activity = db.activity || [];
+  db.activity.unshift({
+    id: uid(), who: whoOverride || me()?.name || 'زائر',
+    role: isOwner() ? '👑 مالك' : (me() ? '👨‍🏫 معلم' : '—'),
+    action, detail: detail || '', time: new Date().toLocaleString('ar-LY')
+  });
+  if (db.activity.length > 300) db.activity.length = 300;
+  save();
+}
+
 /* ================= الصلاحيات ================= */
-const ownerViews = ['teachers', 'payments', 'reports', 'settings'];
+const ownerViews = ['teachers', 'payments', 'reports', 'settings', 'activity', 'announce'];
 function applyRole() {
   const owner = isOwner();
   document.querySelectorAll('[data-owner]').forEach(el => el.classList.toggle('owner-hide', !owner));
@@ -62,6 +82,7 @@ function enterApp() {
   paintAvatar();
   $('uName').textContent = u.name;
   $('uRole').textContent = isOwner() ? '👑 مالك المنصة' : '👨‍🏫 معلم';
+  $('schoolLine').textContent = db.settings?.school || 'لوحة التحكم';
   if (!db.profile.name) {
     db.profile = { ...db.profile, name: u.name, email: u.email, spec: u.spec || '' };
     save();
@@ -90,8 +111,8 @@ $('suBtn')?.addEventListener('click', () => {
   const u = { id: uid(), name, email, pass: hashPw(pass), role: 'owner' };
   db.users.push(u);
   session = u.id; store.set('session', session);
-  db.notifications.push({ id: uid(), title: '🎉 أهلاً بك يا ' + name, text: 'أنشأت حساب المالك. يمكنك الآن إضافة المعلمين من قسم «المدرسون».', read: false });
-  save(); enterApp(); toast('🎉 تم إنشاء حساب المالك');
+  db.notifications.push({ id: uid(), title: '🎉 أهلاً بك يا ' + name, text: 'أنشأت حساب المالك. يمكنك الآن إضافة المعلمين من قسم «المعلمون».', read: false });
+  save(); logAct('إنشاء حساب مالك', email); enterApp(); toast('🎉 تم إنشاء حساب المالك');
 });
 
 $('lgBtn')?.addEventListener('click', () => {
@@ -102,6 +123,7 @@ $('lgBtn')?.addEventListener('click', () => {
   if (u.status === 'suspended') return $('lgMsg').textContent = '⛔ حسابك معلّق — تواصل مع مالك المنصة';
   session = u.id; store.set('session', session);
   $('lgPass').value = '';
+  logAct('تسجيل دخول', u.name + ' — ' + email);
   enterApp(); toast('👋 أهلاً ' + u.name);
 });
 
@@ -116,12 +138,14 @@ $('rgBtn')?.addEventListener('click', () => {
   const owner = db.users.find(x => x.role === 'owner');
   if (owner) db.notifications.push({ id: uid(), uid: owner.id, title: '📝 طلب انضمام جديد', text: name + ' (' + (spec || 'معلم') + ') ينتظر موافقتك — من قسم «المعلمون».', read: false });
   save();
+  logAct('طلب انضمام', name + ' — ' + email, name);
   $('rgMsg').textContent = '✅ تم إنشاء الحساب — بانتظار موافقة المالك قبل تسجيل الدخول';
   $('rgMsg').style.color = '#0d9488';
   toast('⏳ تم إرسال الطلب للمالك');
 });
 
 $('logoutBtn')?.addEventListener('click', () => {
+  logAct('تسجيل خروج', me()?.name || '');
   session = null; store.set('session', null);
   ['lgEmail', 'lgPass'].forEach(id => { const el = $(id); if (el) el.value = ''; });
   showAuthPart('login'); toast('👋 تم تسجيل الخروج');
@@ -143,7 +167,8 @@ const titles = {
   attendance: 'الحضور والغياب', payments: 'المدفوعات', followups: 'المتابعة',
   messages: 'الرسائل', library: 'المكتبة', training: 'التدريب', community: 'المجتمع',
   schedule: 'الجدول', notifications: 'الإشعارات', profile: 'الملف الشخصي',
-  reports: 'التقارير', settings: 'الإعدادات'
+  reports: 'التقارير', settings: 'الإعدادات',
+  activity: 'سجل النشاط', announce: 'الإعلانات'
 };
 
 function go(view) {
@@ -188,7 +213,8 @@ function render(view) {
     followups: renderFollowups, messages: renderMessages, library: renderLibrary,
     training: renderTraining, community: renderCommunity, schedule: renderSchedule,
     notifications: renderNotifications, profile: renderProfile,
-    reports: renderReports, settings: renderSettings
+    reports: renderReports, settings: renderSettings,
+    activity: renderActivity, announce: renderAnnounce
   }[view];
   if (r) r();
 }
@@ -196,14 +222,17 @@ function render(view) {
 /* ================= لوحة التحكم ================= */
 function renderDashboard() {
   $('dashName').textContent = (me()?.name) || db.profile.name || 'معلمنا';
-  $('kpiStudents').textContent = db.students.length;
-  $('kpiPreps').textContent = db.preps.length;
-  $('kpiExams').textContent = db.exams.length;
+  $('kpiStudents').textContent = visible(db.students).length;
+  $('kpiPreps').textContent = visible(db.preps).length;
+  $('kpiExams').textContent = visible(db.exams).length;
   $('kpiAvg').textContent = (avgGrade()) + '%';
+  $('kpiAtt').textContent = overallAtt() + '%';
+  $('kpiRev').textContent = visible(db.preps).reduce((a, p) => a + (p.reviews || []).length, 0);
 
   const box = $('dashTodos');
-  box.innerHTML = db.todos.length ? '' : '<div class="empty" style="padding:1rem">لا توجد مهام بعد — أضف مهمة!</div>';
+  box.innerHTML = visible(db.todos).length ? '' : '<div class="empty" style="padding:1rem">لا توجد مهام بعد — أضف مهمة!</div>';
   db.todos.forEach((t, i) => {
+    if (!canTouch(t)) return;
     const div = document.createElement('div');
     div.className = 'flex items-center gap-2 p-2 rounded-lg';
     div.style.background = '#f9fafb';
@@ -218,13 +247,20 @@ function renderDashboard() {
 $('todoAdd')?.addEventListener('click', () => {
   const v = $('todoInput').value.trim();
   if (!v) return toast('اكتب المهمة أولاً', false);
-  db.todos.push({ text: v, done: false }); $('todoInput').value = ''; save(); renderDashboard(); toast('✅ تمت إضافة المهمة');
+  db.todos.push({ text: v, done: false, by: session }); $('todoInput').value = ''; save(); renderDashboard(); toast('✅ تمت إضافة المهمة');
 });
 
 function avgGrade() {
-  if (!db.grades.length) return 0;
-  const sum = db.grades.reduce((a, g) => a + (Number(g.work) + Number(g.quiz) + Number(g.exam)), 0);
-  return Math.round(sum / db.grades.length);
+  const gs = visible(db.grades);
+  if (!gs.length) return 0;
+  const sum = gs.reduce((a, g) => a + (Number(g.work) + Number(g.quiz) + Number(g.exam)), 0);
+  return Math.round(sum / gs.length);
+}
+function overallAtt() {
+  const recs = visible(db.attendance);
+  if (!recs.length) return 100;
+  const present = recs.filter(r => r.status === 'present' || r.status === 'late').length;
+  return Math.round(present / recs.length * 100);
 }
 function esc(s) { const d = document.createElement('div'); d.textContent = s ?? ''; return d.innerHTML; }
 function gradeLabel(total) {
@@ -239,15 +275,19 @@ function gradeLabel(total) {
 function renderStudents() {
   const q = ($('stSearch')?.value || '').trim();
   const body = $('stBody');
-  body.innerHTML = db.students.length ? '' : '<tr><td colspan="7" class="text-center" style="padding:2rem">لا يوجد طلاب — اضغط «إضافة طالب»</td></tr>';
-  db.students.filter(s => !q || s.name.includes(q)).forEach((s, i) => {
+  const list = visible(db.students).filter(s => !q || s.name.includes(q));
+  body.innerHTML = list.length ? '' : '<tr><td colspan="7" class="text-center" style="padding:2rem">لا يوجد طلاب — اضغط «إضافة طالب»</td></tr>';
+  let n = 0;
+  list.forEach(s => {
+    n++;
     const att = attOf(s.name);
     const gr = gradeOf(s.name);
     const tr = document.createElement('tr');
-    tr.innerHTML = `<td>${i + 1}</td><td class="font-bold">${esc(s.name)}</td><td>${esc(s.grade)}</td>
+    tr.innerHTML = `<td>${n}</td><td class="font-bold">${esc(s.name)}</td><td>${esc(s.grade)}</td>
       <td>${esc(s.parent)}</td><td>${att}%</td><td>${gr.total}% <span class="pill" style="color:${gr.color}">${gr.label}</span></td>
       <td><button class="btn btn-ghost btn-sm">🗑️</button></td>`;
     tr.querySelector('button').addEventListener('click', () => {
+      if (!canTouch(s)) return toast('هذا الطالب ليس من بياناتك', false);
       if (confirm('حذف الطالب؟')) { db.students = db.students.filter(x => x.id !== s.id); save(); renderStudents(); }
     });
     body.appendChild(tr);
@@ -259,19 +299,19 @@ $('stCancel')?.addEventListener('click', () => $('stForm').style.display = 'none
 $('stSave')?.addEventListener('click', () => {
   const name = $('st_name').value.trim();
   if (!name) return toast('اكتب اسم الطالب', false);
-  db.students.push({ id: uid(), name, grade: $('st_grade').value, parent: $('st_parent').value.trim() });
+  db.students.push({ id: uid(), name, grade: $('st_grade').value, parent: $('st_parent').value.trim(), by: session });
   $('st_name').value = ''; $('st_parent').value = '';
   save(); $('stForm').style.display = 'none'; renderStudents(); toast('✅ تمت إضافة الطالب');
 });
 
 function attOf(name) {
-  const recs = db.attendance.filter(a => a.student === name);
+  const recs = visible(db.attendance).filter(a => a.student === name);
   if (!recs.length) return 100;
   const present = recs.filter(r => r.status === 'present' || r.status === 'late').length;
   return Math.round(present / recs.length * 100);
 }
 function gradeOf(name) {
-  const gs = db.grades.filter(g => g.student === name);
+  const gs = visible(db.grades).filter(g => g.student === name);
   if (!gs.length) return { total: 0, label: '—', color: '#6b7280' };
   const total = Math.round(gs.reduce((a, g) => a + Number(g.work) + Number(g.quiz) + Number(g.exam), 0) / gs.length);
   const [label, color] = gradeLabel(total);
@@ -314,21 +354,22 @@ function renderTeachers() {
     tr.querySelector('[data-approve]')?.addEventListener('click', () => {
       u.status = 'active';
       db.notifications.push({ id: uid(), uid: u.id, title: '✅ تمت الموافقة على حسابك', text: 'مرحباً ' + u.name + '، يمكنك الآن تسجيل الدخول واستخدام المنصة.', read: false });
-      save(); renderTeachers(); toast('✔ تمت الموافقة على حساب ' + u.name);
+      save(); logAct('موافقة على حساب', u.name + ' — ' + u.email); renderTeachers(); toast('✔ تمت الموافقة على حساب ' + u.name);
     });
     tr.querySelector('[data-suspend]')?.addEventListener('click', () => {
       if (!confirm('تعليق حساب ' + u.name + '؟ لن يتمكن من الدخول.')) return;
-      u.status = 'suspended'; save(); renderTeachers(); toast('⏸ تم تعليق الحساب');
+      u.status = 'suspended'; save(); logAct('تعليق حساب', u.name + ' — ' + u.email); renderTeachers(); toast('⏸ تم تعليق الحساب');
     });
     tr.querySelector('[data-reset]')?.addEventListener('click', () => {
       const np = prompt('كلمة المرور الجديدة لـ ' + u.name + ' (6 أحرف على الأقل):');
       if (!np) return;
       if (np.length < 6) return toast('كلمة المرور 6 أحرف على الأقل', false);
-      u.pass = hashPw(np); save(); toast('🔑 تم إعادة تعيين كلمة المرور');
+      u.pass = hashPw(np); save(); logAct('إعادة تعيين كلمة مرور', u.name + ' — ' + u.email); toast('🔑 تم إعادة تعيين كلمة المرور');
     });
     tr.querySelector('[data-del]')?.addEventListener('click', () => {
       if (u.id === session) return toast('لا يمكنك حذف حسابك الحالي', false);
       if (!confirm('حذف حساب ' + u.name + ' نهائياً؟')) return;
+      logAct('حذف حساب', u.name + ' — ' + u.email);
       db.users = db.users.filter(x => x.id !== u.id);
       save(); renderTeachers(); toast('🗑️ تم حذف الحساب');
     });
@@ -349,12 +390,12 @@ $('tcSave')?.addEventListener('click', () => {
     spec: $('tc_spec').value.trim(), status: 'active', joined: new Date().toLocaleDateString('ar-LY')
   });
   $('tc_name').value = ''; $('tc_email').value = ''; $('tc_pass').value = ''; $('tc_spec').value = '';
-  save(); $('tcForm').style.display = 'none'; renderTeachers(); toast('✅ تم إنشاء حساب المعلم');
+  save(); logAct('إنشاء حساب معلم', name + ' — ' + email); $('tcForm').style.display = 'none'; renderTeachers(); toast('✅ تم إنشاء حساب المعلم');
 });
 
 /* ================= المواد ================= */
 function renderSubjects() {
-  const list = db.subjects;
+  const list = visible(db.subjects);
   const box = $('sbBox');
   box.innerHTML = list.length ? '' : '<div class="empty" style="grid-column:1/-1">لا توجد مواد بعد — اضغط «إضافة مادة» لإضافة أول مادة</div>';
   list.forEach((s, i) => {
@@ -366,6 +407,7 @@ function renderSubjects() {
       <span class="pill">${esc(s.stage)}</span>
       <button class="btn btn-ghost btn-sm mt-2">🗑️</button>`;
     card.querySelector('button')?.addEventListener('click', () => {
+      if (!canTouch(s)) return toast('هذه المادة ليست من بياناتك', false);
       db.subjects = db.subjects.filter(x => x.id !== s.id); save(); renderSubjects();
     });
     box.appendChild(card);
@@ -376,7 +418,7 @@ $('sbCancel')?.addEventListener('click', () => $('sbForm').style.display = 'none
 $('sbSave')?.addEventListener('click', () => {
   const name = $('sb_name').value.trim();
   if (!name) return toast('اكتب اسم المادة', false);
-  db.subjects.push({ id: uid(), name, stage: $('sb_stage').value, desc: $('sb_desc').value.trim() });
+  db.subjects.push({ id: uid(), name, stage: $('sb_stage').value, desc: $('sb_desc').value.trim(), by: session });
   $('sb_name').value = ''; $('sb_desc').value = '';
   save(); $('sbForm').style.display = 'none'; renderSubjects(); toast('✅ تمت إضافة المادة');
 });
@@ -421,8 +463,9 @@ function prepAvg(p) {
 }
 function renderPreps() {
   const box = $('prepSavedBox');
-  box.innerHTML = db.preps.length ? '' : '<div class="empty" style="padding:1rem">لا توجد تحاضير محفوظة بعد</div>';
+  box.innerHTML = visible(db.preps).length ? '' : '<div class="empty" style="padding:1rem">لا توجد تحاضير محفوظة بعد</div>';
   db.preps.forEach((p, i) => {
+    if (!canTouch(p)) return;
     const avg = prepAvg(p);
     const st = p.status === 'published'
       ? '<span class="pill" style="color:#0d9488">✔ منشور</span>'
@@ -435,10 +478,13 @@ function renderPreps() {
         <span class="text-xs">${stars(avg)} ${avg ? avg.toFixed(1) + '/5' : 'بدون مراجعة'}</span></span>
       <button class="btn btn-ghost btn-sm" data-open="${i}">👁️ معاينة</button>
       <button class="btn btn-gold btn-sm" data-rev="${i}">⭐ مراجعة</button>
+      <button class="btn btn-ghost btn-sm" data-share="${i}">📤 مشاركة</button>
       <button class="btn btn-ghost btn-sm" data-del="${i}">🗑️</button>`;
     div.querySelector('[data-open]').addEventListener('click', () => openPrep(i));
     div.querySelector('[data-rev]').addEventListener('click', () => openReview(i));
+    div.querySelector('[data-share]').addEventListener('click', () => sharePrep(i));
     div.querySelector('[data-del]').addEventListener('click', () => {
+      if (!canTouch(p)) return toast('هذا التحضير ليس من بياناتك', false);
       if (!confirm('حذف التحضير؟')) return;
       db.preps.splice(i, 1); save(); renderPreps();
     });
@@ -446,10 +492,22 @@ function renderPreps() {
   });
   renderRevLog();
 }
+function sharePrep(i) {
+  const p = db.preps[i]; if (!p) return;
+  db.community.push({
+    id: uid(), author: (me()?.name) || 'معلم',
+    text: `📝 ${p.title} (${p.subject})\n` + String(p.content || '').replace(/<[^>]+>/g, '').slice(0, 260) + '…',
+    likes: 0, comments: 0, date: new Date().toLocaleDateString('ar-LY'), by: session
+  });
+  save(); toast('📤 تمت مشاركة التحضير في المجتمع');
+}
 function renderRevLog() {
   const box = $('revBox'); if (!box) return;
   const rows = [];
-  db.preps.forEach((p, pi) => (p.reviews || []).forEach((r, ri) => rows.push({ p, r, pi, ri })));
+  db.preps.forEach((p, pi) => {
+    if (!canTouch(p)) return;
+    (p.reviews || []).forEach((r, ri) => rows.push({ p, r, pi, ri }));
+  });
   box.innerHTML = rows.length ? '' : '<div class="empty" style="padding:1rem">لا توجد مراجعات بعد — اضغط ⭐ مراجعة أمام أي درس</div>';
   rows.forEach(({ p, r, pi, ri }) => {
     const div = document.createElement('div');
@@ -461,6 +519,7 @@ function renderRevLog() {
         <small class="text-gray-500">بواسطة: ${esc(r.by || '—')} • ${esc(r.date)}</small></div>
       <button class="btn btn-ghost btn-sm">🗑️</button>`;
     div.querySelector('button').addEventListener('click', () => {
+      if (!isOwner() && r.uid !== session) return toast('هذه المراجعة ليست من إنشائك', false);
       db.preps[pi].reviews.splice(ri, 1); save(); renderPreps();
     });
     box.appendChild(div);
@@ -496,9 +555,24 @@ function openReview(i) {
 $('pmClose')?.addEventListener('click', () => $('prepModal').style.display = 'none');
 $('pmPublish')?.addEventListener('click', () => {
   const p = db.preps[pmIdx]; if (!p) return;
+  if (!canTouch(p)) return toast('هذا التحضير ليس من بياناتك', false);
   p.status = p.status === 'published' ? 'draft' : 'published';
   save(); openPrep(pmIdx); renderPreps();
+  logAct(p.status === 'published' ? 'نشر درس' : 'إرجاع درس', p.title);
   toast(p.status === 'published' ? '✅ تم اعتماد ونشر الدرس' : '↩️ أُرجع الدرس مسودة');
+});
+$('pmCopy')?.addEventListener('click', async () => {
+  const p = db.preps[pmIdx]; if (!p) return;
+  try {
+    await navigator.clipboard.writeText(String(p.content || '').replace(/<[^>]+>/g, ''));
+    toast('📋 نُسخ محتوى التحضير إلى الحافظة');
+  } catch {
+    const ta = document.createElement('textarea');
+    ta.value = String(p.content || '').replace(/<[^>]+>/g, '');
+    document.body.appendChild(ta); ta.select();
+    try { document.execCommand('copy'); toast('📋 نُسخ محتوى التحضير'); } catch { toast('تعذّر النسخ', false); }
+    ta.remove();
+  }
 });
 $('pmPrint')?.addEventListener('click', () => {
   const w = window.open('', '_blank');
@@ -514,11 +588,12 @@ document.querySelectorAll('#revStars [data-star]').forEach(s => s.addEventListen
 }));
 $('revSave')?.addEventListener('click', () => {
   const p = db.preps[revIdx]; if (!p) return;
+  if (!canTouch(p)) return toast('هذا التحضير ليس من بياناتك', false);
   if (!revScore) return toast('اختر عدد النجوم أولاً', false);
   p.reviews = p.reviews || [];
   p.reviews.push({
     score: revScore, comment: $('revComment').value.trim(),
-    by: (me()?.name) || 'معلم', date: new Date().toLocaleDateString('ar-LY')
+    by: (me()?.name) || 'معلم', uid: session, date: new Date().toLocaleDateString('ar-LY')
   });
   save(); $('revModal').style.display = 'none'; renderPreps();
   toast('⭐ تم حفظ المراجعة');
@@ -535,7 +610,7 @@ $('prepSave')?.addEventListener('click', () => {
   db.preps.push({
     id: uid(), title: t, subject: s, grade: $('pp_grade').value,
     content: buildPrep(t, s, $('pp_grade').value), date: new Date().toLocaleDateString('ar-LY'),
-    status: 'draft', reviews: []
+    status: 'draft', reviews: [], by: session
   });
   save(); renderPreps(); toast('💾 تم حفظ التحضير — يمكنك مراجعته من «تحاضيري المحفوظة»');
 });
@@ -630,13 +705,17 @@ $('aiRun')?.addEventListener('click', async () => {
 const typeLabels = { quiz: 'فرض', midterm: 'نصف الفصل', final: 'نهائي' };
 function renderExams() {
   const body = $('exBody');
-  body.innerHTML = db.exams.length ? '' : '<tr><td colspan="7" class="text-center" style="padding:2rem">لا توجد اختبارات</td></tr>';
-  db.exams.forEach((e, i) => {
+  const list = visible(db.exams);
+  body.innerHTML = list.length ? '' : '<tr><td colspan="7" class="text-center" style="padding:2rem">لا توجد اختبارات</td></tr>';
+  let n = 0;
+  list.forEach(e => {
+    n++;
     const tr = document.createElement('tr');
-    tr.innerHTML = `<td>${i + 1}</td><td class="font-bold">${esc(e.title)}</td><td>${esc(e.subject)}</td>
+    tr.innerHTML = `<td>${n}</td><td class="font-bold">${esc(e.title)}</td><td>${esc(e.subject)}</td>
       <td><span class="pill">${typeLabels[e.type] || e.type}</span></td><td>${e.marks}</td><td>${esc(e.date || '—')}</td>
       <td><button class="btn btn-ghost btn-sm">🗑️</button></td>`;
     tr.querySelector('button').addEventListener('click', () => {
+      if (!canTouch(e)) return toast('هذا الاختبار ليس من بياناتك', false);
       if (confirm('حذف الاختبار؟')) { db.exams = db.exams.filter(x => x.id !== e.id); save(); renderExams(); }
     });
     body.appendChild(tr);
@@ -647,7 +726,7 @@ $('exCancel')?.addEventListener('click', () => $('exForm').style.display = 'none
 $('exSave')?.addEventListener('click', () => {
   const title = $('ex_title').value.trim();
   if (!title) return toast('اكتب عنوان الاختبار', false);
-  db.exams.push({ id: uid(), title, subject: $('ex_subject').value.trim(), marks: Number($('ex_marks').value) || 100, date: $('ex_date').value, type: $('ex_type').value });
+  db.exams.push({ id: uid(), title, subject: $('ex_subject').value.trim(), marks: Number($('ex_marks').value) || 100, date: $('ex_date').value, type: $('ex_type').value, by: session });
   $('ex_title').value = ''; $('ex_subject').value = '';
   save(); $('exForm').style.display = 'none'; renderExams(); toast('✅ تم إنشاء الاختبار');
 });
@@ -655,12 +734,15 @@ $('exSave')?.addEventListener('click', () => {
 /* ================= الدرجات ================= */
 function renderGrades() {
   const body = $('grBody');
-  body.innerHTML = db.grades.length ? '' : '<tr><td colspan="8" class="text-center" style="padding:2rem">لا توجد درجات — أضف درجة أول طالب</td></tr>';
+  body.innerHTML = visible(db.grades).length ? '' : '<tr><td colspan="8" class="text-center" style="padding:2rem">لا توجد درجات — أضف درجة أول طالب</td></tr>';
+  let n = 0;
   db.grades.forEach((g, i) => {
+    if (!canTouch(g)) return;
+    n++;
     const total = Number(g.work) + Number(g.quiz) + Number(g.exam);
     const [label, color] = gradeLabel(total);
     const tr = document.createElement('tr');
-    tr.innerHTML = `<td>${i + 1}</td><td class="font-bold">${esc(g.student)}</td><td>${g.work}</td><td>${g.quiz}</td>
+    tr.innerHTML = `<td>${n}</td><td class="font-bold">${esc(g.student)}</td><td>${g.work}</td><td>${g.quiz}</td>
       <td>${g.exam}</td><td><b>${total}/100</b></td><td><span class="pill" style="color:${color}">${label}</span></td>
       <td><button class="btn btn-ghost btn-sm">🗑️</button></td>`;
     tr.querySelector('button').addEventListener('click', () => {
@@ -674,7 +756,7 @@ $('grSave')?.addEventListener('click', () => {
   const student = $('gr_student').value.trim();
   if (!student) return toast('اكتب اسم الطالب', false);
   db.grades.push({
-    id: uid(), student,
+    id: uid(), student, by: session,
     work: Math.min(20, Math.max(0, Number($('gr_work').value) || 0)),
     quiz: Math.min(20, Math.max(0, Number($('gr_quiz').value) || 0)),
     exam: Math.min(60, Math.max(0, Number($('gr_exam').value) || 0))
@@ -687,17 +769,21 @@ $('grSave')?.addEventListener('click', () => {
 function renderAttendance() {
   if (!$('attDate').value) $('attDate').value = new Date().toISOString().slice(0, 10);
   const body = $('attBody');
-  if (!db.students.length) {
+  const myStudents = visible(db.students);
+  if (!myStudents.length) {
     body.innerHTML = '<tr><td colspan="3" class="text-center" style="padding:2rem">أضف طلاباً أولاً من قسم الطلاب</td></tr>';
     updateAttSummary(); return;
   }
   body.innerHTML = '';
   const date = $('attDate').value;
-  db.students.forEach((s, i) => {
-    const rec = db.attendance.find(a => a.student === s.name && a.date === date);
+  let n = 0;
+  db.students.forEach((s) => {
+    if (!canTouch(s)) return;
+    n++;
+    const rec = visible(db.attendance).find(a => a.student === s.name && a.date === date);
     const st = rec ? rec.status : 'present';
     const tr = document.createElement('tr');
-    tr.innerHTML = `<td>${i + 1}</td><td class="font-bold">${esc(s.name)}</td>
+    tr.innerHTML = `<td>${n}</td><td class="font-bold">${esc(s.name)}</td>
       <td>
         <select data-student="${esc(s.name)}" class="input" style="padding:.3rem .6rem;border-radius:.6rem">
           <option value="present" ${st === 'present' ? 'selected' : ''}>حاضر</option>
@@ -708,9 +794,13 @@ function renderAttendance() {
       </td>`;
     tr.querySelector('select').addEventListener('change', e => {
       const name = e.target.dataset.student;
-      const existing = db.attendance.find(a => a.student === name && a.date === date);
+      const existing = visible(db.attendance).find(a => a.student === name && a.date === date);
+      if (existing && !canTouch(existing)) {
+        e.target.value = existing.status;
+        return toast('سجل هذا الطالب ليس من بياناتك', false);
+      }
       if (existing) existing.status = e.target.value;
-      else db.attendance.push({ id: uid(), student: name, date, status: e.target.value });
+      else db.attendance.push({ id: uid(), student: name, date, status: e.target.value, by: session });
       save(); updateAttSummary();
     });
     body.appendChild(tr);
@@ -719,7 +809,7 @@ function renderAttendance() {
 }
 function updateAttSummary() {
   const date = $('attDate').value;
-  const recs = db.attendance.filter(a => a.date === date);
+  const recs = visible(db.attendance).filter(a => a.date === date);
   const p = recs.filter(r => r.status === 'present').length;
   const a = recs.filter(r => r.status === 'absent').length;
   const l = recs.filter(r => r.status === 'late').length;
@@ -728,10 +818,11 @@ function updateAttSummary() {
 $('attDate')?.addEventListener('change', renderAttendance);
 $('attAllPresent')?.addEventListener('click', () => {
   const date = $('attDate').value;
-  db.students.forEach(s => {
-    const existing = db.attendance.find(a => a.student === s.name && a.date === date);
+  visible(db.students).forEach(s => {
+    const existing = visible(db.attendance).find(a => a.student === s.name && a.date === date);
+    if (existing && !canTouch(existing)) return;
     if (existing) existing.status = 'present';
-    else db.attendance.push({ id: uid(), student: s.name, date, status: 'present' });
+    else db.attendance.push({ id: uid(), student: s.name, date, status: 'present', by: session });
   });
   save(); renderAttendance(); toast('✔ تم تحضير الجميع');
 });
@@ -740,22 +831,26 @@ $('attSave')?.addEventListener('click', () => { save(); toast('💾 تم حفظ 
 /* ================= المدفوعات ================= */
 const pyTypeLabels = { tuition: 'رسوم دراسية', exam: 'رسوم امتحان', activity: 'نشاط', other: 'أخرى' };
 function renderPayments() {
-  const paid = db.payments.filter(p => p.status === 'paid');
-  const pending = db.payments.filter(p => p.status !== 'paid');
+  const pays = visible(db.payments);
+  const paid = pays.filter(p => p.status === 'paid');
+  const pending = pays.filter(p => p.status !== 'paid');
   const total = paid.reduce((a, p) => a + Number(p.amount), 0);
   $('payTotal').textContent = total.toLocaleString('ar-EG') + ' د.ل';
   $('payPending').textContent = pending.reduce((a, p) => a + Number(p.amount), 0).toLocaleString('ar-EG') + ' د.ل';
-  $('payCount').textContent = db.payments.length;
-  $('payRate').textContent = db.payments.length ? Math.round(paid.length / db.payments.length * 100) + '%' : '0%';
+  $('payCount').textContent = pays.length;
+  $('payRate').textContent = pays.length ? Math.round(paid.length / pays.length * 100) + '%' : '0%';
 
   const body = $('pyBody');
-  body.innerHTML = db.payments.length ? '' : '<tr><td colspan="7" class="text-center" style="padding:2rem">لا توجد معاملات</td></tr>';
+  body.innerHTML = pays.length ? '' : '<tr><td colspan="7" class="text-center" style="padding:2rem">لا توجد معاملات</td></tr>';
+  let n = 0;
   db.payments.forEach((p, i) => {
+    if (!canTouch(p)) return;
+    n++;
     const st = p.status === 'paid'
       ? '<span class="pill" style="color:#0d9488">مدفوع</span>'
       : '<span class="pill" style="color:#d97706">معلّق</span>';
     const tr = document.createElement('tr');
-    tr.innerHTML = `<td>${i + 1}</td><td class="font-bold">${esc(p.student)}</td><td>${Number(p.amount).toLocaleString('ar-EG')} د.ل</td>
+    tr.innerHTML = `<td>${n}</td><td class="font-bold">${esc(p.student)}</td><td>${Number(p.amount).toLocaleString('ar-EG')} د.ل</td>
       <td>${pyTypeLabels[p.type] || p.type}</td><td>${st}</td><td>${esc(p.date || '—')}</td>
       <td><button class="btn btn-ghost btn-sm">🗑️</button></td>`;
     tr.querySelector('button').addEventListener('click', () => {
@@ -770,7 +865,7 @@ $('pySave')?.addEventListener('click', () => {
   const student = $('py_student').value.trim();
   const amount = Number($('py_amount').value);
   if (!student || !amount) return toast('أكمل البيانات', false);
-  db.payments.push({ id: uid(), student, amount, type: $('py_type').value, status: $('py_status').value, date: new Date().toLocaleDateString('ar-LY') });
+  db.payments.push({ id: uid(), student, amount, type: $('py_type').value, status: $('py_status').value, date: new Date().toLocaleDateString('ar-LY'), by: session });
   $('py_student').value = ''; $('py_amount').value = '';
   save(); $('pyForm').style.display = 'none'; renderPayments(); toast('✅ تمت إضافة الدفعة');
 });
@@ -778,8 +873,9 @@ $('pySave')?.addEventListener('click', () => {
 /* ================= المتابعة ================= */
 function renderFollowups() {
   const box = $('fuBox');
-  box.innerHTML = db.followups.length ? '' : '<div class="empty" style="padding:1rem">لا توجد متابعات بعد</div>';
+  box.innerHTML = visible(db.followups).length ? '' : '<div class="empty" style="padding:1rem">لا توجد متابعات بعد</div>';
   db.followups.forEach((f, i) => {
+    if (!canTouch(f)) return;
     const div = document.createElement('div');
     div.className = 'p-3 rounded-xl';
     div.style.background = '#f9fafb';
@@ -796,7 +892,7 @@ $('fuSave')?.addEventListener('click', () => {
   const topics = $('fu_topics').value.trim();
   if (!topics) return toast('اكتب المواد المغطاة', false);
   db.followups.push({
-    id: uid(), date: new Date().toLocaleDateString('ar-LY'), topics,
+    id: uid(), date: new Date().toLocaleDateString('ar-LY'), topics, by: session,
     activities: $('fu_activities').value.trim(), challenges: $('fu_challenges').value.trim(),
     next: $('fu_next').value.trim()
   });
@@ -807,8 +903,9 @@ $('fuSave')?.addEventListener('click', () => {
 /* ================= الرسائل ================= */
 function renderMessages() {
   const box = $('msBox');
-  box.innerHTML = db.messages.length ? '' : '<div class="empty" style="padding:1rem">لا توجد رسائل</div>';
+  box.innerHTML = visible(db.messages).length ? '' : '<div class="empty" style="padding:1rem">لا توجد رسائل</div>';
   db.messages.forEach((m, i) => {
+    if (!canTouch(m)) return;
     const div = document.createElement('div');
     div.className = 'p-3 rounded-xl flex items-start gap-2';
     div.style.background = '#f9fafb';
@@ -822,7 +919,7 @@ function renderMessages() {
 $('msSend')?.addEventListener('click', () => {
   const to = $('ms_to').value.trim(), text = $('ms_text').value.trim();
   if (!to || !text) return toast('أكمل بيانات الرسالة', false);
-  db.messages.push({ id: uid(), to, text, date: new Date().toLocaleDateString('ar-LY') });
+  db.messages.push({ id: uid(), to, text, date: new Date().toLocaleDateString('ar-LY'), by: session });
   $('ms_to').value = ''; $('ms_text').value = '';
   save(); renderMessages(); toast('📤 تمت إرسال الرسالة');
 });
@@ -832,8 +929,9 @@ const lbTypeIcons = { book: '📕', worksheet: '📄', slides: '📊', video: '�
 const lbTypeLabels = { book: 'كتاب', worksheet: 'ورقة عمل', slides: 'عرض تقديمي', video: 'فيديو', exam: 'نموذج امتحان' };
 function renderLibrary() {
   const box = $('lbBox');
-  box.innerHTML = db.library.length ? '' : '<div class="empty" style="grid-column:1/-1">لا توجد موارد — اضغط «إضافة مورد»</div>';
+  box.innerHTML = visible(db.library).length ? '' : '<div class="empty" style="grid-column:1/-1">لا توجد موارد — اضغط «إضافة مورد»</div>';
   db.library.forEach((l, i) => {
+    if (!canTouch(l)) return;
     const card = document.createElement('div');
     card.className = 'card';
     card.innerHTML = `<div class="text-3xl">${lbTypeIcons[l.type] || '📦'}</div>
@@ -852,7 +950,7 @@ $('lbCancel')?.addEventListener('click', () => $('lbForm').style.display = 'none
 $('lbSave')?.addEventListener('click', () => {
   const title = $('lb_title').value.trim();
   if (!title) return toast('اكتب عنوان المورد', false);
-  db.library.push({ id: uid(), title, type: $('lb_type').value, url: $('lb_url').value.trim() });
+  db.library.push({ id: uid(), title, type: $('lb_type').value, url: $('lb_url').value.trim(), by: session });
   $('lb_title').value = ''; $('lb_url').value = '';
   save(); $('lbForm').style.display = 'none'; renderLibrary(); toast('✅ تمت إضافة المورد');
 });
@@ -860,7 +958,7 @@ $('lbSave')?.addEventListener('click', () => {
 /* ================= التدريب ================= */
 function renderTraining() {
   const box = $('trBox');
-  const courses = db.courses || [];
+  const courses = visible(db.courses || []);
   box.innerHTML = courses.length ? '' : '<div class="empty" style="grid-column:1/-1">لا توجد دورات بعد — يمكن للمالك إضافتها من زر «إضافة دورة»</div>';
   courses.forEach(c => {
     const done = db.training.includes(c.id);
@@ -893,7 +991,7 @@ $('crSave')?.addEventListener('click', () => {
   const title = $('cr_title').value.trim();
   if (!title) return toast('اكتب عنوان الدورة', false);
   db.courses.push({
-    id: uid(), title, desc: $('cr_desc').value.trim(),
+    id: uid(), title, desc: $('cr_desc').value.trim(), by: session,
     hours: Number($('cr_hours').value) || 1, level: 'عام',
     cat: $('cr_cat').value.trim() || 'عام'
   });
@@ -919,14 +1017,17 @@ function renderCommunity() {
         <span class="btn btn-ghost btn-sm" style="cursor:default">💬 ${p.comments}</span>
       </div>`;
     div.querySelector('[data-like]').addEventListener('click', () => { p.likes++; save(); renderCommunity(); });
-    div.querySelector('.mr-auto').addEventListener('click', () => { db.community.splice(i, 1); save(); renderCommunity(); });
+    div.querySelector('.mr-auto').addEventListener('click', () => {
+      if (!canTouch(p)) return toast('هذا المنشور ليس من إنشائك', false);
+      db.community.splice(i, 1); save(); renderCommunity();
+    });
     box.appendChild(div);
   });
 }
 $('cmAdd')?.addEventListener('click', () => {
   const text = $('cmText').value.trim();
   if (!text) return toast('اكتب منشورك', false);
-  db.community.push({ id: uid(), author: (me()?.name) || db.profile.name || 'معلم', text, likes: 0, comments: 0, date: new Date().toLocaleDateString('ar-LY') });
+  db.community.push({ id: uid(), author: (me()?.name) || db.profile.name || 'معلم', text, likes: 0, comments: 0, date: new Date().toLocaleDateString('ar-LY'), by: session });
   $('cmText').value = '';
   save(); renderCommunity(); toast('📢 تم النشر');
 });
@@ -934,8 +1035,9 @@ $('cmAdd')?.addEventListener('click', () => {
 /* ================= الجدول ================= */
 function renderSchedule() {
   const body = $('scBody');
-  body.innerHTML = db.schedule.length ? '' : '<tr><td colspan="5" class="text-center" style="padding:2rem">لا توجد حصص في الجدول</td></tr>';
+  body.innerHTML = visible(db.schedule).length ? '' : '<tr><td colspan="5" class="text-center" style="padding:2rem">لا توجد حصص في الجدول</td></tr>';
   db.schedule.forEach((s, i) => {
+    if (!canTouch(s)) return;
     const tr = document.createElement('tr');
     tr.innerHTML = `<td><b>${esc(s.day)}</b></td><td>${esc(s.period)}</td><td>${esc(s.subject)}</td><td>${esc(s.className)}</td>
       <td><button class="btn btn-ghost btn-sm">🗑️</button></td>`;
@@ -948,7 +1050,7 @@ $('scCancel')?.addEventListener('click', () => $('scForm').style.display = 'none
 $('scSave')?.addEventListener('click', () => {
   const subject = $('sc_subject').value.trim();
   if (!subject) return toast('اكتب المادة', false);
-  db.schedule.push({ id: uid(), day: $('sc_day').value, period: $('sc_period').value, subject, className: $('sc_class').value.trim() });
+  db.schedule.push({ id: uid(), day: $('sc_day').value, period: $('sc_period').value, subject, className: $('sc_class').value.trim(), by: session });
   $('sc_subject').value = ''; $('sc_class').value = '';
   save(); $('scForm').style.display = 'none'; renderSchedule(); toast('✅ تمت إضافة الحصة');
 });
@@ -1048,6 +1150,7 @@ function exportData() {
   a.download = 'teacher-backup-' + new Date().toISOString().slice(0, 10) + '.json';
   a.click();
   setTimeout(() => URL.revokeObjectURL(a.href), 3000);
+  logAct('تصدير نسخة احتياطية', isOwner() ? 'كامل البيانات' : 'بياناتي');
   toast('⬇️ تم تصدير النسخة الاحتياطية');
 }
 function importData(file) {
@@ -1060,7 +1163,10 @@ function importData(file) {
       db.v = SCHEMA;
       db.settings = db.settings || { school: '', city: '', phone: '', email: '' };
       db.courses = db.courses || [];
+      db.activity = db.activity || [];
+      db.announcements = db.announcements || [];
       save();
+      logAct('استيراد نسخة احتياطية', file.name || '');
       toast('⬆️ تم استيراد النسخة بنجاح — جارٍ إعادة التحميل…');
       setTimeout(() => location.reload(), 900);
     } catch (err) {
@@ -1096,7 +1202,10 @@ $('setSave')?.addEventListener('click', () => {
     school: $('set_school').value.trim(), city: $('set_city').value.trim(),
     phone: $('set_phone').value.trim(), email: $('set_email').value.trim()
   };
-  save(); toast('💾 حُفظت بيانات المدرسة');
+  save();
+  $('schoolLine').textContent = db.settings.school || 'لوحة التحكم';
+  logAct('حفظ بيانات المدرسة', db.settings.school || '—');
+  toast('💾 حُفظت بيانات المدرسة');
 });
 $('setReset')?.addEventListener('click', () => {
   if (!isOwner()) return toast('⛔ متاح للمالك فقط', false);
@@ -1109,8 +1218,62 @@ $('setReset')?.addEventListener('click', () => {
   session = users.length ? users[0].id : null;
   store.set('session', session);
   save();
+  logAct('حذف كل البيانات', 'مسح كامل مع إبقاء حساب المالك');
   toast('🗑️ تم حذف كل البيانات وإبقاء حساب المالك');
   go('dashboard');
+});
+
+/* ================= سجل النشاط (للمالك) ================= */
+function renderActivity() {
+  if (!isOwner()) return;
+  const body = $('acBody');
+  const list = db.activity || [];
+  body.innerHTML = list.length ? '' : '<tr><td colspan="5" class="text-center" style="padding:2rem">لا يوجد نشاط مسجل بعد</td></tr>';
+  list.forEach((a, i) => {
+    const tr = document.createElement('tr');
+    tr.innerHTML = `<td>${i + 1}</td><td class="text-xs">${esc(a.time)}</td>
+      <td class="font-bold">${esc(a.who)}<br><small class="text-gray-500">${esc(a.role || '')}</small></td>
+      <td><span class="pill">${esc(a.action)}</span></td><td class="text-sm">${esc(a.detail || '—')}</td>`;
+    body.appendChild(tr);
+  });
+}
+$('acClear')?.addEventListener('click', () => {
+  if (!isOwner()) return;
+  if (!confirm('مسح سجل النشاط بالكامل؟')) return;
+  db.activity = []; save(); renderActivity(); toast('🗑️ تم مسح السجل');
+});
+
+/* ================= الإعلانات (للمالك) ================= */
+function renderAnnounce() {
+  if (!isOwner()) return;
+  const box = $('anBox');
+  const list = db.announcements || [];
+  box.innerHTML = list.length ? '' : '<div class="empty" style="padding:1rem">لم تُرسل إعلانات بعد</div>';
+  list.forEach((a, i) => {
+    const div = document.createElement('div');
+    div.className = 'p-3 rounded-xl flex items-start gap-2';
+    div.style.background = '#f9fafb';
+    div.innerHTML = `<span>📢</span><div style="flex:1"><b>${esc(a.title)}</b><br>
+        <span class="text-sm text-gray-600">${esc(a.text)}</span><br>
+        <small class="text-gray-500">${esc(a.date)} • أُرسل إلى ${a.to} معلم</small></div>
+      <button class="btn btn-ghost btn-sm">🗑️</button>`;
+    div.querySelector('button').addEventListener('click', () => { db.announcements.splice(i, 1); save(); renderAnnounce(); });
+    box.appendChild(div);
+  });
+}
+$('anSend')?.addEventListener('click', () => {
+  if (!isOwner()) return toast('⛔ الإعلانات متاحة لمالك المنصة فقط', false);
+  const title = $('an_title').value.trim(), text = $('an_text').value.trim();
+  if (!title || !text) return toast('اكتب عنوان ونص الإعلان', false);
+  const teachers = db.users.filter(u => u.role === 'teacher' && (u.status || 'active') === 'active');
+  teachers.forEach(u => db.notifications.push({ id: uid(), uid: u.id, title: '📢 ' + title, text, read: false }));
+  db.announcements = db.announcements || [];
+  db.announcements.unshift({ id: uid(), title, text, date: new Date().toLocaleDateString('ar-LY'), to: teachers.length });
+  $('an_title').value = ''; $('an_text').value = '';
+  save();
+  logAct('إرسال إعلان', title + ' — إلى ' + teachers.length + ' معلم');
+  renderAnnounce();
+  toast('📢 أُرسل الإعلان إلى ' + teachers.length + ' معلم');
 });
 
 /* ================= التقارير (للمالك) ================= */

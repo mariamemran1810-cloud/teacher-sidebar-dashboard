@@ -116,7 +116,7 @@ td{padding:.55rem .8rem;border-bottom:1px solid #f3f4f6}
   <aside class="sidebar w-64 bg-gradient-to-b from-emerald-800 to-emerald-900 text-white flex flex-col fixed md:static inset-y-0 right-0 z-40 transform md:translate-x-0 translate-x-full transition-transform" id="sidebar">
     <div class="p-4 border-b border-emerald-700/50 flex items-center gap-2">
       <span class="text-2xl">🎓</span>
-      <div><b class="text-sm">المعلم الليبي الرقمي</b><br><span class="text-emerald-300 text-xs">لوحة التحكم</span></div>
+      <div><b class="text-sm">المعلم الليبي الرقمي</b><br><span class="text-emerald-300 text-xs" id="schoolLine">لوحة التحكم</span></div>
     </div>
     <nav class="flex-1 p-3 space-y-1 overflow-y-auto" id="sideNav">
       <button class="nav-item active" data-view="dashboard">🏠 لوحة التحكم</button>
@@ -137,6 +137,8 @@ td{padding:.55rem .8rem;border-bottom:1px solid #f3f4f6}
       <button class="nav-item" data-view="schedule">🗓️ الجدول</button>
       <button class="nav-item" data-view="notifications">🔔 الإشعارات</button>
       <button class="nav-item" data-view="reports" data-owner="1">📊 التقارير</button>
+      <button class="nav-item" data-view="activity" data-owner="1">📜 سجل النشاط</button>
+      <button class="nav-item" data-view="announce" data-owner="1">📢 الإعلانات</button>
       <button class="nav-item" data-view="settings" data-owner="1">⚙️ الإعدادات</button>
       <button class="nav-item" data-view="profile">👤 الملف الشخصي</button>
     </nav>
@@ -182,6 +184,8 @@ td{padding:.55rem .8rem;border-bottom:1px solid #f3f4f6}
           <div class="stat-card s-green"><div class="text-3xl font-black" id="kpiPreps">0</div><div class="text-xs opacity-90">تحاضير محفوظة</div><div class="big-ic">📝</div></div>
           <div class="stat-card s-gold"><div class="text-3xl font-black" id="kpiExams">0</div><div class="text-xs opacity-90">اختبارات</div><div class="big-ic">📊</div></div>
           <div class="stat-card s-navy"><div class="text-3xl font-black" id="kpiAvg">0%</div><div class="text-xs opacity-90">متوسط الدرجات</div><div class="big-ic">📈</div></div>
+          <div class="stat-card s-green"><div class="text-3xl font-black" id="kpiAtt">0%</div><div class="text-xs opacity-90">نسبة الحضور</div><div class="big-ic">🗓️</div></div>
+          <div class="stat-card s-gold"><div class="text-3xl font-black" id="kpiRev">0</div><div class="text-xs opacity-90">مراجعات الدروس</div><div class="big-ic">⭐</div></div>
         </div>
         <div class="grid md:grid-cols-2 gap-4">
           <div class="card">
@@ -617,6 +621,42 @@ td{padding:.55rem .8rem;border-bottom:1px solid #f3f4f6}
         <div class="space-y-3" id="ntBox"></div>
       </section>
 
+      <!-- سجل النشاط (للمالك فقط) -->
+      <section class="view" id="view-activity">
+        <div class="flex items-center justify-between mb-4 flex-wrap gap-2">
+          <div>
+            <h2 class="text-lg font-black">📜 سجل النشاط</h2>
+            <p class="text-sm text-gray-500">كل العمليات على المنصة (دخول، حسابات، نشر، حذف…) مع وقتها والمنفّذ لها.</p>
+          </div>
+          <button class="btn btn-ghost btn-sm" id="acClear" style="color:#e11d48">🗑️ مسح السجل</button>
+        </div>
+        <div class="card table-wrap">
+          <table>
+            <thead><tr><th>م</th><th>الوقت</th><th>المستخدم</th><th>الإجراء</th><th>التفاصيل</th></tr></thead>
+            <tbody id="acBody"></tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- الإعلانات (للمالك فقط) -->
+      <section class="view" id="view-announce">
+        <div class="mb-4">
+          <h2 class="text-lg font-black">📢 الإعلانات الجماعية</h2>
+          <p class="text-sm text-gray-500">أرسل إشعاراً يصلك لكل المعلمين النشطين في لوحة إشعاراتهم.</p>
+        </div>
+        <div class="card mb-4">
+          <div class="grid md:grid-cols-3 gap-3">
+            <div class="field"><label>عنوان الإعلان</label><input id="an_title" placeholder="مثال: اجتماع الثلاثاء"></div>
+            <div class="field" style="grid-column:span 2"><label>نص الإعلان</label><input id="an_text" placeholder="اكتب نص الإعلان…"></div>
+          </div>
+          <button class="btn btn-primary btn-sm mt-1" id="anSend">📤 إرسال لجميع المعلمين</button>
+        </div>
+        <div class="card">
+          <h3 class="section-title">🗂️ الإعلانات المرسلة</h3>
+          <div id="anBox" class="space-y-2 text-sm"></div>
+        </div>
+      </section>
+
       <!-- التقارير (للمالك فقط) -->
       <section class="view" id="view-reports">
         <div class="mb-4">
@@ -743,6 +783,7 @@ td{padding:.55rem .8rem;border-bottom:1px solid #f3f4f6}
     <div class="output" id="pmBody" style="margin-top:0"></div>
     <div class="flex gap-2 mt-3 flex-wrap">
       <button class="btn btn-primary btn-sm" id="pmPublish">✅ اعتماد ونشر</button>
+      <button class="btn btn-ghost btn-sm" id="pmCopy">📋 نسخ المحتوى</button>
       <button class="btn btn-ghost btn-sm" id="pmPrint">🖨️ طباعة</button>
       <button class="btn btn-gold btn-sm" id="pmReview">⭐ مراجعة الدرس</button>
     </div>
