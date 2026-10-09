@@ -179,6 +179,7 @@ themeBtn?.addEventListener('click', () => {
 });
 
 /* ================= التوجيهات ================= */
+function renderAI() { /* قسم ثابت — لا يحتاج عرضاً ديناميكياً */ }
 function render(view) {
   const r = {
     dashboard: renderDashboard, students: renderStudents, teachers: renderTeachers,
