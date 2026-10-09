@@ -37,8 +37,11 @@ function stars(n) { const v = Math.round(n || 0); return '⭐'.repeat(v) + '☆'
 
 /* ================= عزل البيانات: كل معلم يرى بياناته فقط ================= */
 function isOwnerUserId(id) { const u = db.users.find(x => x.id === id); return !!u && u.role === 'owner'; }
-function visible(list) { return isOwner() ? list : list.filter(x => x.by === session || isOwnerUserId(x.by)); }
-function canTouch(x) { return isOwner() || x.by === session; }
+function visible(list) {
+  if (!session) return [];
+  return isOwner() ? list : list.filter(x => x.by === session || isOwnerUserId(x.by));
+}
+function canTouch(x) { return !!session && (isOwner() || x.by === session); }
 
 /* ================= سجل النشاط ================= */
 function logAct(action, detail, whoOverride) {
