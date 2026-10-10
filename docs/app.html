@@ -392,8 +392,27 @@ td{padding:.55rem .8rem;border-bottom:1px solid #f3f4f6}
           <div class="output" id="aiOut">اختر النوع واملأ التفاصيل ثم اضغط «ولّد المحتوى»… 🤖</div>
         </div>
 
-        <h3 class="section-title mt-6">📚 مصادر ومساعدات ذكية للتحضير</h3>
-        <p class="text-sm text-gray-500 mb-3">أدوات خارجية يعتمد عليها المعلمون حول العالم — افتحها في تبويب جديد، واستنسخ ما تولّده منها إلى تحضيرك هنا.</p>
+        <div class="flex items-center justify-between mt-6 flex-wrap gap-2">
+          <h3 class="section-title" style="margin:0">📚 مصادر ومساعدات ذكية للتحضير</h3>
+          <button class="btn btn-primary btn-sm" id="aiSrcAdd">➕ إضافة مصدر</button>
+        </div>
+        <p class="text-sm text-gray-500 mt-2 mb-1">أدوات خارجية يعتمد عليها المعلمون حول العالم — افتحها في تبويب جديد، واستنسخ ما تولّده منها إلى تحضيرك هنا. وأضف أدواتك المفضلة بزر «إضافة مصدر».</p>
+        <div class="card mt-3" id="aiSrcForm" style="display:none">
+          <div class="grid md:grid-cols-2 gap-3">
+            <div class="field"><label>اسم المصدر</label><input id="aiSrcName" placeholder="مثال: Gamma"></div>
+            <div class="field"><label>الرابط</label><input id="aiSrcUrl" placeholder="gamma.app"></div>
+            <div class="field"><label>وصف قصير</label><input id="aiSrcDesc" placeholder="يحوّل العنوان إلى عرض تقديمي"></div>
+            <div class="field"><label>النوع</label>
+              <select id="aiSrcTag"><option>مجاني</option><option>مجاني جزئياً</option><option>مدفوع</option><option>أخرى</option></select></div>
+          </div>
+          <div class="flex gap-2 mt-2">
+            <button class="btn btn-primary btn-sm" id="aiSrcSave">💾 حفظ المصدر</button>
+            <button class="btn btn-ghost btn-sm" id="aiSrcCancel">إلغاء</button>
+          </div>
+        </div>
+        <h4 class="section-title mt-4" style="font-size:.9rem">⭐ مصادري (أضافها المعلمون)</h4>
+        <div class="grid md:grid-cols-3 gap-4" id="aiMySources"></div>
+        <h4 class="section-title mt-4" style="font-size:.9rem">📖 مصادر مقترحة من المنصة</h4>
         <div class="grid md:grid-cols-3 gap-4">
           <a class="card" href="https://gemini.google.com" target="_blank" rel="noopener" style="text-decoration:none">
             <b>💎 Google Gemini</b><p class="text-xs text-gray-500 mt-1 mb-2">خطط دروس، أسئلة، وتلخيص نصوص بالعربية — مجاني ومرتبط مباشرة بمساعد المنصة.</p><span class="pill">مجاني</span></a>

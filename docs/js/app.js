@@ -13,7 +13,7 @@ function freshDb() {
     v: SCHEMA, users: [], students: [], teachers: [], subjects: [], preps: [], exams: [], grades: [],
     attendance: [], payments: [], followups: [], messages: [], library: [],
     training: [], courses: [], community: [], schedule: [], todos: [], notifications: [],
-    activity: [], announcements: [], designs: [],
+    activity: [], announcements: [], designs: [], aiSources: [],
     settings: { school: '', city: '', phone: '', email: '' },
     profile: { name: '', email: '', phone: '', spec: '' }
   };
@@ -26,6 +26,7 @@ else {
   db.activity = db.activity || [];
   db.announcements = db.announcements || [];
   db.designs = db.designs || [];
+  db.aiSources = db.aiSources || [];
 }
 let session = store.get('session', null);
 
@@ -1020,7 +1021,60 @@ themeBtn?.addEventListener('click', () => {
 });
 
 /* ================= التوجيهات ================= */
-function renderAI() { /* قسم ثابت — لا يحتاج عرضاً ديناميكياً */ }
+function renderAI() {
+  renderAiSources();
+}
+/* ================= مصادر الذكاء الاصطناعي (يضيفها المعلم بنفسه) ================= */
+const aiTagStyles = { 'مجاني': '#d7f3ee', 'مجاني جزئياً': '#fef3c7', 'مدفوع': '#ffe4e6', 'أخرى': '#e0e7ff' };
+function normUrl(u) {
+  const s = String(u || '').trim();
+  if (!s) return '';
+  return /^https?:\/\//i.test(s) ? s : 'https://' + s;
+}
+function renderAiSources() {
+  const wrap = $('aiMySources');
+  if (!wrap) return;
+  const list = visible(db.aiSources);
+  wrap.innerHTML = list.length ? '' : '<div class="empty" style="grid-column:1/-1;padding:1.2rem">لا توجد مصادر مضافَة بعد — اضغط «➕ إضافة مصدر» لتوثيق أداتك المفضلة</div>';
+  list.forEach(src => {
+    const div = document.createElement('div');
+    div.className = 'card';
+    div.innerHTML = `<div class="flex items-center gap-2 mb-1">
+        <span class="pill" style="background:${aiTagStyles[src.tag] || '#e0e7ff'}">${esc(src.tag || 'أخرى')}</span>
+        <button class="btn btn-ghost btn-sm mr-auto" title="حذف" style="color:#e11d48">🗑️</button></div>
+      <a href="${esc(normUrl(src.url))}" target="_blank" rel="noopener" style="text-decoration:none"><b>⭐ ${esc(src.name)}</b></a>
+      <p class="text-xs text-gray-500 mt-1">${esc(src.desc || '')}</p>
+      <small class="text-xs text-gray-400">${esc(src.url || '')}</small>`;
+    div.querySelector('.mr-auto').addEventListener('click', () => {
+      if (!canTouch(src)) return toast('هذا المصدر ليس من إضافتك', false);
+      db.aiSources = db.aiSources.filter(x => x.id !== src.id); save();
+      logAct('حذف مصدر AI', src.name || '');
+      renderAiSources(); toast('🗑️ تم حذف المصدر');
+    });
+    wrap.appendChild(div);
+  });
+}
+$('aiSrcAdd')?.addEventListener('click', () => {
+  const f = $('aiSrcForm');
+  f.style.display = f.style.display === 'none' ? 'block' : 'none';
+});
+$('aiSrcCancel')?.addEventListener('click', () => { $('aiSrcForm').style.display = 'none'; });
+$('aiSrcSave')?.addEventListener('click', () => {
+  if (!session) return toast('سجّل الدخول أولاً', false);
+  const name = $('aiSrcName').value.trim();
+  const url = normUrl($('aiSrcUrl').value);
+  if (!name || !url) return toast('اكتب اسم المصدر ورابطه', false);
+  db.aiSources.push({
+    id: uid(), by: session, name, url,
+    desc: $('aiSrcDesc').value.trim(), tag: $('aiSrcTag').value,
+    date: new Date().toLocaleDateString('ar-LY')
+  });
+  save();
+  logAct('إضافة مصدر AI', name);
+  ['aiSrcName', 'aiSrcUrl', 'aiSrcDesc'].forEach(id => { $(id).value = ''; });
+  $('aiSrcForm').style.display = 'none';
+  renderAiSources(); toast('⭐ تم حفظ المصدر في قسمك الخاص');
+});
 function render(view) {
   const r = {
     dashboard: renderDashboard, students: renderStudents, teachers: renderTeachers,
