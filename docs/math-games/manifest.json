@@ -1,0 +1,20 @@
+{
+  "name": "ألعاب الرياضيات — منهج ليبيا للمرحلة الإعدادية",
+  "short_name": "ألعاب الرياضيات",
+  "description": "منصة ألعاب رياضيات تفاعلية لطلاب المرحلة الإعدادية في ليبيا: 6 ألعاب و18 وحدة وبنك أسئلة شامل — تعمل بدون إنترنت.",
+  "lang": "ar",
+  "dir": "rtl",
+  "id": "./",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#0f766e",
+  "theme_color": "#0f766e",
+  "categories": ["education", "games"],
+  "icons": [
+    { "src": "icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "icons/icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}

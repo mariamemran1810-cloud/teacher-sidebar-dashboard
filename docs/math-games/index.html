@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>ألعاب الرياضيات | منصة تفاعلية — رياضيات المرحلة الإعدادية (المنهج الليبي)</title>
+  <meta name="description" content="منصة ألعاب رياضيات تفاعلية متكاملة لطلاب المرحلة الإعدادية في ليبيا: أسئلة بنك شامل للصفوف الثلاثة، اختبار سريع، صح وخطأ، المطابقة، الترتيب، إدخال الإجابة، وسباق الوقت — مع نقاط وشارات ولوحة متصدرين.">
+  <meta name="theme-color" content="#0f766e">
+  <link rel="manifest" href="manifest.json">
+  <link rel="icon" type="image/png" href="../icons/favicon-48.png">
+  <link rel="apple-touch-icon" href="../icons/apple-touch-icon.png">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-title" content="ألعاب الرياضيات">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body data-theme="light">
+
+  <span class="blob b1"></span>
+  <span class="blob b2"></span>
+  <span class="blob b3"></span>
+
+  <!-- ===== الشريط العلوي ===== -->
+  <header class="topbar">
+    <div class="wrap topbar-in">
+      <a class="brand" href="#/">
+        <span class="logo">∑</span>
+        <span class="brand-txt">
+          <b>ألعاب الرياضيات</b>
+          <small>المنهج الليبي · المرحلة الإعدادية</small>
+        </span>
+      </a>
+
+      <nav class="mainnav" id="mainnav">
+        <a href="#/" data-nav="home">الرئيسية</a>
+        <a href="#/stats" data-nav="stats">تقدّمي</a>
+        <a href="#/board" data-nav="board">المتصدرون</a>
+        <a href="#/help" data-nav="help">كيف تلعب</a>
+      </nav>
+
+      <div class="tools">
+        <a class="xp-chip" href="#/stats" title="نقاط الخبرة"><i>⭐</i><span id="xpVal">0</span></a>
+        <button class="icon-btn" id="soundBtn" type="button" title="الصوت" aria-label="الصوت">🔊</button>
+        <button class="icon-btn" id="themeBtn" type="button" title="الوضع الليلي" aria-label="الوضع الليلي">🌙</button>
+        <button class="icon-btn menu-btn" id="menuBtn" type="button" title="القائمة" aria-label="القائمة">☰</button>
+      </div>
+    </div>
+  </header>
+
+  <!-- ===== شاشة اللعبة (تغطي كل شيء) ===== -->
+  <main id="app" class="wrap"></main>
+
+  <footer class="foot" id="foot">
+    <div class="wrap foot-in">
+      <div>
+        <b>ألعاب الرياضيات</b>
+        <p>منصة تفاعلية مجانية لطلاب المرحلة الإعدادية في ليبيا — تعمل على الهاتف والكمبيوتر وبدون إنترنت بعد أول زيارة.</p>
+      </div>
+      <div class="foot-links">
+        <a href="#/">الرئيسية</a>
+        <a href="#/stats">تقدّمي</a>
+        <a href="#/board">المتصدرون</a>
+        <a href="#/help">كيف تلعب</a>
+        <a href="../index.html">منصة المعلم الليبي</a>
+      </div>
+    </div>
+  </footer>
+
+  <!-- ===== طبقات التنبيهات والمحتوى ===== -->
+  <div id="modalRoot"></div>
+  <div id="toastRoot" aria-live="polite"></div>
+  <div id="fxRoot" aria-hidden="true"></div>
+
+  <script src="js/helpers.js"></script>
+  <script src="js/data/g1.js"></script>
+  <script src="js/data/g2.js"></script>
+  <script src="js/data/g3.js"></script>
+  <script src="js/curriculum.js"></script>
+  <script src="js/games.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
