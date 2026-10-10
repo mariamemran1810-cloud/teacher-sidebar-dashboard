@@ -67,6 +67,18 @@ td{padding:.55rem .8rem;border-bottom:1px solid #f3f4f6}
 .dark .pill{background:#0d3a3a;color:#5eead4}
 .empty{text-align:center;padding:2.5rem;color:#6b7280}
 .owner-hide{display:none !important}
+
+/* ===== استوديو التصميم ===== */
+#printRoot{display:none}
+#stPaperWrap{position:relative;overflow:hidden;background:#f3f4f6;border-radius:1rem;padding:12px;min-height:320px}
+.dark #stPaperWrap{background:#0a2229}
+#stPaper{width:794px;min-height:1123px;background:#fff;transform-origin:top left;box-shadow:0 8px 28px rgba(0,0,0,.18);border-radius:8px;overflow:hidden}
+@media print{
+  body>*{display:none!important}
+  #printRoot{display:block!important}
+  #printRoot #stPaper{box-shadow:none!important;border-radius:0!important;transform:none!important;width:794px!important}
+}
+@page{size:A4;margin:0}
 </style>
 </head>
 <body class="bg-gray-100 dark:bg-gray-900 text-gray-800 dark:text-gray-100">
@@ -140,6 +152,7 @@ td{padding:.55rem .8rem;border-bottom:1px solid #f3f4f6}
       <button class="nav-item" data-view="messages">💬 الرسائل</button>
       <button class="nav-item" data-view="library">📦 المكتبة</button>
       <button class="nav-item" data-view="training">🎓 التدريب</button>
+      <button class="nav-item" data-view="studio">🎨 استوديو التصميم</button>
       <button class="nav-item" data-view="community">📢 المجتمع</button>
       <button class="nav-item" data-view="schedule">🗓️ الجدول</button>
       <button class="nav-item" data-view="notifications">🔔 الإشعارات</button>
@@ -577,6 +590,48 @@ td{padding:.55rem .8rem;border-bottom:1px solid #f3f4f6}
         </div>
       </section>
 
+      <!-- Studio -->
+      <section class="view" id="view-studio">
+        <div id="stHome">
+          <div class="mb-4">
+            <h2 class="text-lg font-black">🎨 استوديو التصميم التعليمي</h2>
+            <p class="text-sm text-gray-500">اختر قالباً جاهزاً، عدّل النصوص والبيانات، ثم اطبعه أو صدّره صورة PNG أو ملف PowerPoint</p>
+          </div>
+          <div class="card mb-4" style="background:linear-gradient(120deg,#fffbeb,#fef3c7);border:1.5px dashed #d97706">
+            <b>🏪 سوق القوالب — قريباً</b>
+            <p class="text-sm text-gray-600 mt-1">قريباً ستتمكن من عرض قوالبك وبيعها للمعلمين الآخرين من خلال المنصة، وفق شروط واضحة لحقوق الاستخدام. تابعنا!</p>
+          </div>
+          <h3 class="section-title">🗂️ اختر نوع التصميم</h3>
+          <div class="grid md:grid-cols-3 gap-4 mt-2" id="stCats"></div>
+          <h3 class="section-title mt-6">💾 تصاميمي المحفوظة</h3>
+          <div class="grid md:grid-cols-3 gap-4 mt-2" id="stMy"></div>
+        </div>
+
+        <div id="stEditor" style="display:none">
+          <div class="flex items-center gap-2 mb-4 flex-wrap">
+            <button class="btn btn-ghost btn-sm" id="stBack">↩ رجوع</button>
+            <h2 class="text-lg font-black" id="stTplName">🎨 محرر التصميم</h2>
+          </div>
+          <div class="grid gap-4 items-start md:grid-cols-[340px_1fr]">
+            <div class="card" id="stPanel">
+              <h3 class="section-title">🎨 اللون</h3>
+              <div class="flex gap-2 flex-wrap mb-3" id="stThemes"></div>
+              <div id="stFields"></div>
+              <div class="grid grid-cols-2 gap-2 mt-3">
+                <button class="btn btn-primary btn-sm" id="stSave">💾 حفظ</button>
+                <button class="btn btn-ghost btn-sm" id="stPrint">🖨️ طباعة / PDF</button>
+                <button class="btn btn-ghost btn-sm" id="stPng">🖼️ صورة PNG</button>
+                <button class="btn btn-ghost btn-sm" id="stPpt" style="display:none">📊 ملف PPTX</button>
+                <button class="btn btn-ghost btn-sm" id="stShare">📤 مشاركة القالب</button>
+                <button class="btn btn-ghost btn-sm" id="stDel" style="display:none;color:#e11d48">🗑️ حذف</button>
+              </div>
+              <p class="text-xs text-gray-500 mt-3">💡 «طباعة / PDF» تفتح نافذة الطباعة — اختر «حفظ كـ PDF» للحصول على ملف PDF. معاينة التصميم بمقاس A4 (794 بكسل).</p>
+            </div>
+            <div id="stPaperWrap"><div id="stPaper"></div></div>
+          </div>
+        </div>
+      </section>
+
       <!-- Community -->
       <section class="view" id="view-community">
         <div class="mb-4">
@@ -825,6 +880,7 @@ td{padding:.55rem .8rem;border-bottom:1px solid #f3f4f6}
 <div id="toast" style="position:fixed;bottom:1.2rem;left:1.2rem;z-index:50;padding:.8rem 1.3rem;border-radius:1rem;color:#fff;font-weight:800;display:none;box-shadow:0 12px 30px rgba(0,0,0,.25)"></div>
 
 <script src="js/app.js"></script>
+<div id="printRoot"></div>
 <script>
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', function () {
