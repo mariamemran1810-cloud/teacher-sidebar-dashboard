@@ -649,10 +649,12 @@ td{padding:.55rem .8rem;border-bottom:1px solid #f3f4f6}
             <p class="text-sm text-gray-500">اختر قالباً جاهزاً، عدّل النصوص والبيانات، ثم اطبعه أو صدّره صورة PNG أو ملف PowerPoint</p>
           </div>
           <div class="card mb-4" style="background:linear-gradient(120deg,#fffbeb,#fef3c7);border:1.5px dashed #d97706">
-            <b>🏪 سوق القوالب — قريباً</b>
-            <p class="text-sm text-gray-600 mt-1">قريباً ستتمكن من عرض قوالبك وبيعها للمعلمين الآخرين من خلال المنصة، وفق شروط واضحة لحقوق الاستخدام. تابعنا!</p>
+            <b>🏪 سوق القوالب</b>
+            <p class="text-sm text-gray-600 mt-1">اعرض قوالبك للبيع على معلمي المنصة — الاتفاق والتسليم والدفع بينك وبين المشتري مباشرة، والمنصة لا تأخذ عمولة. كل قالب معروض يمرّ على بطاقة «📜 شروط الاستخدام» قبل تأكيد الشراء.</p>
           </div>
-          <h3 class="section-title">🗂️ اختر نوع التصميم</h3>
+          <h3 class="section-title">🛒 قوالب معروضة للبيع</h3>
+          <div class="grid md:grid-cols-3 gap-4 mt-2" id="stMarket"></div>
+          <h3 class="section-title mt-6">🗂️ اختر نوع التصميم</h3>
           <div class="grid md:grid-cols-3 gap-4 mt-2" id="stCats"></div>
           <h3 class="section-title mt-6">💾 تصاميمي المحفوظة</h3>
           <div class="grid md:grid-cols-3 gap-4 mt-2" id="stMy"></div>
@@ -675,6 +677,14 @@ td{padding:.55rem .8rem;border-bottom:1px solid #f3f4f6}
                 <button class="btn btn-ghost btn-sm" id="stPpt" style="display:none">📊 ملف PPTX</button>
                 <button class="btn btn-ghost btn-sm" id="stShare">📤 مشاركة القالب</button>
                 <button class="btn btn-ghost btn-sm" id="stDel" style="display:none;color:#e11d48">🗑️ حذف</button>
+              </div>
+              <div class="mt-3 p-3 rounded-xl" style="background:#f0fdfa">
+                <label class="flex items-center gap-2 text-xs font-bold" style="cursor:pointer"><input type="checkbox" id="stSellChk" style="accent-color:#0f766e"> 🛒 عرض القالب للبيع في سوق القوالب</label>
+                <div id="stSellBox" style="display:none" class="mt-2">
+                  <div class="field"><label class="text-xs">السعر (د.ل)</label><input type="number" id="stSellPrice" min="1" placeholder="مثال: 5"></div>
+                  <div class="field"><label class="text-xs">وسيلة التواصل (هاتف / واتساب)</label><input id="stSellContact" placeholder="09xxxxxxxx"></div>
+                  <p class="text-xs text-gray-500">سيظهر القالب في «🛒 قوالب معروضة للبيع»، وعند الشراء يصلك إشعار باسم المشتري ووسيلة التواصل.</p>
+                </div>
               </div>
               <p class="text-xs text-gray-500 mt-3">💡 «طباعة / PDF» تفتح نافذة الطباعة — اختر «حفظ كـ PDF» للحصول على ملف PDF. معاينة التصميم بمقاس A4 (794 بكسل).</p>
             </div>
@@ -930,6 +940,25 @@ td{padding:.55rem .8rem;border-bottom:1px solid #f3f4f6}
 
 <div id="toast" style="position:fixed;bottom:1.2rem;left:1.2rem;z-index:50;padding:.8rem 1.3rem;border-radius:1rem;color:#fff;font-weight:800;display:none;box-shadow:0 12px 30px rgba(0,0,0,.25)"></div>
 
+<div id="stPeek" style="display:none;position:fixed;inset:0;background:rgba(15,23,42,.68);z-index:70;overflow:auto;padding:1rem">
+  <div style="max-width:860px;margin:0 auto;background:#fff;border-radius:1rem;padding:1rem">
+    <div class="flex items-center justify-between mb-2">
+      <b id="stPeekTitle">👁️ معاينة القالب</b>
+      <button class="btn btn-ghost btn-sm" id="stPeekClose">✕ إغلاق</button>
+    </div>
+    <div id="stPeekWrap" style="overflow:hidden"><div id="stPeekPaper" style="width:794px;transform-origin:top left;overflow:hidden"></div></div>
+  </div>
+</div>
+<div id="stBuy" style="display:none;position:fixed;inset:0;background:rgba(15,23,42,.68);z-index:71;align-items:center;justify-content:center;padding:1rem">
+  <div style="max-width:480px;background:#fff;border-radius:1rem;padding:1.4rem">
+    <b id="stBuyTitle" style="font-size:1.05rem">🛒 تأكيد الشراء</b>
+    <div id="stBuyBody" class="text-sm mt-2"></div>
+    <div class="flex gap-2 mt-4">
+      <button class="btn btn-primary btn-sm" id="stBuyOk">✅ أؤكد الشراء</button>
+      <button class="btn btn-ghost btn-sm" id="stBuyCancel">إلغاء</button>
+    </div>
+  </div>
+</div>
 <script src="js/app.js"></script>
 <div id="printRoot"></div>
 <script>

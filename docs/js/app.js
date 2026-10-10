@@ -13,7 +13,7 @@ function freshDb() {
     v: SCHEMA, users: [], students: [], teachers: [], subjects: [], preps: [], exams: [], grades: [],
     attendance: [], payments: [], followups: [], messages: [], library: [],
     training: [], courses: [], community: [], schedule: [], todos: [], notifications: [],
-    activity: [], announcements: [], designs: [], aiSources: [],
+    activity: [], announcements: [], designs: [], aiSources: [], purchases: [],
     settings: { school: '', city: '', phone: '', email: '' },
     profile: { name: '', email: '', phone: '', spec: '' }
   };
@@ -27,6 +27,7 @@ else {
   db.announcements = db.announcements || [];
   db.designs = db.designs || [];
   db.aiSources = db.aiSources || [];
+  db.purchases = db.purchases || [];
 }
 let session = store.get('session', null);
 
@@ -718,6 +719,7 @@ function renderStudio() {
     });
     my.appendChild(div);
   });
+  stMarketRender();
 }
 
 function openStudio(tplId, design) {
@@ -791,16 +793,111 @@ $('stShare')?.addEventListener('click', () => {
   if (!session) return toast('سجّل الدخول أولاً', false);
   const tpl = ST_TPLS[stCur.tplId];
   const title = stCur.data?.title || stCur.data?.subject || tpl.name;
-  db.community.push({
+  const sell = $('stSellChk')?.checked;
+  const price = Number($('stSellPrice')?.value) || 0;
+  const contact = $('stSellContact')?.value.trim();
+  if (sell && (!price || !contact)) return toast('لعرض القالب للبيع: أدخل السعر ووسيلة التواصل', false);
+  const post = {
     id: uid(), author: me()?.name || 'معلم',
-    text: `🎨 شارك قالب «${title}» من استوديو التصميم — استخدم زر «🎨 استنساخ القالب» لأخذ نسخة إليه وتعديلها باسمك.`,
+    text: sell
+      ? `🛒 عرض قالب «${title}» للبيع في سوق القوالب — للمعاينة والشراء افتح الاستوديو.`
+      : `🎨 شارك قالب «${title}» من استوديو التصميم — استخدم زر «🎨 استنساخ القالب» لأخذ نسخة إليه وتعديلها باسمك.`,
     likes: 0, comments: 0, date: new Date().toLocaleDateString('ar-LY'), by: session,
     design: { tpl: stCur.tplId, theme: stCur.theme, title, data: { ...stCur.data } }
+  };
+  if (sell) post.forSale = { price, contact };
+  db.community.push(post);
+  save();
+  logAct(sell ? 'عرض قالب للبيع' : 'مشاركة قالب', `${title}${sell ? ' — ' + price + ' د.ل' : ''}`);
+  if ($('stSellChk')) $('stSellChk').checked = false;
+  if ($('stSellBox')) $('stSellBox').style.display = 'none';
+  ['stSellPrice', 'stSellContact'].forEach(id => { if ($(id)) $(id).value = ''; });
+  toast(sell ? '🛒 تم عرض القالب في سوق القوالب' : '📤 تم مشاركة القالب في المجتمع — ستجده في قسم المجتمع');
+});
+
+/* ================= سوق القوالب: معاينة وشراء بحقوق استخدام واضحة ================= */
+const ST_RIGHTS = 'يحق للمشتري استخدام القالب مع طلابه وتعديله لحاجته، ولا يجوز إعادة بيعه أو توزيعه أو مشاركته كاملاً مع الغير. البائع مسؤول عن أصالة قالبه وحقوقه، والمنصة وسيط للعرض فقط.';
+$('stSellChk')?.addEventListener('change', (e) => {
+  const box = $('stSellBox');
+  if (box) box.style.display = e.target.checked ? 'block' : 'none';
+});
+function stMarketRender() {
+  const box = $('stMarket');
+  if (!box) return;
+  const posts = db.community.filter(p => p.design && p.forSale).slice().reverse();
+  box.innerHTML = posts.length ? '' : '<div class="empty" style="grid-column:1/-1;padding:1.2rem">لا توجد قوالب معروضة حالياً — شارك قالباً من المحرر مع تفعيل «🛒 عرض للبيع» ليظهر هنا</div>';
+  posts.forEach(p => {
+    const t = ST_TPLS[p.design.tpl];
+    const cat = STUDIO_CATS.find(c => c.id === (t?.cat || p.design.cat));
+    const mine = p.by === session;
+    const bought = db.purchases.some(x => x.postId === p.id && x.by === session);
+    const div = document.createElement('div');
+    div.className = 'card';
+    div.innerHTML = `<div class="flex items-center gap-2 mb-1">
+        <span style="font-size:22px">${cat?.icon || '🎨'}</span>
+        <div style="flex:1"><b>${esc(p.design.title || t?.name || 'قالب')}</b><br>
+          <small class="text-gray-500">${esc(p.author)} • ${esc(p.date || '')}</small></div>
+        <span class="pill" style="background:#fef3c7;color:#92400e">${Number(p.forSale.price) || 0} د.ل</span></div>
+      <div class="flex gap-2 flex-wrap mt-2 items-center">
+        <button class="btn btn-ghost btn-sm" data-peek>👁️ معاينة</button>
+        ${mine ? '<span class="pill">قالبك معروض ✅</span>'
+        : bought ? '<button class="btn btn-primary btn-sm" data-clone>📥 استنساخ</button>'
+        : '<button class="btn btn-primary btn-sm" data-buy>🛒 شراء</button>'}
+      </div>
+      ${bought && !mine ? `<div class="text-xs mt-2" style="color:#15803d">✅ تم شراء هذا القالب — استنسخه وعدّله باسمك</div>` : ''}`;
+    div.querySelector('[data-peek]').addEventListener('click', () => stPeekShow(p));
+    div.querySelector('[data-buy]')?.addEventListener('click', () => stBuyOpen(p));
+    div.querySelector('[data-clone]')?.addEventListener('click', () => stClonePost(p));
+    box.appendChild(div);
+  });
+}
+function stPeekShow(p) {
+  const t = ST_TPLS[p.design.tpl];
+  if (!t) return toast('هذا القالب لم يعد متاحاً', false);
+  $('stPeekTitle').textContent = '👁️ ' + (p.design.title || t.name);
+  const paper = $('stPeekPaper');
+  paper.innerHTML = t.render({ ...(p.design.data || {}) }, ST_THEMES[p.design.theme] || ST_THEMES.teal);
+  const s = Math.min(1, (window.innerWidth - 90) / 794);
+  paper.style.transform = `scale(${s})`;
+  $('stPeekWrap').style.height = (paper.offsetHeight * s + 16) + 'px';
+  $('stPeek').style.display = 'block';
+}
+$('stPeekClose')?.addEventListener('click', () => { $('stPeek').style.display = 'none'; });
+let stBuyPost = null;
+function stBuyOpen(p) {
+  stBuyPost = p;
+  const t = ST_TPLS[p.design.tpl];
+  $('stBuyTitle').textContent = '🛒 شراء: ' + (p.design.title || t?.name || 'قالب');
+  $('stBuyBody').innerHTML = `<div style="background:#fffbeb;border-radius:.8rem;padding:.7rem;margin-bottom:.6rem"><b>📜 شروط الاستخدام:</b><br><span style="font-size:12px;color:#6b7280">${ST_RIGHTS}</span></div>
+    <div>السعر: <b>${Number(p.forSale.price) || 0} د.ل</b> — تسليم فوري داخل المنصة بعد التأكيد، والاتفاق على طريقة الدفع مباشرة بينك وبين البائع.</div>`;
+  $('stBuy').style.display = 'flex';
+}
+$('stBuyCancel')?.addEventListener('click', () => { $('stBuy').style.display = 'none'; stBuyPost = null; });
+$('stBuyOk')?.addEventListener('click', () => {
+  const p = stBuyPost;
+  $('stBuy').style.display = 'none'; stBuyPost = null;
+  if (!p) return;
+  if (db.purchases.some(x => x.postId === p.id && x.by === session)) return toast('لقد اشتريت هذا القالب سابقاً', false);
+  db.purchases.push({ id: uid(), postId: p.id, seller: p.by, title: p.design.title || '', price: Number(p.forSale.price) || 0, date: new Date().toLocaleDateString('ar-LY'), by: session });
+  db.notifications.push({
+    id: uid(), uid: p.by, title: '🛒 طلب شراء قالب',
+    text: `${me()?.name || 'معلم'} يرغب بشراء قالبك «${p.design.title || ''}» بسعر ${p.forSale.price} د.ل — للتواصل: ${p.forSale.contact || '—'}`,
+    read: false
   });
   save();
-  logAct('مشاركة قالب', title);
-  toast('📤 تم مشاركة القالب في المجتمع — ستجده في قسم المجتمع');
+  logAct('شراء قالب', `${p.design.title || ''} — ${p.forSale.price} د.ل`);
+  toast('✅ تم الشراء — اسم البائع ووسيلة التواصل وصلاكي في 🔔 الإشعارات');
+  stMarketRender();
 });
+function stClonePost(p) {
+  const t = ST_TPLS[p.design.tpl];
+  if (!t) return toast('هذا القالب لم يعد متاحاً', false);
+  const copy = { id: uid(), by: session, cat: t.cat, tpl: p.design.tpl, theme: p.design.theme || t.theme || 'teal', title: (p.design.title || t.name) + ' — نسختي', data: { ...(p.design.data || {}) }, date: new Date().toLocaleDateString('ar-LY') };
+  db.designs.push(copy); save();
+  logAct('استنساخ قالب مدفوع', p.design.title || t.name);
+  toast('📥 تم نسخ القالب إلى «تصاميمي»');
+  go('studio'); openStudio(p.design.tpl, copy);
+}
 $('stPrint')?.addEventListener('click', () => {
   const paper = $('stPaper'), wrap = $('stPaperWrap'), pr = $('printRoot');
   paper.style.transform = '';
@@ -1882,7 +1979,9 @@ function renderCommunity() {
         <button class="btn btn-ghost btn-sm mr-auto">🗑️</button>
       </div>
       <p class="text-sm mb-2">${esc(p.text)}</p>
-      ${p.design ? `<button class="btn btn-ghost btn-sm mb-2" data-clone style="border:1px dashed #0f766e">🎨 استنساخ القالب إلى «تصاميمي»</button>` : ''}
+      ${p.design ? (p.forSale
+        ? `<button class="btn btn-ghost btn-sm mb-2" data-gotoshop style="border:1px dashed #b45309">🛒 معروض في السوق (${Number(p.forSale.price) || 0} د.ل) — اشتريه من الاستوديو</button>`
+        : `<button class="btn btn-ghost btn-sm mb-2" data-clone style="border:1px dashed #0f766e">🎨 استنساخ القالب إلى «تصاميمي»</button>`) : ''}
       <div class="flex gap-3 text-sm">
         <button class="btn btn-ghost btn-sm" data-like>❤️ ${p.likes}</button>
         <span class="btn btn-ghost btn-sm" style="cursor:default">💬 ${p.comments}</span>
@@ -1898,6 +1997,7 @@ function renderCommunity() {
       toast('🎨 تم نسخ القالب إلى «تصاميمي»');
       go('studio'); openStudio(p.design.tpl, copy);
     });
+    div.querySelector('[data-gotoshop]')?.addEventListener('click', () => go('studio'));
     div.querySelector('.mr-auto').addEventListener('click', () => {
       if (!canTouch(p)) return toast('هذا المنشور ليس من إنشائك', false);
       db.community.splice(i, 1); save(); renderCommunity();
