@@ -80,7 +80,8 @@ const STUDIO_CATS = [
   { id: 'cards', icon: '🃏', name: 'بطاقات المراجعة', desc: 'بطاقات أسئلة وأجوبة للمراجعة السريعة' },
   { id: 'schedule', icon: '🗓️', name: 'جداول الحصص', desc: 'جدول حصص جاهز للتعبئة والطباعة' },
   { id: 'homework', icon: '✅', name: 'متابعة الواجبات', desc: 'لوحة يومية لمتابعة تسليم الواجبات' },
-  { id: 'contest', icon: '🏆', name: 'مسابقات وأنشطة', desc: 'أوراق مسابقات وأنشطة مدرسية' }
+  { id: 'contest', icon: '🏆', name: 'مسابقات وأنشطة', desc: 'أوراق مسابقات وأنشطة مدرسية' },
+  { id: 'support', icon: '🧩', name: 'دعم التعلم والتميّز', desc: 'متابعة التقدم، أنشطة علاجية وإثرائية، تفكير ناقد، تعلم تعاوني وتكييف' }
 ];
 const ST_THEMES = {
   teal: { bg: '#ecfdf5', acc: '#0f766e', ink: '#134e4a', name: 'أخضر' },
@@ -425,6 +426,244 @@ const ST_TPLS = {
               <b style="min-width:26px;height:26px;border:2px solid ${c.acc};border-radius:50%;display:inline-flex;align-items:center;justify-content:center;color:${c.acc}">${letters[j]}</b>${esc(op)}</span>`).join('')}
           </div></div>`).join('')}
         <div style="text-align:center;margin-top:16px;color:${c.acc};font-weight:800">بالتوفيق للجميع 🌟</div></div>`;
+    }
+  },
+  'sp-progress': {
+    name: 'نموذج ملاحظة تقدم الطلاب', cat: 'support', theme: 'teal',
+    fields: [
+      { k: 'title', label: 'المهارة / المجال المتابع', t: 'text', v: 'مهارات القراءة' },
+      { k: 'grade', label: 'الصف', t: 'text', v: '' },
+      { k: 'round', label: 'فترة المتابعة', t: 'text', v: 'الفصل الدراسي الأول' },
+      { k: 'skills', label: 'المهارات المراد متابعتها (واحدة لكل سطر)', t: 'area', v: 'يتعرّف الحروف بسرعة.\nيقرأ كلمات مفردة بدقة.\nيفهم معنى الجملة البسيطة.\nيستخرج الفكرة الرئيسية.' },
+      { k: 'students', label: 'الطلاب (اسم لكل سطر)', t: 'area', v: 'أحمد علي\nمحمد صالح\nسلمى حسن\nفاطمة أحمد' }
+    ],
+    render(d, c) {
+      const skills = stLines(d.skills), sts = stLines(d.students);
+      const cell = 'border:1.5px solid ' + c.acc + ';height:48px;font-size:12px;text-align:center';
+      const lbl = `background:${c.acc};color:#fff;font-weight:800`;
+      return `<div style="padding:20px;min-height:1080px;background:#fff;font-family:'Cairo',sans-serif">
+        <div style="text-align:center;margin-bottom:12px"><b style="font-size:22px;color:${c.acc}">📈 نموذج ملاحظة تقدم الطلاب</b>
+          <div style="font-size:14px;color:#555;margin-top:4px">${esc(d.title || '')} — الصف: ${esc(d.grade || '—')} — ${esc(d.round || '')}</div></div>
+        <table style="width:100%;border-collapse:collapse">
+          <tr><td style="${cell};${lbl};width:130px;text-align:right;padding-right:8px">الطالب</td>
+            ${skills.map(s => `<td style="${cell};${lbl};min-width:80px">${esc(s)}</td>`).join('')}</tr>
+          ${sts.map(s => `<tr><td style="${cell};text-align:right;padding-right:8px;font-weight:700;background:${c.bg}">${esc(s)}</td>
+            ${skills.map(() => `<td style="${cell}"></td>`).join('')}</tr>`).join('')}
+        </table>
+        <div style="margin-top:14px;background:${c.bg};border-radius:12px;padding:12px;font-size:13px;color:${c.ink}">
+          <b>🔑 مفتاح التقدير داخل كل خانة:</b> ✅ متقن — ◐ قيد التقدم — ❗ يحتاج دعمًا<br>
+          <span style="color:#666">💡 راجع الخانات ❗ وأعد ملاحظة الطالب بعد أسبوعين من الدعم المناسب.</span></div></div>`;
+    }
+  },
+  'sp-remedial': {
+    name: 'خطة أنشطة علاجية للمهارات الأساسية', cat: 'support', theme: 'rose',
+    fields: [
+      { k: 'skill', label: 'المهارة الأساسية المستهدفة', t: 'text', v: 'الفهم القرائي — استخراج الفكرة الرئيسية' },
+      { k: 'grade', label: 'الصف', t: 'text', v: '' },
+      { k: 'students', label: 'الطلاب المستهدفون (اسم لكل سطر)', t: 'area', v: '' },
+      { k: 'activities', label: 'الأنشطة العلاجية (نشاط لكل سطر)', t: 'area', v: 'قراءة موجّهة قصيرة يومياً لمدة ١٠ دقائق.\nتحديد الفكرة الرئيسية لفقرة بمساعدة المعلم.\nاستخدام خرائط التفكير لتنظيم الأفكار.\nأسئلة متدرجة: سهل ← متوسط ← صعب.' },
+      { k: 'tools', label: 'الوسائل والمواد', t: 'text', v: 'بطاقات مصوّرة، نصوص مبسّطة، تسجيلات صوتية' },
+      { k: 'mastery', label: 'معايير الإتقان (معيار لكل سطر)', t: 'area', v: 'يحدّد الفكرة الرئيسية لفقرة بسيطة بمساندة أقل.\nيعبّر عن الفكرة بكلماته بشكل صحيح.\nينجز ٣ من ٤ تمارين بشكل مستقل.' },
+      { k: 'duration', label: 'المدة والجدول', t: 'text', v: '٤ أسابيع — حصتان أسبوعياً' }
+    ],
+    render(d, c) {
+      const cell = 'border:1.5px solid ' + c.acc + ';padding:8px 12px;font-size:14px';
+      const lbl = `background:${c.bg};font-weight:800;color:${c.ink};width:130px`;
+      return `<div style="padding:20px;min-height:1080px;background:#fff;font-family:'Cairo',sans-serif">
+        <div style="text-align:center;margin-bottom:12px"><b style="font-size:22px;color:${c.acc}">🩹 خطة أنشطة علاجية</b>
+          <div style="font-size:14px;color:#555;margin-top:4px">الصف: ${esc(d.grade || '—')} — ${esc(d.duration || '')}</div></div>
+        <table style="width:100%;border-collapse:collapse">
+          <tr><td style="${cell};${lbl}">المهارة<br>المستهدفة</td><td style="${cell}"><b style="color:${c.acc};font-size:16px">${esc(d.skill || '')}</b></td></tr>
+          <tr><td style="${cell};${lbl}">الطلاب<br>المستهدفون</td><td style="${cell}">${stLines(d.students).map(s => `<span style="display:inline-block;background:${c.bg};color:${c.ink};border-radius:99px;padding:2px 14px;margin:2px;font-size:13px;font-weight:700">${esc(s)}</span>`).join('') || '—'}</td></tr>
+          <tr><td style="${cell};${lbl}">الأنشطة<br>العلاجية</td><td style="${cell}">${stLines(d.activities).map((a, i) => `<div style="margin:4px 0"><b style="color:${c.acc}">${i + 1}.</b> ${esc(a)}</div>`).join('') || '—'}</td></tr>
+          <tr><td style="${cell};${lbl}">الوسائل</td><td style="${cell}">${esc(d.tools || '—')}</td></tr>
+          <tr><td style="${cell};${lbl}">معايير<br>الإتقان</td><td style="${cell}">${stLines(d.mastery).map(m => `<div style="margin:4px 0">☐ ${esc(m)}</div>`).join('') || '—'}</td></tr>
+          <tr><td style="${cell};${lbl}">المدة<br>والجدول</td><td style="${cell}">${esc(d.duration || '—')}</td></tr>
+        </table>
+        <div style="margin-top:20px;font-size:13px;color:#555">توقيع المعلم: .................... — ملاحظات المتابعة: ............................ ............................</div></div>`;
+    }
+  },
+  'sp-diff': {
+    name: 'ورقة عمل متدرجة الصعوبة', cat: 'support', theme: 'green',
+    fields: [
+      { k: 'title', label: 'عنوان النشاط', t: 'text', v: 'تدريبات على المعادلات الخطية' },
+      { k: 'grade', label: 'الصف', t: 'text', v: '' },
+      { k: 'levelA', label: 'المستوى الأساسي 🟢 (أسئلة ميسّرة)', t: 'area', v: 'أجب عن الأسئلة التالية مستعملاً ما تعلمت:\n١. عرّف المعادلة الخطية.\n٢. حل المعادلة: س + ٥ = ١٢' },
+      { k: 'levelB', label: 'المستوى المتوسط 🟡 (توسيع وربط)', t: 'area', v: 'وسّع تعلّمك:\n١. اربط حل المعادلة بموقف من حياتك.\n٢. اشرح خطوات الحل لزميلك بكلماتك.\n٣. صحّح الخطأ في الحل: س - ٣ = ٧ ← س = ٤' },
+      { k: 'levelC', label: 'المستوى المتقدّم 🔴 (تحدٍّ إبداعي)', t: 'area', v: 'تحدّي المتقدمين:\n١. صمّم سؤالاً يشبه أسئلة الامتحان واكتب حلّه.\n٢. اقترح تطبيقاً حقيقياً للمعادلات في الحياة.\n٣. بيّن لماذا يختلف حلّ المسألتين مع أن الناتج واحد.' }
+    ],
+    render(d, c) {
+      const band = (emoji, name, color, bgc, txt) => `<div style="border:2px solid ${color};border-radius:14px;margin:12px 0;overflow:hidden">
+          <div style="background:${color};color:#fff;padding:7px 14px;font-weight:900;font-size:15px">${emoji} ${esc(name)}</div>
+          <div style="background:${bgc};padding:12px 16px;font-size:14px;line-height:2">${stLines(txt).map(t => `<div>${esc(t)}</div>`).join('')}</div></div>`;
+      return `<div style="padding:20px;min-height:1080px;background:#fff;font-family:'Cairo',sans-serif">
+        <div style="text-align:center;margin-bottom:10px"><b style="font-size:22px;color:${c.acc}">🎚️ ${esc(d.title || '')}</b>
+          <div style="font-size:14px;color:#555;margin-top:4px">الصف: ${esc(d.grade || '—')}</div>
+          <div style="font-size:13px;color:${c.ink};background:${c.bg};display:inline-block;border-radius:99px;padding:4px 18px;margin-top:6px">💡 اختر المستوى المناسب لك واستعن بالمعلم عند الحاجة</div></div>
+        ${band('🟢', 'المستوى الأساسي', '#15803d', '#f0fdf4', d.levelA)}
+        ${band('🟡', 'المستوى المتوسط', '#b45309', '#fffbeb', d.levelB)}
+        ${band('🔴', 'المستوى المتقدّم', '#be123c', '#fff1f2', d.levelC)}
+        <div style="text-align:center;margin-top:14px;font-size:13px;color:#666">الاسم: ......................... التاريخ: .........................</div></div>`;
+    }
+  },
+  'sp-critical': {
+    name: 'أنشطة تنمية التفكير الناقد', cat: 'support', theme: 'violet',
+    fields: [
+      { k: 'topic', label: 'الموضوع / الموقف', t: 'text', v: 'يجب منع الهواتف الذكية داخل المدرسة' },
+      { k: 'grade', label: 'الصف', t: 'text', v: '' },
+      { k: 'task', label: 'التحدي / النص (اكتب موقفاً للاستنكار)', t: 'area', v: 'اقرأ الموقف التالي ثم ناقش:\n«اقترح أحد الأطباء تقليل ساعات النوم إلى ٤ ساعات لزيادة وقت الإنتاج».' },
+      { k: 'stems', label: 'أسئلة تحفيز التفكير الناقد (سؤال لكل سطر)', t: 'area', v: 'ما الأدلة التي تدعم هذه الفكرة؟ وما الذي يضعفها؟\nلماذا تعتقد أن هذا هو السبب؟\nماذا لو حدث العكس تماماً؟\nما وجهات النظر المختلفة في هذه المسألة؟\nكيف يمكن حل المشكلة بطريقة أخرى؟\nما المقصود بالكلمات المهمة في النص؟' }
+    ],
+    render(d, c) {
+      return `<div style="padding:20px;min-height:1080px;background:#fff;font-family:'Cairo',sans-serif">
+        <div style="text-align:center;margin-bottom:12px"><b style="font-size:22px;color:${c.acc}">🧠 أنشطة تنمية التفكير الناقد</b>
+          <div style="font-size:14px;color:#555;margin-top:4px">الصف: ${esc(d.grade || '—')}</div></div>
+        <div style="border:2.5px solid ${c.acc};border-radius:14px;padding:14px 18px;background:${c.bg}">
+          <b style="color:${c.ink}">📋 التحدي:</b>
+          <div style="margin-top:8px;font-size:15px;line-height:2">${stLines(d.task).map(t => `<div>${esc(t)}</div>`).join('')}</div></div>
+        <div style="margin:16px 0 8px;font-weight:900;color:${c.acc};font-size:17px">❓ أسئلة تفكيري الناقد</div>
+        ${stLines(d.stems).map((s, i) => `<div style="display:flex;gap:10px;margin:9px 0;align-items:flex-start">
+            <b style="min-width:30px;height:30px;border-radius:50%;background:${c.acc};color:#fff;display:inline-flex;align-items:center;justify-content:center;font-size:14px">${i + 1}</b>
+            <div style="flex:1;background:#fafafa;border:1px dashed ${c.acc};border-radius:10px;padding:8px 12px;font-size:14px">${esc(s)}</div></div>`).join('')}
+        <div style="margin-top:16px;border:2px solid ${c.ink};border-radius:14px;padding:14px">
+          <b style="color:${c.ink}">🗳️ بطاقة رأيي:</b>
+          <div style="font-size:13px;color:#555;margin:6px 0">أعتقد أن... لأنّ <b>.........................</b></div>
+          <div style="border-bottom:1.5px dotted #94a3b8;height:26px"></div>
+          <div style="border-bottom:1.5px dotted #94a3b8;height:26px"></div>
+          <div style="border-bottom:1.5px dotted #94a3b8;height:26px"></div></div></div>`;
+    }
+  },
+  'sp-coop': {
+    name: 'خطة تعلّم تعاوني', cat: 'support', theme: 'navy',
+    fields: [
+      { k: 'title', label: 'عنوان النشاط التعاوني', t: 'text', v: 'بناء مجتمع صديق للبيئة' },
+      { k: 'grade', label: 'الصف', t: 'text', v: '' },
+      { k: 'roles', label: 'أدوار المجموعة (الدور | المهمة — كل دور سطر)', t: 'area', v: 'قائد المجموعة | يدير النقاش ويحافظ على تركيز المجموعة.\nالمسجّل | يدوّن الأفكار والنتائج.\nالمتحدّث | يعرض نتيجة المجموعة بثقة.\nمنسّق الوقت | يلتزم المجموعة بالمراحل الزمنية.\nالمراجع | يتأكد من صحة الإجابات قبل العرض.' },
+      { k: 'task', label: 'المهمة المشتركة', t: 'area', v: 'تتعاون كل مجموعة في إعداد «ملصق حملة توعية» بعناصر: عنوان جذاب، ٣ رسائل، ورسم توضيحي — ثم تعرضه أمام الصف في ٣ دقائق.' },
+      { k: 'steps', label: 'خطوات التنفيذ (خطوة لكل سطر)', t: 'area', v: '١. تكوين المجموعات (٤ طلاب) وتوزيع الأدوار — ٥ دقائق.\n٢. توزيع المهمة ومناقشتها داخل المجموعة — ١٠ دقائق.\n٣. إنجاز الملصق على الورق الكبير — ١٥ دقائق.\n٤. عرض النتائج وتقييمها — ١٠ دقائق.' },
+      { k: 'evaluation', label: 'معايير التقويم (معيار لكل سطر)', t: 'area', v: 'احترام أدوار المجموعة والتعاون.\nجودة المحتوى ووضوح الرسائل.\nاحترام الوقت المحدد.\nوضوح العرض وأسلوب الإلقاء.' }
+    ],
+    render(d, c) {
+      const cell = 'border:1.5px solid ' + c.acc + ';padding:8px 12px;font-size:14px';
+      const lbl = `background:${c.bg};font-weight:800;color:${c.ink};width:120px`;
+      const roles = stLines(d.roles).map(r => { const p = r.split('|'); return { role: (p[0] || '').trim(), duty: (p[1] || '').trim() }; });
+      return `<div style="padding:20px;min-height:1080px;background:#fff;font-family:'Cairo',sans-serif">
+        <div style="text-align:center;margin-bottom:12px"><b style="font-size:22px;color:${c.acc}">🤝 خطة تعلّم تعاوني</b>
+          <div style="font-size:16px;color:${c.ink};margin-top:4px;font-weight:800">${esc(d.title || '')} — الصف: ${esc(d.grade || '—')}</div></div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px">
+          ${roles.map(r => `<div style="border:2px solid ${c.acc};border-radius:12px;padding:10px 14px">
+            <b style="color:${c.acc};font-size:15px">👤 ${esc(r.role)}</b>
+            <div style="font-size:13px;color:#444;margin-top:4px">${esc(r.duty)}</div></div>`).join('')}
+        </div>
+        <table style="width:100%;border-collapse:collapse">
+          <tr><td style="${cell};${lbl}">المهمة<br>المشتركة</td><td style="${cell}">${stLines(d.task).map(t => `<div>${esc(t)}</div>`).join('') || '—'}</td></tr>
+          <tr><td style="${cell};${lbl}">خطوات<br>التنفيذ</td><td style="${cell}">${stLines(d.steps).map(s => `<div style="margin:3px 0">${esc(s)}</div>`).join('') || '—'}</td></tr>
+          <tr><td style="${cell};${lbl}">معايير<br>التقويم</td><td style="${cell}">${stLines(d.evaluation).map(e => `<div>☐ ${esc(e)}</div>`).join('') || '—'}</td></tr>
+        </table></div>`;
+    }
+  },
+  'sp-support': {
+    name: 'استراتيجيات دعم الطلاب المتعثّرين', cat: 'support', theme: 'gold',
+    fields: [
+      { k: 'grade', label: 'الصف', t: 'text', v: '' },
+      { k: 'subject', label: 'المادة', t: 'text', v: '' },
+      { k: 'students', label: 'الطلاب المستهدفون (اسم لكل سطر)', t: 'area', v: '' },
+      { k: 'strategies', label: 'الاستراتيجيات المختارة (استراتيجية لكل سطر)', t: 'area', v: 'تقسيم المهمة إلى خطوات صغيرة متتابعة.\nالتعلّم بالأقران مع زميل مساند.\nالتغذية الراجعة الفورية والتشجيع.\nالخرائط الذهنية والوسائل البصرية.\nتعليمات قصيرة وواضحة ومتكررة.\nتعديل الواجبات من حيث الحجم والمدة.\nتخصيص وقت إضافي عند الحاجة.\nربط الدرس بحياة الطالب واهتماماته.' },
+      { k: 'notes', label: 'ملاحظات وخطة متابعة', t: 'area', v: '' }
+    ],
+    render(d, c) {
+      return `<div style="padding:20px;min-height:1080px;background:#fff;font-family:'Cairo',sans-serif">
+        <div style="text-align:center;margin-bottom:12px"><b style="font-size:22px;color:${c.acc}">🧭 استراتيجيات دعم الطلاب المتعثّرين</b>
+          <div style="font-size:14px;color:#555;margin-top:4px">الصف: ${esc(d.grade || '—')} — المادة: ${esc(d.subject || '—')}</div></div>
+        ${stLines(d.students).length ? `<div style="background:${c.bg};border-radius:12px;padding:10px 14px;margin-bottom:12px;font-size:14px;color:${c.ink}"><b>👥 الطلاب المستهدفون:</b> ${stLines(d.students).map(s => `<span style="display:inline-block;background:#fff;border:1px solid ${c.acc};border-radius:99px;padding:2px 12px;margin:2px">${esc(s)}</span>`).join('')}</div>` : ''}
+        <div style="font-weight:900;color:${c.acc};margin:8px 0;font-size:16px">✅ الاستراتيجيات المعتمدة (علّم ما تستخدمه):</div>
+        ${stLines(d.strategies).map(s => `<div style="display:flex;align-items:center;gap:10px;margin:8px 0;border-bottom:1px dashed #e5e7eb;padding-bottom:6px">
+            <span style="min-width:24px;height:24px;border:2px solid ${c.acc};border-radius:6px;display:inline-flex;align-items:center;justify-content:center;color:${c.acc};font-weight:900"></span>
+            <span style="font-size:15px">${esc(s)}</span></div>`).join('')}
+        <div style="margin-top:16px;border:2px solid ${c.ink};border-radius:14px;padding:14px">
+          <b style="color:${c.ink}">📝 ملاحظات وخطة المتابعة:</b>
+          ${stLines(d.notes).map(n => `<div style="font-size:14px;margin:5px 0">• ${esc(n)}</div>`).join('')}
+          ${Array.from({ length: 4 }).map(() => `<div style="border-bottom:1.5px dotted #94a3b8;height:26px"></div>`).join('')}</div></div>`;
+    }
+  },
+  'sp-enrich': {
+    name: 'أنشطة إثرائية للمتقدّمين', cat: 'support', theme: 'teal',
+    fields: [
+      { k: 'title', label: 'عنوان البرنامج الإثرائي', t: 'text', v: 'برنامج الباحث الصغير' },
+      { k: 'grade', label: 'الصف', t: 'text', v: '' },
+      { k: 'students', label: 'الطلاب المتقدّمون (اسم لكل سطر)', t: 'area', v: '' },
+      { k: 'activities', label: 'الأنشطة الإثرائية (نشاط لكل سطر)', t: 'area', v: 'بحث مصغر بأسلوب الباحث الصغير مع توثيق المصادر.\nتصميم تجربة بسيطة وتسجيل نتائجها.\nإنشاء معرض رقمي لمشاريع الطلاب.\nتحدي حلّ مسائل من مستويات دراسية أعلى.\nمراجعة أعمال الأقران وتقييمها بمعايير متفق عليها.' },
+      { k: 'products', label: 'المخرجات المنتظرة', t: 'text', v: 'عرض تقديمي قصير، ملصق، تقرير مصوّر أو نموذج تجربة' },
+      { k: 'criteria', label: 'معايير التقويم (معيار لكل سطر)', t: 'area', v: 'الأصالة والابتكار.\nالدقّة العلمية.\nالجهد والإتقان.\nالقدرة على العرض والدفاع عن العمل.' }
+    ],
+    render(d, c) {
+      const cell = 'border:1.5px solid ' + c.acc + ';padding:8px 12px;font-size:14px';
+      const lbl = `background:${c.bg};font-weight:800;color:${c.ink};width:120px`;
+      return `<div style="padding:20px;min-height:1080px;background:#fff;font-family:'Cairo',sans-serif">
+        <div style="text-align:center;margin-bottom:12px"><b style="font-size:22px;color:${c.acc}">🚀 ${esc(d.title || '')}</b>
+          <div style="font-size:14px;color:#555;margin-top:4px">أنشطة إثرائية للطلاب المتقدّمين — الصف: ${esc(d.grade || '—')}</div></div>
+        ${stLines(d.students).length ? `<div style="background:${c.bg};border-radius:12px;padding:10px 14px;margin-bottom:12px;font-size:14px;color:${c.ink}"><b>🌟 المشاركون:</b> ${stLines(d.students).map(s => esc(s)).join(' • ')}</div>` : ''}
+        <div style="font-weight:900;color:${c.acc};margin:8px 0;font-size:16px">📌 قائمة الأنشطة:</div>
+        ${stLines(d.activities).map((a, i) => `<div style="display:flex;gap:10px;margin:9px 0;align-items:flex-start">
+            <b style="min-width:28px;height:28px;border-radius:8px;background:${c.acc};color:#fff;display:inline-flex;align-items:center;justify-content:center;font-size:13px">${i + 1}</b>
+            <div style="flex:1;background:${c.bg};border-radius:10px;padding:8px 12px;font-size:14px">${esc(a)}</div></div>`).join('')}
+        <table style="width:100%;border-collapse:collapse;margin-top:12px">
+          <tr><td style="${cell};${lbl}">المخرجات</td><td style="${cell}">${esc(d.products || '—')}</td></tr>
+          <tr><td style="${cell};${lbl}">معايير<br>التقويم</td><td style="${cell}">${stLines(d.criteria).map(x => `<div>☐ ${esc(x)}</div>`).join('') || '—'}</td></tr>
+        </table></div>`;
+    }
+  },
+  'sp-obs': {
+    name: 'سجل توثيق الملاحظات التربوية', cat: 'support', theme: 'navy',
+    fields: [
+      { k: 'grade', label: 'الصف', t: 'text', v: '' },
+      { k: 'subject', label: 'المادة', t: 'text', v: '' },
+      { k: 'entries', label: 'الملاحظات (سطر لكل ملاحظة: التاريخ | الطالب | الملاحظة | الإجراء)', t: 'area', v: '٢٠٢٦/١/١٥ | أحمد علي | أظهر تقدماً في حل المسائل الخطية بعد الخطة العلاجية | وُزّعت تمارين إثرائية وأُعيدت المتابعة بعد أسبوع.\n٢٠٢٦/١/١٦ | سلمى حسن | تعبّر بطلاقة لكنها ترتبك أمام الصف | مُنحت فرصة قيادة نشاط صغير لبناء الثقة.' }
+    ],
+    render(d, c) {
+      const rows = stLines(d.entries).map(l => l.split('|').map(x => x.trim()));
+      const cell = 'border:1.5px solid ' + c.acc + ';padding:8px 10px;font-size:13px;vertical-align:top';
+      const lbl = `background:${c.acc};color:#fff;font-weight:800;text-align:center`;
+      return `<div style="padding:20px;min-height:1080px;background:#fff;font-family:'Cairo',sans-serif">
+        <div style="text-align:center;margin-bottom:12px"><b style="font-size:22px;color:${c.acc}">🗒️ سجل توثيق الملاحظات التربوية</b>
+          <div style="font-size:14px;color:#555;margin-top:4px">الصف: ${esc(d.grade || '—')} — المادة: ${esc(d.subject || '—')} — المعلم: ${esc(d.teacher || db.profile?.name || '—')}</div></div>
+        <table style="width:100%;border-collapse:collapse">
+          <tr><td style="${cell};${lbl};width:90px">التاريخ</td><td style="${cell};${lbl};width:120px">الطالب</td>
+            <td style="${cell};${lbl}">الملاحظة</td><td style="${cell};${lbl};width:230px">الإجراء / المتابعة</td></tr>
+          ${rows.map(r => `<tr>
+            <td style="${cell}">${esc(r[0] || '')}</td><td style="${cell};font-weight:700">${esc(r[1] || '')}</td>
+            <td style="${cell}">${esc(r[2] || '')}</td><td style="${cell}">${esc(r[3] || '')}</td></tr>`).join('')}
+          ${Array.from({ length: 3 }).map(() => `<tr>${['', '', '', ''].map(() => `<td style="${cell};height:52px"></td>`).join('')}</tr>`).join('')}
+        </table>
+        <div style="margin-top:14px;background:${c.bg};border-radius:12px;padding:12px;font-size:13px;color:${c.ink}">
+          <b>💡 نصيحة التوثيق:</b> دوّن الملاحظة بوقتها ومحلّها ثم راجعها شهرياً — التوثيق الموضوعي أقوى دليل على أثر خطتك مع الطالب.</div></div>`;
+    }
+  },
+  'sp-adapt': {
+    name: 'تكييف الأنشطة وفق احتياجات المتعلّمين', cat: 'support', theme: 'green',
+    fields: [
+      { k: 'title', label: 'النشاط / الدرس المراد تكييفه', t: 'text', v: 'نشاط حلقات التعلم التعاوني' },
+      { k: 'grade', label: 'الصف', t: 'text', v: '' },
+      { k: 'needs', label: 'احتياجات المتعلمين (احتياج لكل سطر)', t: 'area', v: 'صعوبات تعلّم (قراءة/حساب).\nاضطرابات انتباه أو فرط حركة.\nتأخّر لغوي.\nمتفوقون يحتاجون تحدّياً.\nإعاقة حسية خفيفة.' },
+      { k: 'rows', label: 'دليل التكييف (البُعد | التكييف — كل بُعد سطر)', t: 'area', v: 'الأهداف | نحدد هدفاً واحداً مركزياً مع بدائل أبسط وأعقد حسب مستوى كل متعلم.\nالمحتوى | نبسّط اللغة ونضيف أمثلة محسوسة وصوراً توضيحية.\nالطرائق | ندمج التعلم بالأقران ومتعدد الحواس وتعليمات قصيرة متكررة.\nالوسائل | نوفر بطاقات مصوّرة وسمعيات وأدوات رقمية ميسّرة.\nالتقويم | نسمح بالتعبير الشفهي أو الرسم بدلاً من الكتابة ونستخدم تقويماً مرحلياً قصيراً.\nالبيئة | نرتب الجلوس قرب المعلم ونوفر مساحة هادئة عند الحاجة.' },
+      { k: 'notes', label: 'ملاحظات التكييف ونتائجه', t: 'area', v: '' }
+    ],
+    render(d, c) {
+      const rows = stLines(d.rows).map(l => l.split('|').map(x => x.trim()));
+      const cell = 'border:1.5px solid ' + c.acc + ';padding:9px 12px;font-size:14px;vertical-align:top';
+      const lbl = `background:${c.bg};font-weight:800;color:${c.ink};width:110px`;
+      return `<div style="padding:20px;min-height:1080px;background:#fff;font-family:'Cairo',sans-serif">
+        <div style="text-align:center;margin-bottom:12px"><b style="font-size:22px;color:${c.acc}">🧩 تكييف الأنشطة وفق احتياجات المتعلّمين</b>
+          <div style="font-size:15px;color:${c.ink};margin-top:4px;font-weight:800">${esc(d.title || '')} — الصف: ${esc(d.grade || '—')}</div></div>
+        <div style="background:${c.bg};border-radius:12px;padding:10px 14px;margin-bottom:12px;font-size:14px;color:${c.ink}">
+          <b>👥 الاحتياجات المستهدفة:</b> ${stLines(d.needs).map(n => `<span style="display:inline-block;background:#fff;border:1px solid ${c.acc};border-radius:99px;padding:2px 12px;margin:2px;font-size:13px">${esc(n)}</span>`).join('')}</div>
+        <table style="width:100%;border-collapse:collapse">
+          ${rows.map(r => `<tr><td style="${cell};${lbl}">${esc(r[0] || '')}</td><td style="${cell}">${esc(r[1] || '')}</td></tr>`).join('')}
+        </table>
+        <div style="margin-top:16px;border:2px dashed ${c.acc};border-radius:14px;padding:14px">
+          <b style="color:${c.ink}">📝 ملاحظات التكييف ونتائجه:</b>
+          ${stLines(d.notes).map(n => `<div style="font-size:14px;margin:5px 0">• ${esc(n)}</div>`).join('')}
+          ${Array.from({ length: 4 }).map(() => `<div style="border-bottom:1.5px dotted #94a3b8;height:26px"></div>`).join('')}</div></div>`;
     }
   }
 };
