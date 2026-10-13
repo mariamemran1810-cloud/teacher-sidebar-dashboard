@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>مكتبتي التعليمية للمعلمة الليبية</title>
+<meta name="description" content="مشروع عربي لتصميم ملفات المعلمة Libyan teacher files, A4, RTL, قابلة للتعديل والطباعة إلى PDF. نماذج تجريبية غير معتمدة رسميًا.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/app.css">
+<link rel="stylesheet" href="css/print.css">
+</head>
+<body>
+
+<!-- ================= الواجهة الرئيسية ================= -->
+<div id="view-home" class="view">
+
+  <header class="hero">
+    <div class="hero-deco hero-deco-1" aria-hidden="true"></div>
+    <div class="hero-deco hero-deco-2" aria-hidden="true"></div>
+    <div class="hero-inner">
+      <div class="brand">
+        <span class="brand-mark" aria-hidden="true">
+          <svg viewBox="0 0 64 64" width="52" height="52" fill="none">
+            <path d="M10 16c8-3 15-3 22 2v32c-7-5-14-5-22-2V16Z" fill="#F7EFE6" stroke="#7A5C4B" stroke-width="2.5" stroke-linejoin="round"/>
+            <path d="M54 16c-8-3-15-3-22 2v32c7-5 14-5 22-2V16Z" fill="#FDF7F2" stroke="#7A5C4B" stroke-width="2.5" stroke-linejoin="round"/>
+            <path d="M32 18v32" stroke="#7A5C4B" stroke-width="2.5"/>
+            <path d="M46 8c1.8 2.6 1.8 5.4 0 8-1.8-2.6-1.8-5.4 0-8Z" fill="#D9A7A7"/>
+            <circle cx="46" cy="12" r="2.2" fill="#B87E7E"/>
+          </svg>
+        </span>
+        <div class="brand-text">
+          <h1>مكتبتي التعليمية <span>للمعلمة الليبية</span></h1>
+          <p class="brand-sub">ملفّات وسجلات عربية جاهزة للتعديل والطباعة بمقاس A4</p>
+        </div>
+      </div>
+      <div class="hero-actions">
+        <button class="btn btn-ghost" id="btn-settings" type="button">
+          <svg class="ico" viewBox="0 0 24 24"><path d="M12 15.5A3.5 3.5 0 1 0 12 8.5a3.5 3.5 0 0 0 0 7Z"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.9l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.9-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1A1.7 1.7 0 0 0 8.9 19a1.7 1.7 0 0 0-1.9.4l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.9 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1A1.7 1.7 0 0 0 4.6 8.9a1.7 1.7 0 0 0-.4-1.9l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.9.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.9-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.9V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1Z"/></svg>
+          الإعدادات والبيانات
+        </button>
+        <button class="btn btn-primary" id="btn-help" type="button">
+          <svg class="ico" viewBox="0 0 24 24"><path d="M12 16v-4m0-4h.01"/><circle cx="12" cy="12" r="9"/></svg>
+          كيف أصدّر PDF؟
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <main class="wrap">
+    <section class="toolbar">
+      <div class="search">
+        <svg class="ico" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.2-3.2"/></svg>
+        <input type="search" id="search" placeholder="ابحثي في الملفات… (تحضير، شهادات، تحليل)" aria-label="بحث">
+      </div>
+      <div class="toolbar-side">
+        <span class="count" id="files-count">10 ملفات</span>
+        <button class="btn btn-soft" id="btn-backup" type="button">نسخة احتياطية</button>
+      </div>
+    </section>
+
+    <section class="cards" id="cards" aria-label="الملفات"></section>
+
+    <p class="empty" id="empty" hidden>لا توجد نتائج مطابقة لبحثك.</p>
+
+    <aside class="notice">
+      <svg class="ico" viewBox="0 0 24 24"><path d="M12 9v4m0 4h.01"/><circle cx="12" cy="12" r="9"/></svg>
+      <div>
+        <strong>تنويه:</strong> هذه نماذج <b>تجريبية</b> أُعدّت لتنظيم العمل اليومي وتطويره شخصيًا،
+        وهي <b>ليست نماذج معتمدة رسميًا</b> في ليبيا ولا تُغني عن أي استمارة رسمية صادرة عن
+        الإدارة التعليمية. جميع البيانات المعروضة تجريبية ويمكن تعديلها بالكامل.
+      </div>
+    </aside>
+  </main>
+
+  <footer class="foot">
+    <span>مكتبتي التعليمية للمعلمة الليبية — تصميم عربي RTL بمقاس A4</span>
+    <span id="save-state">تُحفظ التعديلات تلقائيًا في هذا المتصفح</span>
+  </footer>
+</div>
+
+<!-- ================= عارض الصفحات ================= -->
+<div id="view-doc" class="view" hidden>
+  <div class="viewer-bar no-print">
+    <button class="btn btn-ghost btn-icon" id="btn-back" type="button" title="العودة للرئيسية">
+      <svg class="ico" viewBox="0 0 24 24"><path d="m14 6 6 6-6 6M20 12H4"/></svg>
+      <span>الرئيسية</span>
+    </button>
+    <div class="viewer-title">
+      <span class="vt-icon" id="vt-icon"></span>
+      <div>
+        <h2 id="vt-name">—</h2>
+        <p id="vt-meta">—</p>
+      </div>
+    </div>
+    <div class="viewer-tools">
+      <div class="pager">
+        <button class="btn btn-soft btn-icon" id="btn-next" type="button" title="الصفحة التالية">
+          <svg class="ico" viewBox="0 0 24 24"><path d="m14 6-6 6 6 6"/></svg>
+        </button>
+        <span class="page-ind" id="page-ind">١ / ١</span>
+        <button class="btn btn-soft btn-icon" id="btn-prev" type="button" title="الصفحة السابقة">
+          <svg class="ico" viewBox="0 0 24 24"><path d="m10 6 6 6-6 6"/></svg>
+        </button>
+      </div>
+      <div class="zoom">
+        <button class="btn btn-soft btn-icon" id="btn-zoom-out" type="button" title="تصغير">−</button>
+        <button class="btn btn-soft btn-icon" id="btn-zoom-in" type="button" title="تكبير">+</button>
+      </div>
+      <button class="btn btn-soft" id="btn-print-page" type="button" title="طباعة الصفحة المعروضة فقط">طباعة الصفحة</button>
+      <button class="btn btn-primary" id="btn-print-doc" type="button">
+        <svg class="ico" viewBox="0 0 24 24"><path d="M6 9V3h12v6M6 18H4a2 2 0 0 1-2-2v-4a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v4a2 2 0 0 1-2 2h-2"/><path d="M6 14h12v7H6z"/></svg>
+        تصدير PDF / طباعة
+      </button>
+    </div>
+  </div>
+
+  <div class="viewer-body">
+    <aside class="thumbs no-print" id="thumbs" aria-label="فهرس الصفحات"></aside>
+    <section class="pages" id="pages" aria-label="صفحات الملف"></section>
+  </div>
+</div>
+
+<!-- ================= نافذة الإعدادات ================= -->
+<div class="modal no-print" id="modal-settings" hidden>
+  <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="settings-title">
+    <header class="modal-head">
+      <h3 id="settings-title">الإعدادات والبيانات العامة</h3>
+      <button class="btn btn-soft btn-icon" data-close type="button" aria-label="إغلاق">✕</button>
+    </header>
+    <div class="modal-body">
+      <p class="hint">تُطبَّق هذه البيانات تلقائيًا على الأغلفة والفهارس والفواصل وتذييلات كل الصفحات.</p>
+      <div class="form-grid">
+        <label><span>اسم المعلمة</span><input type="text" data-set="teacher" placeholder="مثال: أ. سعاد الفيتوري"></label>
+        <label><span>المدرسة</span><input type="text" data-set="school" placeholder="مثال: مدرسة النور الابتدائية"></label>
+        <label><span>السنة الدراسية</span><input type="text" data-set="year" placeholder="مثال: 2025 / 2026 م"></label>
+        <label><span>المادة الدراسية</span><input type="text" data-set="subject" placeholder="مثال: اللغة العربية"></label>
+        <label><span>الصف / الشعبة</span><input type="text" data-set="grade" placeholder="مثال: الصف الرابع (أ)"></label>
+        <label><span>الإدارة التعليمية / المنطقة</span><input type="text" data-set="area" placeholder="مثال: منطقة طرابلس التعليمية"></label>
+        <label><span>مدير/ة المدرسة</span><input type="text" data-set="principal" placeholder="مثال: أ. نجاة الشريف"></label>
+        <label><span>الرقم الوظيفي / التخصص</span><input type="text" data-set="jobinfo" placeholder="مثال: معلم اللغة العربية — 1442"></label>
+      </div>
+      <div class="modal-actions">
+        <button class="btn btn-primary" id="btn-save-settings" type="button">حفظ وتطبيق</button>
+        <button class="btn btn-soft" id="btn-reset-settings" type="button">استعادة الافتراضي</button>
+      </div>
+
+      <hr class="sep">
+
+      <h4 class="sub">النسخ الاحتياطي والبيانات</h4>
+      <div class="modal-actions">
+        <button class="btn btn-soft" id="btn-export-json" type="button">تصدير بيانات JSON</button>
+        <label class="btn btn-soft file-btn">استيراد ملف JSON<input type="file" id="import-file" accept="application/json,.json" hidden></label>
+        <button class="btn btn-danger" id="btn-reset-content" type="button">مسح كل التعديلات واستعادة النماذج</button>
+      </div>
+      <p class="hint" id="storage-info">—</p>
+    </div>
+  </div>
+</div>
+
+<!-- ================= نافذة الشرح ================= -->
+<div class="modal no-print" id="modal-help" hidden>
+  <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="help-title">
+    <header class="modal-head">
+      <h3 id="help-title">الاستخدام والتصدير إلى PDF</h3>
+      <button class="btn btn-soft btn-icon" data-close type="button" aria-label="إغلاق">✕</button>
+    </header>
+    <div class="modal-body">
+      <ol class="steps">
+        <li><b>افتحي الملف</b> المطلوب من الواجهة الرئيسية (بطاقة «فتح الملف»).</li>
+        <li><b>عدّلي الحقول</b> بالنقر عليها مباشرة: عناوين الصفحات، خلايا الجداول، بطاقات البيانات،
+            وأسماء الطالبات… يُحفظ تلقائيًا في هذا المتصفح.</li>
+        <li>من <b>الإعدادات</b> حدّثي اسم المعلمة والمدرسة والسنة الدراسية لتظهر في كل الصفحات.</li>
+        <li>اضغطي <b>«تصدير PDF / طباعة»</b> ثم اختاري <b>الحفظ كـ PDF</b> في نافذة الطباعة.</li>
+        <li>في نافذة الطباعة اضبطي: <b>الوجهة: حفظ كـ PDF</b>، <b>الورق: A4</b>،
+            <b>الهوامش: بلا</b>، وفعّلي <b>«رسومات الخلفية / Background graphics»</b> لتظهر الألوان والزخارف.</li>
+        <li>لطباعة صفحة واحدة فقط استخدمي زر <b>«طباعة الصفحة»</b>.</li>
+      </ol>
+      <p class="hint">ملاحظة: النماذج تجريبية وغير معتمدة رسميًا. للحفظ الدائم نزّلي نسخة JSON من الإعدادات.</p>
+      <div class="modal-actions"><button class="btn btn-primary" data-close type="button">فهمت</button></div>
+    </div>
+  </div>
+</div>
+
+<div class="toast no-print" id="toast" role="status" aria-live="polite"></div>
+
+<script src="js/data.js"></script>
+<script src="js/pages.js"></script>
+<script src="js/store.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>

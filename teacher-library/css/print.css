@@ -1,0 +1,99 @@
+/* =========================================================
+   قواعد الطباعة والتصدير إلى PDF — مقاس A4 مع الحفاظ على RTL
+   الاستخدام: الوجهة «حفظ كـ PDF»، الورق A4، الهوامش «بلا»،
+   وتفعيل «رسومات الخلفية / Background graphics».
+   ========================================================= */
+
+@page{
+  size:A4;
+  margin:0;
+}
+
+@media print{
+  html,body{
+    background:#fff !important;
+    height:auto !important;
+    overflow:visible !important;
+    margin:0 !important;
+    padding:0 !important;
+    -webkit-print-color-adjust:exact !important;
+    print-color-adjust:exact !important;
+  }
+
+  /* إخفاء عناصر الواجهة */
+  .no-print,
+  .toast,
+  .modal,
+  .thumbs,
+  .viewer-bar,
+  .foot,
+  .toolbar,
+  .hero-actions,
+  .card-foot{ display:none !important; }
+
+  #view-doc{
+    height:auto !important;
+    display:block !important;
+    overflow:visible !important;
+  }
+  .viewer-body{ display:block !important; padding:0 !important; overflow:visible !important; gap:0 !important; }
+  .pages{ overflow:visible !important; padding:0 !important; display:block !important; }
+
+  /* الصفحة: A4 كامل بلا هوامش، مع كسر لكل صفحة */
+  .page-wrap{
+    width:210mm !important;
+    height:297mm !important;
+    margin:0 !important;
+    padding:0 !important;
+    filter:none !important;
+    box-shadow:none !important;
+    break-after:page;
+    page-break-after:always;
+    break-inside:avoid;
+    page-break-inside:avoid;
+    overflow:hidden !important;
+  }
+  .page-wrap:last-of-type{
+    break-after:auto;
+    page-break-after:auto;
+  }
+  .page{
+    position:static !important;
+    transform:none !important;
+    width:210mm !important;
+    height:297mm !important;
+    box-shadow:none !important;
+    border:none !important;
+    border-radius:0 !important;
+    overflow:hidden !important;
+    -webkit-print-color-adjust:exact !important;
+    print-color-adjust:exact !important;
+  }
+
+  /* إلغاء تلميحات التحرير أثناء الطباعة */
+  [data-k]{ background:transparent !important; box-shadow:none !important; outline:none !important; }
+  [data-k]:focus{ background:transparent !important; box-shadow:none !important; }
+  .tbl td{ background:#fff !important; }
+  .tbl tr:nth-child(even) td{ background:rgba(244,233,220,.55) !important; }
+  .tbl tr td.num,.tbl td.num{ background:var(--paper-2) !important; }
+  .tbl th{ background:var(--rose) !important; }
+}
+
+/* --- وضع «طباعة الصفحة الحالية فقط» --- */
+@media print{
+  body.print-current .page-wrap{ display:none !important; }
+  body.print-current .page-wrap.is-current{ display:block !important; }
+}
+
+/* --- عند طباعة الواجهة الرئيسية (Ctrl+P) عرض بطاقات مبسطة --- */
+@media print{
+  #view-home[hidden]{ display:none !important; }
+  #view-home .hero{ background:#fff !important; border-bottom:1pt solid var(--line); }
+  #view-home .hero-deco{ display:none !important; }
+  #view-home .hero-inner{ padding:10mm 0 5mm; }
+  #view-home .wrap{ padding:0; max-width:none; }
+  #view-home .cards{ display:grid !important; grid-template-columns:1fr 1fr; gap:6mm; }
+  #view-home .card{ break-inside:avoid; page-break-inside:avoid; box-shadow:none; }
+  #view-home .search{ display:none; }
+  #view-home .notice{ margin-top:6mm; }
+}
