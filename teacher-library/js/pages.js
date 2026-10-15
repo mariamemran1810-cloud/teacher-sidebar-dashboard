@@ -135,7 +135,7 @@ const MTLPages = (function(){
   function divider(spec, ctx){
     return `
     <article class="page divider">
-      <div class="d-num">${esc(spec.num || arNum(ctx.pn))}</div>
+      <div class="d-flower" aria-hidden="true">${CORNER}</div>
       <h2 class="d-title" data-k="${ctx.doc.id}#${ctx.idx}#title">${esc(spec.title)}</h2>
       <div class="d-rule"></div>
       <ul class="d-list">${(spec.items||[]).map((it,n)=>
@@ -187,7 +187,7 @@ const MTLPages = (function(){
         ${spec.sub ? `<p class="pg-sub" data-k="${ctx.key()}">${esc(spec.sub)}</p>` : ''}
         <table class="tbl rows-${spec.rowH || 'mid'}">
           <colgroup>${colgroup}</colgroup>
-          <thead><tr>${headers.map(h=>`<th>${esc(h)}</th>`).join('')}</tr></thead>
+          <thead><tr>${headers.map((h,ci)=>`<th><span data-k="${ctx.doc.id}#${ctx.idx}#h${ci}">${esc(h)}</span></th>`).join('')}</tr></thead>
           <tbody>${body}</tbody>
         </table>
         ${spec.note ? `<div class="tbl-note">${spec.note}</div>` : ''}

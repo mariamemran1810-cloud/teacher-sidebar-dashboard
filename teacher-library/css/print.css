@@ -73,6 +73,7 @@
   /* إلغاء تلميحات التحرير أثناء الطباعة */
   [data-k]{ background:transparent !important; box-shadow:none !important; outline:none !important; }
   [data-k]:focus{ background:transparent !important; box-shadow:none !important; }
+  [data-bind].bind-edit{ background:transparent !important; box-shadow:none !important; outline:none !important; cursor:auto !important; }
   .tbl td{ background:#fff !important; }
   .tbl tr:nth-child(even) td{ background:rgba(244,233,220,.55) !important; }
   .tbl tr td.num,.tbl td.num{ background:var(--paper-2) !important; }

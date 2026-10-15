@@ -80,7 +80,8 @@ MTL_DOCS.forEach(doc=>{
       });
     }
     if(p.type === 'certificate'){
-      ok(p.title && p.name, doc.id + ' ص ' + (i+1) + ': شهادة ناقصة');
+      ok(p.title && typeof p.name === 'string', doc.id + ' ص ' + (i+1) + ': شهادة ناقصة');
+      ok(Array.isArray(p.signs) && p.signs.length >= 1, doc.id + ' ص ' + (i+1) + ': خانات التوقيع مفقودة');
     }
     if(p.type === 'form'){
       ok((p.fields || []).length >= 4, doc.id + ' ص ' + (i+1) + ': حقول قليلة');
@@ -99,6 +100,19 @@ MTL_DOCS.forEach(doc=>{
 
 console.log('== إجمالي الصفحات: ' + totalPages + ' ==');
 ok(totalPages >= 50, 'الإجمالي أقل من 50 صفحة');
+
+console.log('== فحص غياب البيانات التجريبية ==');
+const blanked = MTL_DOCS.map(d => d.pages.filter(p => p.type === 'table')
+  .reduce((n, p) => n + p.rows.reduce((m, r) => m + r.filter(c => typeof c === 'string' && c.trim() !== '').length, 0), 0))
+  .reduce((a, b) => a + b, 0);
+ok(blanked === 0, 'ما زالت هناك خلايا جداول تحوي بيانات تجريبية: ' + blanked);
+Object.keys(MTL_DEFAULT_SETTINGS).forEach(k => {
+  ok(MTL_DEFAULT_SETTINGS[k] === '', 'الإعداد الافتراضي غير فارغ: ' + k);
+});
+const dataSrc = read('js/data.js');
+['سعاد الفيتوري','مدرسة النور','هدى أحمد القذافي','خديجة حسن'].forEach(d => {
+  ok(dataSrc.indexOf(d) === -1, 'بيانات تجريبية متبقية: ' + d);
+});
 
 /* ---------- 2) فحص ملفات الواجهة ---------- */
 console.log('== فحص ملفات الواجهة ==');

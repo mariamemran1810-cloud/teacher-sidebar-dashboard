@@ -29,7 +29,6 @@ function renderCards(){
     <article class="card" data-id="${doc.id}"
       data-search="${MTLPages.esc((doc.title + ' ' + doc.tag + ' ' + doc.desc + ' ' + (doc.chips||[]).join(' ')).toLowerCase())}">
       <div class="card-top">
-        <span class="card-num">${doc.num}</span>
         <div class="card-head">
           <span class="card-ico"><svg viewBox="0 0 24 24">${MTL_ICONS[doc.icon] || ''}</svg></span>
           <div>
@@ -143,7 +142,13 @@ function applyBindings(){
   const s = MTLStore.getSettings();
   $$('[data-bind]').forEach(el=>{
     const k = el.getAttribute('data-bind');
-    if(Object.prototype.hasOwnProperty.call(s, k)) el.textContent = s[k];
+    if(Object.prototype.hasOwnProperty.call(s, k)){
+      el.textContent = s[k];
+      /* جعل الحقل قابلًا للكتابة مباشرة بالنقر عليه */
+      el.setAttribute('contenteditable', 'true');
+      el.setAttribute('spellcheck', 'false');
+      el.classList.add('bind-edit');
+    }
   });
 }
 
@@ -168,8 +173,24 @@ function flushPending(){
 }
 
 function onEdit(e){
-  const el = e.target.closest ? e.target.closest('[data-k]') : null;
+  const el = e.target.closest ? e.target.closest('[data-bind], [data-k]') : null;
   if(!el) return;
+
+  /* كتابة داخل حقل عام (اسم/مدرسة/سنة…) → حفظ في الإعدادات + مزامنة كل الصفحات */
+  const bk = el.getAttribute('data-bind');
+  if(bk){
+    const s = MTLStore.getSettings();
+    s[bk] = el.innerText.trim();
+    MTLStore.saveSettings(s);
+    $$('[data-bind="' + bk + '"]').forEach(o=>{
+      if(o !== el) o.innerText = s[bk];
+    });
+    const inp = document.querySelector('[data-set="' + bk + '"]');
+    if(inp) inp.value = s[bk];
+    $('#save-state').textContent = 'تم حفظ التعديل ✓';
+    return;
+  }
+
   state.pending[el.getAttribute('data-k')] = el.innerText;
   $('#save-state').textContent = 'جارٍ الحفظ…';
   clearTimeout(state.saveTimer);
