@@ -60,7 +60,8 @@ const MTLPages = (function(){
       if(v.bind)   return `<td${cls}><span data-bind="${v.bind}"></span></td>`;
       if(v.fixed)  return `<td${cls}><span>${esc(v.text)}</span></td>`;
     }
-    return `<td${cls}><span data-k="${key}">${esc(v)}</span></td>`;
+    /* الخلية نفسها هي الحقل القابل للكتابة (كامل مساحتها قابلة للنقر) */
+    return `<td${cls} data-k="${key}">${esc(v)}</td>`;
   }
 
   /* ---------- الغلاف ---------- */
@@ -255,8 +256,10 @@ const MTLPages = (function(){
   function certificate(spec, ctx){
     const signs = (spec.signs||[]).map((s,n)=>{
       const key = `${ctx.doc.id}#${ctx.idx}#s${n}`;
-      const v = s.bind ? `<span data-bind="${s.bind}"></span>` : `<span data-k="${key}">${esc(s.v || '')}</span>`;
-      return `<div class="sig"><div class="ln">${v}</div><div data-k="${ctx.key()}">${esc(s.l)}</div></div>`;
+      /* سطر التوقيع نفسه هو الحقل (كامل العرض قابل للكتابة) */
+      const lnAttr = s.bind ? '' : ` data-k="${key}"`;
+      const v = s.bind ? `<span data-bind="${s.bind}"></span>` : esc(s.v || '');
+      return `<div class="sig"><div class="ln"${lnAttr}>${v}</div><div data-k="${ctx.key()}">${esc(s.l)}</div></div>`;
     }).join('');
 
     return `

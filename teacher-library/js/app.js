@@ -150,6 +150,13 @@ function applyBindings(){
       el.classList.add('bind-edit');
     }
   });
+
+  /* فتح الكتابة داخل كل الحقول والخلايا والعنواين والملاحظات */
+  $$('#pages [data-k]').forEach(el=>{
+    el.setAttribute('contenteditable', 'true');
+    el.setAttribute('spellcheck', 'false');
+    el.classList.add('k-edit');
+  });
 }
 
 function applyStoredContent(){

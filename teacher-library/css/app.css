@@ -308,6 +308,11 @@ button,input,select,textarea{font-family:inherit;color:inherit}
 [data-k],[data-bind].bind-edit{outline:none;cursor:text;border-radius:1.5mm;transition:background .15s,box-shadow .15s}
 [data-k]:hover,[data-bind].bind-edit:hover{background:rgba(235,204,204,.35);box-shadow:0 0 0 1px rgba(200,155,155,.55) inset}
 [data-k]:focus,[data-bind].bind-edit:focus{background:#FFF7F2;box-shadow:0 0 0 1.6pt var(--rose-deep)}
+
+/* عناصر فارغة: تملأ مساحتها كي تبقى قابلة للنقر والكتابة */
+.check li > span[data-k]{flex:1;align-self:stretch}
+.p-list li > span[data-k]{display:block;min-height:9mm}
+.cert-body > span[data-k]:empty,.sig .ln > span[data-k]:empty{display:inline-block;min-width:35mm;min-height:8mm;vertical-align:bottom}
 [data-bind]{cursor:default}
 body.edit-hint [data-k]{box-shadow:0 0 0 1px rgba(200,155,155,.4) inset}
 
