@@ -1005,12 +1005,33 @@ function enterApp() {
 }
 function bootAuth() {
   const ownerExists = db.users.some(u => u.role === 'owner');
-  if (!ownerExists) showAuthPart('setup');
-  else if (session && me()) enterApp();
+  if (!ownerExists) { $('lockScreen').style.display = 'none'; return showAuthPart('setup'); }
+  if (db.settings?.lockCode && sessionStorage.getItem('ltp_lock') !== '1') return showLock();
+  if (session && me()) enterApp();
   else { session = null; showAuthPart('login'); }
 }
+function showLock() {
+  $('authScreen').style.display = 'none';
+  $('appRoot').style.display = 'none';
+  $('lockScreen').style.display = 'flex';
+  $('lkCode').value = ''; $('lkMsg').textContent = '';
+}
+$('lkGo')?.addEventListener('click', () => {
+  if (hashPw($('lkCode').value) === db.settings?.lockCode) {
+    sessionStorage.setItem('ltp_lock', '1');
+    $('lockScreen').style.display = 'none';
+    bootAuth();
+  } else {
+    $('lkMsg').textContent = '🔒 رمز الدخول غير صحيح';
+    $('lkCode').value = '';
+  }
+});
+$('lkCode')?.addEventListener('keydown', e => { if (e.key === 'Enter') $('lkGo').click(); });
 
 document.querySelectorAll('[data-auth]').forEach(b => b.addEventListener('click', () => {
+  if (b.dataset.auth === 'register' && db.settings?.allowRegister === false) {
+    return toast('🚫 التسجيل الذاتي مغلق — اطلب من مالك المنصة إنشاء حساب لك', false);
+  }
   document.querySelectorAll('[data-auth]').forEach(x => { x.classList.remove('btn-primary'); x.classList.add('btn-ghost'); });
   b.classList.add('btn-primary'); b.classList.remove('btn-ghost');
   showAuthPart(b.dataset.auth);
@@ -1042,6 +1063,7 @@ $('lgBtn')?.addEventListener('click', () => {
 });
 
 $('rgBtn')?.addEventListener('click', () => {
+  if (db.settings?.allowRegister === false) return $('rgMsg').textContent = '🚫 التسجيل الذاتي مغلق — اطلب من مالك المنصة إنشاء حساب لك';
   const name = $('rgName').value.trim(), email = $('rgEmail').value.trim().toLowerCase(), pass = $('rgPass').value, spec = $('rgSpec').value.trim();
   if (!name || !email || !pass) return $('rgMsg').textContent = 'أكمل جميع الحقول';
   if (pass.length < 6) return $('rgMsg').textContent = 'كلمة المرور 6 أحرف على الأقل';
@@ -2178,10 +2200,39 @@ function renderSettings() {
   $('set_phone').value = s.phone || '';
   $('set_email').value = s.email || '';
   $('setDataStats').textContent = dataStatsText();
+  if ($('lkStatus')) $('lkStatus').textContent = s.lockCode ? '🔒 مقفلة برمز دخول' : '🔓 مفتوحة (بلا رمز)';
+  if ($('setRegChk')) $('setRegChk').checked = s.allowRegister !== false;
 }
+$('lkSave')?.addEventListener('click', () => {
+  if (!isOwner()) return toast('⛔ متاح للمالك فقط', false);
+  const code = $('lkNew').value.trim();
+  if (code.length < 4) return toast('الرمز 4 خانات على الأقل', false);
+  db.settings = { ...db.settings, lockCode: hashPw(code) };
+  save(); $('lkNew').value = '';
+  logAct('تفعيل/تغيير رمز قفل المنصة', '');
+  toast('🔒 تم تفعيل رمز الدخول — احفظه جيداً، لا يمكن استرجاعه');
+  renderSettings();
+});
+$('lkClear')?.addEventListener('click', () => {
+  if (!isOwner()) return toast('⛔ متاح للمالك فقط', false);
+  if (!db.settings?.lockCode) return toast('المنصة غير مقفلة أصلاً', false);
+  db.settings = { ...db.settings, lockCode: '' };
+  save();
+  logAct('إلغاء قفل المنصة', '');
+  toast('🔓 تم إلغاء القفل — المنصة متاحة لمن يملك الحساب');
+  renderSettings();
+});
+$('setRegChk')?.addEventListener('change', (e) => {
+  if (!isOwner()) { e.target.checked = db.settings?.allowRegister !== false; return toast('⛔ متاح للمالك فقط', false); }
+  db.settings = { ...db.settings, allowRegister: e.target.checked };
+  save();
+  logAct('التسجيل الذاتي', e.target.checked ? 'مسموح' : 'مغلق');
+  toast(e.target.checked ? '✅ السماح بالتسجيل الذاتي' : '🚫 أُغلق التسجيل — يدخل فقط من تنشئ له حساباً');
+});
 $('setSave')?.addEventListener('click', () => {
   if (!isOwner()) return;
   db.settings = {
+    ...db.settings,
     school: $('set_school').value.trim(), city: $('set_city').value.trim(),
     phone: $('set_phone').value.trim(), email: $('set_email').value.trim()
   };

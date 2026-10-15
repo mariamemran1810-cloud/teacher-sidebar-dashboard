@@ -84,6 +84,17 @@ td{padding:.55rem .8rem;border-bottom:1px solid #f3f4f6}
 <body class="bg-gray-100 dark:bg-gray-900 text-gray-800 dark:text-gray-100">
 
 <!-- ============ شاشة الحساب (إعداد المالك / دخول / تسجيل) ============ -->
+<div id="lockScreen" class="fixed inset-0 z-50 items-center justify-center p-4" style="display:none;background:linear-gradient(135deg,#064e3b,#115e59,#0f766e)">
+  <div style="max-width:380px;width:100%;background:#fff;border-radius:1.4rem;padding:2rem;text-align:center;box-shadow:0 20px 60px rgba(0,0,0,.3)">
+    <div style="font-size:2.6rem">🔒</div>
+    <h2 style="font-weight:900;font-size:1.15rem;margin:.3rem 0">المنصة مقفلة برمز دخول</h2>
+    <p style="font-size:.8rem;color:#6b7280">حتى لو لديك الرابط، لا يمكن فتح المنصة إلا برمز الدخول الخاص بها.</p>
+    <input id="lkCode" type="password" placeholder="أدخل رمز الدخول" style="width:100%;margin-top:1rem;border:1.5px solid #d1d5db;border-radius:.8rem;padding:.6rem .8rem;text-align:center;font-size:1rem">
+    <button id="lkGo" class="btn btn-primary w-full mt-3 justify-center">🔓 فتح المنصة</button>
+    <div id="lkMsg" style="color:#e11d48;font-size:.8rem;margin-top:.6rem;min-height:1.2rem"></div>
+    <p style="font-size:.68rem;color:#9ca3af;margin-top:.8rem">نسيت الرمز؟ يتعذر استرجاعه لأسباب أمنية — يلزم مسح بيانات الموقع من المتصفح (سيحذف كل البيانات المحلية معه).</p>
+  </div>
+</div>
 <div id="authScreen" class="fixed inset-0 z-50 flex items-center justify-center p-4" style="background:linear-gradient(135deg,#064e3b,#115e59,#0f766e)">
   <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl w-full max-w-md p-6">
     <div class="text-center mb-5">
@@ -829,6 +840,18 @@ td{padding:.55rem .8rem;border-bottom:1px solid #f3f4f6}
             <div class="field"><label>البريد الإلكتروني</label><input id="set_email"></div>
           </div>
           <button class="btn btn-primary btn-sm mt-1" id="setSave">💾 حفظ البيانات</button>
+        </div>
+        <div class="card mb-4">
+          <h3 class="section-title">🔒 حماية دخول غير الأعضاء</h3>
+          <p class="text-xs text-gray-500 mb-3">حتى لو عند أي شخص رابط المنصة — لا يراها ولا يدخلها إلا بعد الرمز ومن تسمح له المنصة.</p>
+          <div class="p-3 rounded-xl text-xs mb-3" style="background:#fef3d8">🔑 <b>رمز قفل المنصة:</b> يُطلب قبل ظهور شاشة الدخول نفسها. الرمز الحالي: <b id="lkStatus">—</b> — احفظه جيداً، <b>لا يمكن استرجاعه</b>.</div>
+          <div class="grid md:grid-cols-[1fr_auto_auto] gap-2 items-end">
+            <div class="field"><label>رمز الدخول (4 خانات فأكثر)</label><input type="password" id="lkNew" placeholder="أدخل رمزاً جديداً"></div>
+            <button class="btn btn-primary btn-sm" id="lkSave">🔒 تفعيل / تغيير الرمز</button>
+            <button class="btn btn-ghost btn-sm" id="lkClear" style="color:#e11d48">🔓 إلغاء القفل</button>
+          </div>
+          <label class="flex items-center gap-2 text-sm font-bold mt-4" style="cursor:pointer"><input type="checkbox" id="setRegChk" checked style="accent-color:#0f766e"> ✍️ السماح للجميع بإنشاء حساب (التسجيل الذاتي)</label>
+          <p class="text-xs text-gray-500 mt-1">عند إغلاق التسجيل: يختفي زر «حساب جديد» من شاشة الدخول، ولا يدخل المنصة إلا من تنشئ له حساباً من قسم «المعلمون» — حتى لو عنده الرابط وحساب قديم غير مفعّل.</p>
         </div>
         <div class="card">
           <h3 class="section-title">💾 النسخ الاحتياطي والبيانات</h3>
