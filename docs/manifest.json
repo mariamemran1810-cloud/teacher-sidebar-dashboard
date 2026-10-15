@@ -1,20 +1,36 @@
 {
-  "name": "منصة المعلم الليبي الرقمي",
-  "short_name": "المعلم الليبي",
-  "description": "منصة متكاملة للمعلم الليبي: تحضير الدروس، الاختبارات، الدرجات، الحضور، التدريب والمزيد — تعمل على الهاتف والكمبيوتر",
+  "name": "منصة المعلم",
+  "short_name": "منصة المعلم",
+  "description": "منصة متكاملة للمعلم الليبي: تحضير الدروس، المنهج الليبي، بنك الأسئلة، سجل الدرجات، الحضور، الشهادات، استوديو التصميم وألعاب الرياضيات — تعمل على الهاتف والكمبيوتر وبدون إنترنت",
   "lang": "ar",
   "dir": "rtl",
   "id": "./",
   "start_url": "./app.html",
   "scope": "./",
   "display": "standalone",
+  "display_override": ["standalone", "minimal-ui"],
   "orientation": "portrait-primary",
-  "background_color": "#0f766e",
   "theme_color": "#0f766e",
+  "background_color": "#f7f3e8",
   "categories": ["education", "productivity"],
   "icons": [
-    { "src": "icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
-    { "src": "icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
-    { "src": "icons/icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+    {
+      "src": "https://mariamemran1810-cloud.github.io/teacher-sidebar-dashboard/icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "https://mariamemran1810-cloud.github.io/teacher-sidebar-dashboard/icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "https://mariamemran1810-cloud.github.io/teacher-sidebar-dashboard/icons/icon-maskable-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
   ]
 }

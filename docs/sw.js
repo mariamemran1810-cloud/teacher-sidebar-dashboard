@@ -1,10 +1,11 @@
 /* Service Worker — منصة المعلم الليبي (PWA)
    عند تعديل أي ملف في الموقع: ارفع رقم CACHE لتجدد النسخة المخزّنة لدى الزوار */
-const CACHE = 'ltp-v6';
+const CACHE = 'ltp-v8';
 
 const ASSETS = [
   './',
   './index.html',
+  './about.html',
   './app.html',
   './css/style.css',
   './js/app.js',
