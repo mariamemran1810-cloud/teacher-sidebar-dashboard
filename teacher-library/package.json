@@ -1,0 +1,13 @@
+{
+  "name": "teacher-library",
+  "version": "1.0.0",
+  "private": true,
+  "description": "مكتبتي التعليمية للمعلمة الليبية — ملفات وسجلات عربية A4/RTL قابلة للتعديل والطباعة إلى PDF",
+  "scripts": {
+    "start": "node server.js",
+    "test": "node tests/smoke.js"
+  },
+  "engines": {
+    "node": ">=16"
+  }
+}
